@@ -1,26 +1,21 @@
 label employment_agency:
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("shops", fadein=1.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg realtor_agency
     with dissolve
 
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
-
-    show expression npcs["Charla_ea"].get_vnsprite() at Transform(align=(.9, 1.0)) as charla with dissolve
+    show expression npcs["Charla_ea"].get_vnsprite() at Transform(align=(.9, 1.0)) as charla
+    with dissolve
 
     $ ea = npcs["Charla_ea"].say
 
-    if not global_flags.has_flag("visited_employment_agency"):
-        $ global_flags.set_flag("visited_employment_agency", True)
+    if pytfall.enter_location("employment_agency", music=True, env="shops"):
         ea "Welcome to my Employment Agency, my name is Charla."
         ea "I am always on a lookout for perspective Employees and Employers."
         ea "You certainly look like one of the Employers!"
         ea "My fee for hooking you up with a capable worker is one month worth of their wages."
         ea "Take a look at the files I got on hand!"
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
     show screen employment_agency
     while 1:
@@ -38,7 +33,7 @@ label employment_agency:
                         "Yes":
                             python hide:
                                 hero.take_ap(1)
-                                renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                                PyTSFX.purchase()
                                 hero.take_money(cost, reason="Hiring Workers")
                                 hero.add_char(char)
                                 for k, v in pytfall.ea.chars.iteritems():

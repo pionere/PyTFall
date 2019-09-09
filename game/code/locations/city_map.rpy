@@ -1,32 +1,28 @@
 init python:
-    def appearing_for_city_map(mode="hide"):
+    def appearing_for_city_map(show):
         for key in pytfall.maps("pytfall"):
             if key.get("appearing", False) and not key.get("hidden", False):
-                idle_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], ".webp"])
-                if mode == "show":
-                    appearing_img = Appearing(idle_img, 50, 200, start_alpha=.1)
-                    pos = key["pos"]
-                    renpy.show(idle_img, what=appearing_img, at_list=[Transform(pos=pos)], layer="screens", zorder=2)
-                elif mode == "hide":
-                    renpy.hide(idle_img, layer="screens")
+                keyid = key["id"]
+                if show is True:
+                    img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", keyid, ".webp"])
+                    img = Appearing(img, 50, 200, start_alpha=.1)
+                    renpy.show(keyid, what=img, at_list=[Transform(pos=key["pos"])], layer="screens", zorder=2)
+                else: #if mode == "hide":
+                    renpy.hide(keyid, layer="screens")
 
 label city:
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("pytfall")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg pytfall
-    show screen city_screen
     with dissolve
 
+    $ pytfall.enter_location("city", music=True, env=None)
+
+    show screen city_screen
     while 1:
         $ result = ui.interact()
 
         hide screen city_screen
         if result[0] == "control":
             if result[1] == "return":
-                $ global_flags.set_flag("keep_playing_music")
                 $ global_flags.del_flag("mc_home_location")
                 jump mainscreen
             elif result[1] == "hero":
@@ -38,47 +34,38 @@ label city:
 
 screen city_screen():
     on "show":
-        action Function(appearing_for_city_map, "show")
+        action Function(appearing_for_city_map, True)
     on "hide":
-        action Function(appearing_for_city_map, "hide")
+        action Function(appearing_for_city_map, False)
 
-    # Keybind as we don't use the topstripe here anymore:
-    key "mousedown_3" action Return(['control', 'return'])
-
-    default maps = pytfall.maps("pytfall")
-    default loc_list = ["main_street", "arena_outside", "slave_market", "city_jail", "tavern_town",
-                        "city_parkgates", "academy_town", "mages_tower", "village_town",
-                        "graveyard_town", "city_beach", "forest_entrance", "hiddenvillage_entrance"]
+    default locs = [l for l in pytfall.maps("pytfall") if not l.get("hidden", False)]
     default selected = None
 
     add "content/gfx/images/m_1.webp" align (1.0, .0)
 
     $ prefix = "content/gfx/bg/locations/map_buttons/gismo/"
-    for key in maps:
-        if not key.get("hidden", False):
-            $ keyid = key["id"]
+    for key in locs:
+        python:
+            keyid = key["id"]
             # Resolve images + Add Appearing where appropriate:
-            $ idle_img = "".join([prefix, keyid, ".webp"])
+            idle_img = "".join([prefix, keyid, ".webp"])
             if key.get("appearing", False):
-                $ hover_img = PyTGFX.bright_img(idle_img, .08)
-                $ idle_img = im.Alpha(idle_img, alpha=.01)
+                hover_img = PyTGFX.bright_img(idle_img, .08)
+                idle_img = im.Alpha(idle_img, alpha=.01)
             else:
-                $ hover_img = "".join([prefix, keyid, "_hover.webp"])
-            if "pos" in key:
-                $ pos = key["pos"]
-            else:
-                $ pos = 0, 0
-            button:
-                style 'image_button'
-                pos pos
-                idle_background idle_img
-                hover_background hover_img
-                selected selected == keyid
-                selected_background hover_img
-                focus_mask True
-                tooltip key["name"]
-                action Return(['location', keyid])
-                alternate Return(['control', 'return'])
+                hover_img = "".join([prefix, keyid, "_hover.webp"])
+            pos = key["pos"]
+        button:
+            style "image_button"
+            pos pos
+            idle_background idle_img
+            hover_background hover_img
+            selected selected == keyid
+            selected_background hover_img
+            focus_mask True
+            tooltip key["name"]
+            action Return(["location", keyid])
+            alternate Return(["control", "return"])
 
     add "content/gfx/frame/h2.webp"
 
@@ -104,6 +91,7 @@ screen city_screen():
             hover PyTGFX.bright_img(img, .15)
             action Return(["control", "return"])
             tooltip "Return to Main Screen"
+            keysym "mousedown_3"
         $ img = im.Scale("content/gfx/interface/buttons/profile.png", 35, 40)
         imagebutton:
             idle img
@@ -150,24 +138,23 @@ screen city_screen():
     ### ----> Lower buttons (Locations) <---- ###
     side "c r":
         pos (1104, 132)
-        xysize(172, 188)
+        xysize (172, 188)
         viewport id "locations":
             draggable True
             mousewheel True
             child_size (170, 1000)
             has vbox style_group "dropdown_gm2" spacing 2
             $ prefix = "content/gfx/interface/buttons/locations/"
-            for key in maps:
+            for key in locs:
                 $ keyid = key["id"]
-                if keyid in loc_list and not key.get("hidden", False):
-                    imagebutton:
-                        xysize (160, 28)
-                        background Frame("".join([prefix, keyid, ".png"]), 5, 5)
-                        idle Null()
-                        hover Frame("content/gfx/interface/buttons/f1.png", -8, -8)
-                        hovered SetScreenVariable("selected", keyid)
-                        unhovered SetScreenVariable("selected", None)
-                        action Return(['location', keyid])
-                        #tooltip key['name']
+                imagebutton:
+                    xysize (160, 28)
+                    background Frame("".join([prefix, keyid, ".png"]), 5, 5)
+                    idle Null()
+                    hover Frame("content/gfx/interface/buttons/f1.png", -8, -8)
+                    hovered SetScreenVariable("selected", keyid)
+                    unhovered SetScreenVariable("selected", None)
+                    action Return(["location", keyid])
+                    #tooltip key['name']
 
         vbar value YScrollValue("locations")

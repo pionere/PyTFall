@@ -41,7 +41,7 @@ label test_be:
 
         global battle
         battle = BE_Core(bg="content/gfx/bg/be/b_forest_1.webp", music="random",
-                         start_sfx=get_random_image_dissolve(1.5), end_sfx=dissolve,
+                         start_gfx="random", end_gfx=dissolve,
                          use_items=True, give_up="escape", teams=[hero.team, enemy_team])
         battle.start_battle()
 

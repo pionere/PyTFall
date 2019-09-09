@@ -124,7 +124,7 @@ init python:
                 if self.chain_sfx is None:
                     pass
                 elif self.chain_sfx or self.count == 1:
-                    renpy.play(self.sfx, channel="audio")
+                    renpy.music.play(self.sfx, channel="audio")
 
             # Render everything else:
             render = renpy.Render(self.size[0] + 60, self.size[1] + 60)
@@ -281,7 +281,7 @@ init python:
             if not battle.logical:
                 gfx = Transform("poison_2", zoom=1.5)
                 renpy.show("poison", what=gfx, at_list=[Transform(pos=battle.get_cp(t, type="center"), anchor=(.5, .5))], zorder=t.besk["zorder"]+1)
-                renpy.play("content/sfx/sound/be/poisoned.mp3", channel="audio")
+                renpy.music.play("content/sfx/sound/be/poisoned.mp3", channel="audio")
                 txt = Text("%d"%damage, style="content_label", color="red", size=15)
                 renpy.show("bb", what=txt, at_list=[battle_bounce(store.battle.get_cp(t, type="tc", yo=-10))], zorder=t.besk["zorder"]+2)
                 renpy.pause(1.5*persistent.battle_speed)

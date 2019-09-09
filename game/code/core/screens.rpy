@@ -234,7 +234,7 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                     if renpy.current_screen().tag == "next_day":
                         action Return(['control', "next_day_local"])
                     else:
-                        action (hs, Function(global_flags.set_flag, "nd_music_play"), Jump("next_day"))
+                        action (hs, Jump("next_day"))
                     tooltip "Next Day"
             else:
                 null width 80 # just a placeholder to keep the top stripe more static
@@ -284,7 +284,7 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                     if renpy.current_screen().tag == "next_day":
                         action return_action
                     else:
-                        action (hs, Function(global_flags.del_flag, "keep_playing_music"), Function(global_flags.del_flag, "mc_home_location"), Jump("mainscreen"))
+                        action (hs, Function(global_flags.del_flag, "mc_home_location"), Jump("mainscreen"))
 
             if show_lead_away_buttons:
                 $ img = PyTGFX.scale_img("content/gfx/interface/buttons/profile.png", 35, 40)

@@ -1,23 +1,23 @@
 label city_beach_right:
-    $ iam.enter_location(goodtraits=["Not Human", "Alien"], badtraits=["Shy", "Coward", "Homebody", "Human"],
-                        coords=[[.4, .9], [.6, .8], [.9, .7]])
-
     scene bg city_beach_right
     with dissolve
-    show screen city_beach_right
+
+    $ pytfall.enter_location("city_beach_right", music=True, env="beach_main", coords=[(.4, .9), (.6, .8), (.9, .7)],
+                             goodtraits=["Not Human", "Alien"], badtraits=["Shy", "Coward", "Homebody", "Human"])
+
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen city_beach_right
     while 1:
         $ result = ui.interact()
 
         if result[0] == 'jump':
             python hide:
                 char = result[1]
-                iam.start_int(char, img=iam.select_beach_img_tags(char), keep_music=False)
+                iam.start_int(char, img=iam.select_beach_img_tags(char))
 
         elif result == ['control', 'return']:
-            $ global_flags.set_flag("keep_playing_music")
             hide screen city_beach_right
             jump city_beach
 

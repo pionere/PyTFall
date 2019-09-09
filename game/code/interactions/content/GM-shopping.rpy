@@ -12,22 +12,25 @@ label interactions_shopping:
     scene bg tailor_store
     with dissolve
 
-    if global_flags.has_flag('visited_tailor_store'):
-        "Welcome back!"
-        "Ah with one of your ladies. Let see what they'd like! "
-
+    $ t = npcs["Kayo_Sudou"].say
+    if pytfall.enter_location("tailor_store", music=False, env="shops"):
+        t "Welcome to my store!"
+        t "Just the best clothing you'll ever see!"
+        $ txt = "partner" if char.status == "free" else ("girl" if char.gender == "female" else "guy")
+        t "Check out our latest collection. Your [txt] will love it:"
     else:
-        $ global_flags.set_flag('visited_tailor_store')
-        "Welcome to my store!"
-        "Just the best clothing you'll ever see! "
-        "Check out our latest collection. Your girl will love it: "
+        t "Welcome back!"
+        if char.status == "free"
+            $ txt = "a lady" if char.gender == "female" else "a gentleman"
+        else:
+            $ txt = "one of your %s" % ("ladies" if char.gender == "female" else "guys")
+        t "Ah with [txt]. Let see what they'd like!"
 
     python:
         focus = False
+        purchasing_dir = None
         shop = pytfall.shops_stores["Tailor Store"]
-        shop.inventory.apply_filter('all')
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter('all')
 
     show screen tailor_store_shopping_girl
     with dissolve
@@ -64,10 +67,27 @@ label interactions_shopping:
                         result = hero.take_money(focus.price, reason="Gifts")
 
                         if result:
-                            if char.status == 'slave':
+                            if char.status == "free":
                                 for t in char.basetraits:
                                     if set(t.base_skills).intersection(focus.mod_skills):
-                                        txt =="%s will definitly make me a better %s for Master.\n" % (focus.id, t.id)
+                                        txt == "%s will definitly make me a better %s.\n" % (focus.id, t.id)
+                                        char.gfx_mod_stat('disposition', 1)
+                                        char.gfx_mod_stat("affection", affection_reward(char))
+
+                                if focus.price > 1000:
+                                    txt += "Ohh, thank you! I love the %s. Thank you so much.\n" % focus.id
+                                    char.gfx_mod_stat('disposition', 6)
+                                    char.gfx_mod_stat("affection", affection_reward(char, "gold", 1.5))
+                                    char.gfx_mod_stat('joy', 4)
+                                else:
+                                    txt += "Thank you. I like it very much.\n"
+                                    char.gfx_mod_stat('disposition', 3)
+                                    char.gfx_mod_stat("affection", affection_reward(char, "gold"))
+                                    char.gfx_mod_stat('joy', 3)
+                            else: # a slave
+                                for t in char.basetraits:
+                                    if set(t.base_skills).intersection(focus.mod_skills):
+                                        txt == "%s will definitly make me a better %s for Master.\n" % (focus.id, t.id)
                                         char.gfx_mod_stat('disposition', 1)
                                         char.gfx_mod_stat("affection", affection_reward(char))
 
@@ -94,7 +114,7 @@ label interactions_shopping:
 
                                 else:
                                     if focus.price > 1000:
-                                        txt += "MASTER! I love the %s. Thank you so much.\nShe gives you a kiss that leaves you breathless for a moment.\n"%focus.id
+                                        txt += "MASTER! I love the %s. Thank you so much.\n%s gives you a kiss that leaves you breathless for a moment.\n" % (focus.id, char.pC)
                                         char.gfx_mod_stat('disposition', 6)
                                         char.gfx_mod_stat('joy', 4)
 
@@ -102,23 +122,6 @@ label interactions_shopping:
                                         txt += "Master *KISS* Thank you Master. I like the %s.\n" % focus.id
                                         char.gfx_mod_stat('disposition', 3)
                                         char.gfx_mod_stat('joy', 3)
-                            else: # free character
-                                for t in char.basetraits:
-                                    if set(t.base_skills).intersection(focus.mod_skills):
-                                        txt =="%s will definitly make me a better %s.\n" % (focus.id, t.id)
-                                        char.gfx_mod_stat('disposition', 1)
-                                        char.gfx_mod_stat("affection", affection_reward(char))
-
-                                if focus.price > 1000:
-                                    txt += "Ohh, thank you! I love the %s. Thank you so much.\n" % focus.id
-                                    char.gfx_mod_stat('disposition', 6)
-                                    char.gfx_mod_stat("affection", 1.5, "gold")
-                                    char.gfx_mod_stat('joy', 4)
-                                else:
-                                    txt += "Thank you. I like it very much.\n"
-                                    char.gfx_mod_stat('disposition', 3)
-                                    char.gfx_mod_stat("affection", "gold")
-                                    char.gfx_mod_stat('joy', 3)
 
                             shop.inventory.remove(focus)
                             char.inventory.append(focus)
@@ -160,17 +163,12 @@ label interactions_shopping:
     with dissolve
 
     if txt !='':
-        g "[txt]"
+        char.say "[txt]"
 
-    python:
-        shop.inventory.apply_filter('all')
-        char.inventory.apply_filter('all')
-        del txt, shop, focus, purchasing_dir
+    $ PyTSFX.set_env(iam.env_cache)
 
-    scene bg gallery
-    with dissolve
+    $ del t, txt, shop, focus, purchasing_dir
     jump girl_interactions
-
 
 screen tailor_store_shopping_girl():
     frame:

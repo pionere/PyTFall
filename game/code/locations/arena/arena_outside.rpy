@@ -25,38 +25,26 @@ init -9 python:
 
 label arena_outside:
     $ setup_xeona()
-    if not global_flags.has_flag("menu_return"):
-        $ iam.enter_location(goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"],
-                            goodoccupations=["Combatant"], coords=[[.1, .6], [.59, .64], [.98, .61]])
-        # Music related:
-        if not global_flags.has_flag("keep_playing_music"):
-            $ PyTFallStatic.play_music("arena_outside")
-        $ global_flags.del_flag("keep_playing_music")
 
-        scene bg arena_outside
+    scene bg arena_outside
+    with dissolve
+
+    if pytfall.enter_location("arena", music=True, env="arena_outside", coords=[(.1, .6), (.59, .64), (.98, .61)],
+                             goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"], goodoccupations=["Combatant"]):
+        $ ax = npcs["Xeona_arena"].say
+        'You see a pretty, confident girl approaching you.'
+        show expression xeona_status.sprite as xeona
         with dissolve
-
-        # Texts: ---------------------------------------------------------->
-        if not global_flags.flag("visited_arena"):
-            $ global_flags.set_flag("visited_arena")
-            $ ax = npcs["Xeona_arena"].say
-            'You see a pretty, confident girl approaching you.'
-            show expression xeona_status.sprite as xeona
-            with dissolve
-            ax "I've never seen you before. What brings you here?"
-            ax "Lust for blood? Fame? Power? Or Respect?"
-            ax "Oh well, is there anything you'd like to know about this place?"
-            jump xeona_talking
-    else:
-        $ global_flags.del_flag("menu_return")
-        scene bg arena_outside
-
-    show screen arena_outside
+        ax "I've never seen you before. What brings you here?"
+        ax "Lust for blood? Fame? Power? Or Respect?"
+        ax "Oh well, is there anything you'd like to know about this place?"
+        jump xeona_talking
 
     # Auto-events
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen arena_outside
     while 1:
         $ result = ui.interact()
 
@@ -64,7 +52,6 @@ label arena_outside:
             $ iam.start_int(result[1], img=result[1].show("girlmeets", "armor", exclude=["swimsuit", "beach", "pool", "onsen", "bunny", "indoor", "formal", "wildness"], label_cache=True, gm_mode=True, type="reduce"))
 
         elif result[0] == "control":
-            $ renpy.music.stop(channel="gamemusic")
             hide screen arena_outside
             if result[1] == "enter_arena":
                 jump arena_inside
@@ -84,7 +71,6 @@ label xeona_menu:
 label xeona_goodbye:
     ax "Find me if you need anything, I'm always here."
     hide xeona with dissolve
-    $ global_flags.set_flag("menu_return")
     $ del ax
     jump arena_outside
 
@@ -336,6 +322,8 @@ label arena_practice_start:
         opponent, level = 0, max(hero.level, 5)
 
 label arena_practice_loop:
+    $ pytfall.enter_location("arena", music=False, env="arena_inside")
+
     show screen arena_practice
     with fade
 
@@ -364,8 +352,8 @@ label arena_practice_loop:
                 enemy_team.add(mob)
 
                 global battle
-                battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
-                    end_bg="battle_arena_1", end_sfx=dissolve, give_up="leave",
+                battle = BE_Core(bg="battle_dogfights_1", start_gfx="random",
+                    end_bg="battle_arena_1", end_gfx=dissolve, give_up="leave",
                     use_items=2, teams=[your_team, enemy_team])
                 battle.start_battle()
 
@@ -391,7 +379,6 @@ label arena_practice_end:
     with dissolve
 
     $ del opponent, level, opponents, max_lvl
-    $ global_flags.set_flag("menu_return")
     jump arena_outside
 
 screen arena_outside:

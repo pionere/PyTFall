@@ -15,9 +15,7 @@ label aine_menu:
         repeat
     with dissolve
 
-    if not global_flags.flag("met_aine"):
-        $ global_flags.set_flag("met_aine")
-
+    if pytfall.enter_location("aine", music=True, env=None):
         a "Well now, a magic practitioner... "
         extend " Hello dear, I am Aine!"
 
@@ -25,10 +23,10 @@ label aine_menu:
             "What are you doing here?":
                 a "How Rude! I go wherever I please, and I can take care of myself!"
                 a "Not mentioning that this is a really nice place and very few people can see me!"
-            "A leprechaun? Here in the park?" if not global_flags.has_flag("met_peevish"):
+            "A leprechaun? Here in the park?" if not global_flags.has_flag("visited_peevish"):
                 a "Yes, why not? This place is as good as anywhere else!"
                 a "Or maybe even better. It is not so crowded and a pleasant location for someone like me."
-            "I've met someone called Peevish..." if global_flags.has_flag("met_peevish"):
+            "I've met someone called Peevish..." if global_flags.has_flag("visited_peevish"):
                 a "That rude, good for nothing, useless excuse for a brother... well, you don't get to choose family..."
 
         $ temp = BE_Core.TYPE_TO_COLOR_MAP

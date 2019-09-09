@@ -170,8 +170,8 @@ init -950 python:
 
     # Registration of extra music channels:
     renpy.music.register_channel("events", "sfx", False, file_prefix="content/sfx/sound/")
-    renpy.music.register_channel("events2", "sfx", False,  file_prefix="content/sfx/sound/")
-    renpy.music.register_channel("world", "music", True, file_prefix="content/sfx/music/world/")
+    renpy.music.register_channel("events2", "sfx", False, file_prefix="content/sfx/sound/")
+    renpy.music.register_channel("world", "sfx", True, file_prefix="content/sfx/sound/world/") # keep in sync with PyTSFX
     renpy.music.register_channel("gamemusic", "music", True, file_prefix="content/sfx/music/")
 
     ######################## Classes/Functions ###################################

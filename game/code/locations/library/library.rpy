@@ -23,17 +23,11 @@ init python:
             book.append((text, kwargs))
 
 label academy_town:
-    $ iam.enter_location(badtraits=["Adventurous", "Slime", "Monster"], goodtraits=["Curious"],
-                        has_tags=["girlmeets", "schoolgirl"], coords=[[.1, .55], [.45, .64], [.86, .65]])
-    # Music
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("library", fadein=.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg academy_town
     with dissolve
-    if not global_flags.has_flag('visited_library'):
-        $ global_flags.set_flag('visited_library')
+
+    if pytfall.enter_location("library", music=True, env="library", coords=[(.1, .55), (.45, .64), (.86, .65)],
+                            badtraits=["Adventurous", "Slime", "Monster"], goodtraits=["Curious"], has_tags=["girlmeets", "schoolgirl"]):
         $ golem = npcs["Eleven"]
         $ e = golem.say
         $ golem.override_portrait("portrait", "indifferent")
@@ -49,23 +43,28 @@ label academy_town:
         hide npc with dissolve
         $ del e, golem
 
-    show screen academy_town
-
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen academy_town
     while 1:
         $ result = ui.interact()
 
         if result[0] == 'jump':
             $ iam.start_int(result[1], img=result[1].show("girlmeets", "schoolgirl", "indoors", exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen"], type="reduce", label_cache=True, gm_mode=True))
 
-        elif result == ['control', 'return']:
+        elif result[0] == "control":
             hide screen academy_town
-            jump city
+            if result[1] == "return":
+                jump city
+            elif result[1] == "eleven":
+                jump library_eleven_dialogue
+            elif result[1] == "read":
+                jump library_read_matrix
+            elif result[1] == "study":
+                jump mc_action_library_study
 
 label library_eleven_dialogue:
-    hide screen academy_town
     $ golem = npcs["Eleven"]
     $ e = golem.say
     $ golem.override_portrait("portrait", "indifferent")
@@ -151,7 +150,6 @@ label library_eleven_dialogue:
         "Leave him be":
             "You step away, and the light in his eyes dims."
             hide npc with dissolve
-            $ global_flags.set_flag("keep_playing_music")
             $ del e, golem
             jump academy_town
 
@@ -162,9 +160,9 @@ screen academy_town():
     frame:
         has vbox
         textbutton "Find Eleven":
-            action Jump("library_eleven_dialogue")
+            action Return(["control", "eleven"])
         textbutton "Read the books":
-            action Jump("library_read_matrix")
+            action Return(["control", "read"])
         textbutton "Meet Girls":
             action ToggleField(iam, "show_girls")
 
@@ -176,13 +174,10 @@ screen academy_town():
             pos (720, 340)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("academy_town"), Jump("mc_action_library_study")]
+            action Return(["control", "study"])
             tooltip "Study"
 
 label library_read_matrix:
-    hide screen academy_town
-    scene bg academy_town
-
     if not hasattr(store, "lib_books"):
         $ lib_books = LibraryBooks()
 
@@ -193,7 +188,6 @@ label library_read_matrix:
         with dissolve
     else:
         $ del lib_books
-        $ global_flags.set_flag("keep_playing_music") 
         jump academy_town
 
 screen library_show_text(book):
@@ -233,7 +227,6 @@ label mc_action_library_study:
             "Yes":
                 $ pass
             "No":
-                $ global_flags.set_flag("keep_playing_music")
                 jump academy_town
 
     if hero.gold < len(hero.team) * 250:
@@ -243,7 +236,6 @@ label mc_action_library_study:
             "You don't have enough gold to cover the fee."
 
         "The fee is 250 Gold per person."
-        $ global_flags.set_flag("keep_playing_music")
         jump academy_town
 
     $ members = hero.team
@@ -261,7 +253,6 @@ label mc_action_library_study:
             "You don't have Action Points left. Try again tomorrow."
 
         "Each member of your party must have 1 AP."
-        $ global_flags.set_flag("keep_playing_music")
         $ del members, team_ap, team_pp
         jump academy_town
 
@@ -302,7 +293,6 @@ label mc_action_library_study:
             "You cound not find anything interesting..."
     $ members.take_ap(team_ap)
     $ del result, members, team_ap, team_pp
-    $ global_flags.set_flag("keep_playing_music")
     jump academy_town
 
 screen library_study():

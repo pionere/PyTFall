@@ -10,14 +10,12 @@ label swinger_club_adv(event):
     a "Uhh.. sorry, gotta go! Bye."
     $ del a
     $ global_flags.set_flag("know_swinger_club", 1)
-    $ global_flags.set_flag("keep_playing_music")
     return
 
 label swinger_club:
     hide screen main_street
     if calendar.weekday() != "Thursday":
         "There is nothing here."
-        $ global_flags.set_flag("keep_playing_music")
         jump main_street
 
     $ a = Character("???", color="orangered", show_two_window=True)
@@ -32,7 +30,6 @@ label swinger_club:
         a "Ohh, and obviously the more distinguished members can spend more time in our fine estabilishment."
         a "Come back when you feel ready!"
         $ global_flags.set_flag("know_swinger_club", 2)
-        $ global_flags.set_flag("keep_playing_music")
         $ del a
         jump main_street
     elif global_flags.get_flag("know_swinger_club") == 2:
@@ -43,12 +40,10 @@ label swinger_club:
             "Yes":
                 $ global_flags.set_flag("know_swinger_club", 3)
             "No":
-                $ global_flags.set_flag("keep_playing_music")
                 $ del a
                 jump main_street
     elif hero.has_flag("dnd_swinger_club"):
         a "Sorry, the party is over."
-        $ global_flags.set_flag("keep_playing_music")
         $ del a
         jump main_street
     else:
@@ -64,13 +59,11 @@ label swinger_club:
                     if m.status != "slave":
                         iam.dispo_reward(m, -100)
             "Your team members are disgusted that you brought them to such place and force you to leave."
-        $ global_flags.set_flag("keep_playing_music")
         $ del a, partners
         jump main_street
 
     if not hero.take_money(10000, "Swinger Club"):
         a "I think you forgot about the entry fee."
-        $ global_flags.set_flag("keep_playing_music")
         $ del a, partners
         jump main_street
 
@@ -82,7 +75,7 @@ label swinger_club:
     with dissolve
 
     # FIXME play relevant music
-    #$ PyTFallStatic.play_music("club")
+    #$ PyTSFX.play_music("club")
 
     $ hero.set_flag("dnd_swinger_club")
     $ hero.mod_stat("reputation", -randint(0, 1))

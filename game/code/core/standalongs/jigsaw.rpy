@@ -32,7 +32,7 @@ init python:
         a.append((drag, 3, 3))
         drop.drag_joined(a)
 
-        renpy.music.play("content/sfx/sound/jp/Pat.mp3", channel="sound")
+        renpy.sound.play("content/sfx/sound/events/Pat.mp3")
 
         my_x = int(p_x*axsize+field_offset_x)
         my_y = int(p_y*aysize+field_offset_y)

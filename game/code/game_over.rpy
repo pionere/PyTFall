@@ -1,16 +1,17 @@
 label game_over:
-    stop music
-    stop world
-    show screen game_over
+    #$ pytfall.enter_location("game_over", music=False, env=None)
+    python hide:
+        for i in renpy.audio.audio.channels:
+            renpy.audio.audio.channels[i].callback = None # FIXME should not be necessary
+            renpy.music.stop(i)
+    $ hs()
+    scene bg game_over
     with dissolve
-    play sound "content/sfx/sound/world/game_over.mp3"
-    $ renpy.pause(1)
-    return
+    show screen game_over
+    play events "events/game_over.mp3"
+    $ ui.interact()
 
 screen game_over:
-    zorder 100**9
-    modal True
-
-    add "bg game_over"
     timer 6.0 action MainMenu(confirm=False)
-    key "mousedown_1" action Stop("sound"), MainMenu(confirm=False)
+    key "mousedown_1" action Stop("events"), MainMenu(confirm=False)
+    key "mousedown_3" action Stop("events"), MainMenu(confirm=False)

@@ -15,7 +15,7 @@ label mc_setup:
     scene bg mc_setup
     show screen mc_setup
     with dissolve
-    play music "content/sfx/music/world/foregone.ogg" fadein 1.0 fadeout 1.0
+    play music "content/sfx/music/context/setup.ogg" fadein 1.0 fadeout 1.0
 
     $ global_flags.set_flag("game_start")
 

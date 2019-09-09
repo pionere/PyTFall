@@ -1,40 +1,50 @@
 label city_beach:
-    $ iam.enter_location(goodtraits=["Energetic", "Exhibitionist"], badtraits=["Scars", "Undead", "Furry", "Monster", "Not Human"],
-                        coords=[[.14, .65], [.42, .6], [.85, .45]])
-
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("beach_main")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg city_beach
     with dissolve
 
-    if not global_flags.flag('visited_city_beach'):
-        $ global_flags.set_flag('visited_city_beach')
+    if pytfall.enter_location("city_beach", music=True, env="beach_main", coords=[(.14, .65), (.42, .6), (.85, .45)],
+                             goodtraits=["Energetic", "Exhibitionist"], badtraits=["Scars", "Undead", "Furry", "Monster", "Not Human"]):
         "Welcome to the beach!"
         "Sand, sun, and girls in bikinis, what else did you expect?"
         "Oh, we might have a Kraken hiding somewhere as well :)"
 
-    show screen city_beach
-
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen city_beach
     while 1:
         $ result = ui.interact()
 
-        if result[0] == 'jump':
+        if result[0] == "ocean":
+            hide screen city_beach_ocean
+            if result[1] == "swim":
+                jump city_beach_swimming_checks
+            elif result[1] == "dive":
+                jump mc_action_city_beach_diving_checks
+            elif result[1] == "about":
+                jump city_beach_about_swimming
+            elif result[1] == "leave":
+                show screen city_beach
+                with dissolve
+        elif result[0] == "jump":
             python hide:
                 char = result[1]
                 iam.start_int(char, img=iam.select_beach_img_tags(char))
-
-        elif result == ['control', 'return']:
+        elif result[0] == "control":
             hide screen city_beach
-            with dissolve
-            jump city
+            if result[1] == "return":
+                jump city
+            elif result[1] == "right":
+                jump city_beach_right
+            elif result[1] == "left":
+                jump city_beach_left
+            elif result[1] == "pool":
+                jump swimming_pool
+            elif result[1] == "ocean":
+                show screen city_beach_ocean
+                with dissolve
 
-screen city_beach():
+screen city_beach:
     use top_stripe(True)
 
     style_prefix "action_btns"
@@ -54,21 +64,21 @@ screen city_beach():
             align (.99, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach"), Jump("city_beach_right")]
+            action Return(["control", "right"])
 
         $ img = im.Flip(img, horizontal=True)
         imagebutton:
             align (.01, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach"), Function(global_flags.set_flag, "keep_playing_music"), Jump("city_beach_left")]
+            action Return(["control", "left"])
 
         $ img = im.Scale("content/gfx/interface/icons/swimming_pool.png", 60, 60)
         imagebutton:
             pos (1040, 80)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach"), Jump("swimming_pool")]
+            action Return(["control", "pool"])
             tooltip "Swimming Pool"
 
         $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
@@ -76,30 +86,29 @@ screen city_beach():
             pos (280, 240)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach"), Show("city_beach_swim"), With(dissolve)]
+            action Return(["control", "ocean"])
             tooltip "Swim"
 
-screen city_beach_swim():
+screen city_beach_ocean:
     style_prefix "action_btns"
     frame:
         has vbox
         textbutton "Swim":
-            action Hide("city_beach_swim"), Jump("city_beach_swimming_checks")
+            action Return(["control", "swim"])
         if hero.get_skill("swimming") >= 150:
             textbutton "Diving":
-                action Hide("city_beach_swim"), Jump("mc_action_city_beach_diving_checks")
+                action Return(["control", "dive"])
         if global_flags.has_flag('constitution_bonus_from_swimming_at_beach'):
             textbutton "About swimming":
-                action Hide("city_beach_swim"), Jump("city_beach_about_swimming")
+                action Return(["control", "about"])
         textbutton "Leave":
-            action Hide("city_beach_swim"), Show("city_beach"), With(dissolve)
+            action Return(["control", "leave"])
             keysym "mousedown_3"
 
 label city_beach_about_swimming:
     "By swimming here you can increase max constitution and, if you manage to avoid sea monsters, agility."
     "But you need high enough swimming skill. Consider practicing in the swimming pool first."
     "With high enough swimming skill you can try diving, where you can obtain some valuable items."
-    $ global_flags.set_flag("keep_playing_music")
     jump city_beach
 
 label city_beach_swimming_checks:
@@ -183,7 +192,6 @@ label city_beach_swimming_checks:
 
         $ del swim_act, swim_vit, temp
 
-    $ global_flags.set_flag("keep_playing_music")
     jump city_beach
 
 label city_beach_monsters_fight:
@@ -274,8 +282,10 @@ label mc_action_city_beach_diving_checks:
         "You don't have Action Points at the moment. Try again tomorrow."
         jump city_beach
 
-    play world "underwater.mp3"
-    scene bg ocean_underwater_1 with dissolve
+    scene bg ocean_underwater_1
+    with dissolve
+
+    $ pytfall.enter_location("city_beach", music=False, env="underwater")
 
     python:
         i = round_int(hero.get_skill("swimming")/2)

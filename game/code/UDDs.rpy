@@ -470,6 +470,14 @@ init -960 python:
             return movie
 
         @staticmethod
+        def get_random_image_dissolve(time):
+            dir = content_path("gfx", "masks")
+            transitions = [file for file in listfiles(dir) if check_image_extension(file)]
+            if transitions:
+                image = os.path.join(dir, choice(transitions))
+                return ImageDissolve(image, time)
+
+        @staticmethod
         def gen_randmotion(count, dist, delay):
             args = [ ]
             for i in xrange(count):
@@ -1284,10 +1292,3 @@ init python:
             return .01
         else:
             return None
-
-    def get_random_image_dissolve(time):
-        dir = content_path("gfx", "masks")
-        transitions = [file for file in listfiles(dir) if check_image_extension(file)]
-        if transitions:
-            image = os.path.join(dir, choice(transitions))
-            return ImageDissolve(image, time)

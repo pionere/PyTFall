@@ -1,20 +1,9 @@
 label realtor_agency:
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("shops", fadein=1.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg realtor_agency
     with dissolve
 
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
-
     $ g = npcs["Rose_estate"].say
-
-    if global_flags.has_flag("visited_ra"):
-        "The room is still bright and filled with the same sweet scent."
-    else:
+    if pytfall.enter_location("realtor", music=True, env="shops"):
         $ nvl_ra = Character(None, kind=nvl)
         nvl_ra "After entering the real-estate office, the first thing that hit you was the brightness."
         nvl_ra "It was far brighter than the outside world. Your eyes quickly adapted and you noticed the source of the light."
@@ -36,15 +25,19 @@ label realtor_agency:
 
         hide rose
         $ del nvl_ra
-        $ global_flags.set_flag("visited_ra")
+    else:
+        "The room is still bright and filled with the same sweet scent."
     show expression npcs["Rose_estate"].get_vnsprite() at right as rose with dissolve
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
     $ market_buildings = sorted(set(buildings.values()) - set(hero.buildings), key=attrgetter("id"))
     $ focus = None
     if not market_buildings:
         g "I'm sorry, we don't have anything for sale at the moment."
-    show screen realtor_agency
 
+    show screen realtor_agency
     while 1:
         $ result = ui.interact()
 
@@ -57,7 +50,7 @@ label realtor_agency:
                 show screen message_screen("You don't have enough Gold!")
             else:
                 $ hero.take_ap(1)
-                $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                $ PyTSFX.purchase()
                 $ hero.add_building(result[1])
                 $ market_buildings.remove(result[1])
                 $ focus = None

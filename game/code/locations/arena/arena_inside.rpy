@@ -1,11 +1,13 @@
 label arena_inside:
-    # Music related:
-    $ PyTFallStatic.play_music("arena_inside", fadein=1.5)
-
     scene bg battle_arena_1
-    show screen arena_inside
-    with fade
+    with dissolve
 
+    $ pytfall.enter_location("arena_inside", music=True, env="arena_inside")
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
+
+    show screen arena_inside
     # Predicting:
     python:
         arena_img_predict = ["chainfights", "bg battle_dogfights_1", "bg battle_arena_1"]
@@ -17,9 +19,6 @@ label arena_inside:
     python hide:
         for scr in store.arena_scr_predict:
             renpy.start_predict_screen(scr)
-
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
     $ renpy.retain_after_load()
 
     while 1:
@@ -81,7 +80,6 @@ label arena_inside_end:
             renpy.stop_predict_screen(scr)
     $ del arena_img_predict, arena_scr_predict
 
-    stop world fadeout 1.5
     hide screen arena_inside
     jump arena_outside
 
@@ -891,29 +889,21 @@ init: # Main Screens:
         default r_member = r_team[0]
 
         if result is True:
-            on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
-            on "hide" action Stop(channel="music", fadeout=1.0)
-
-            add "content/gfx/images/battle/victory_l.webp" at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7, wait=0)
-            add "content/gfx/images/battle/victory_r.webp" at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
-            add "content/gfx/images/battle/battle_c.webp" at fade_from_to(start_val=.5, end_val=1.0, t=2.0, wait=0)
-            add "content/gfx/images/battle/victory.webp":
-                align (.5, .5)
-                at simple_zoom_from_to_with_easein(start_val=50.0, end_val=1.0, t=2.0)
+            $ res = "victory"
         elif result is False:
-            add "content/gfx/images/battle/defeat_l.webp" at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7)
-            add "content/gfx/images/battle/defeat_r.webp" at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
-            add "content/gfx/images/battle/battle_c.webp" at fade_from_to(start_val=.5, end_val=1.0, t=2.0, wait=0)
-            add "content/gfx/images/battle/defeat.webp":
-                align (.5, .5)
-                at simple_zoom_from_to_with_easein(start_val=50.0, end_val=1.0, t=2.0)
+            $ res = "defeat"
         else:
-            add "content/gfx/images/battle/draw_l.webp" at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7)
-            add "content/gfx/images/battle/draw_r.webp" at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
-            add "content/gfx/images/battle/battle_c.webp" at fade_from_to(start_val=.5, end_val=1.0, t=2.0, wait=0)
-            add "content/gfx/images/battle/draw.webp":
-                align (.5, .5)
-                at simple_zoom_from_to_with_easein(start_val=50.0, end_val=1.0, t=2.0)
+            $ res = "draw"
+
+        on "show" action Play("sound", "content/sfx/sound/arena/%s_screen_%d.mp3"%(res,randint(1, 2)))
+        on "hide" action Stop("sound")
+
+        add "content/gfx/images/battle/%s_l.webp"%res at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7)
+        add "content/gfx/images/battle/%s_r.webp"%res at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
+        add "content/gfx/images/battle/battle_c.webp" at fade_from_to(start_val=.5, end_val=1.0, t=2.0, wait=0)
+        add "content/gfx/images/battle/%s.webp"%res:
+            align (.5, .5)
+            at simple_zoom_from_to_with_easein(start_val=50.0, end_val=1.0, t=2.0)
 
         frame:
             background Null()
@@ -1094,8 +1084,8 @@ init: # ChainFights vs Mobs:
         zorder 2
         modal True
 
-        on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
-        on "hide" action Stop(channel="music", fadeout=1.0)
+        on "show" action Function(pytfall.enter_location, "arena_inside", music="content/sfx/music/context/mini_game.mp3", env=None)
+        #on "hide" action Function(pytfall.enter_location, "arena_inside", music=False, env=None) #Stop(channel="world", fadeout=1.0)
 
         default rolled = None
 
@@ -1163,6 +1153,9 @@ init: # ChainFights vs Mobs:
     screen confirm_chainfight(setup, encounter, off_leader, mob_leader):
         modal True
 
+        on "show" action Play("sound", "content/sfx/sound/arena/prepare_chain_%d.mp3" % randint(1, 2))
+        on "hide" action Stop("sound")
+
         # Fight Number:
         text "Round  [encounter]":
             at move_from_to_pos_with_ease(start_pos=(560, -100), end_pos=(560, 150), t=.7)
@@ -1218,8 +1211,8 @@ init: # ChainFights vs Mobs:
 
         default winner = w_team[0]
 
-        on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
-        on "hide" action Stop(channel="music", fadeout=1.0)
+        on "show" action Play("sound", "content/sfx/sound/arena/victory_screen_%d.mp3" % randint(1, 2))
+        on "hide" action Stop("sound")
 
         key "mousedown_3" action Return(True)
         timer 9.0 action Return(True)

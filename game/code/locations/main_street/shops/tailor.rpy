@@ -1,22 +1,10 @@
 label tailor_store:
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("shops", fadein=1.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg tailor_store
     with dissolve
 
     $ t = npcs["Kayo_Sudou"].say
-
-    if global_flags.has_flag('visited_tailor_store'):
-        show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
-        with dissolve
-        t "Welcome back, take a look at our latest arrivals!"
-    else:
-        $ global_flags.set_flag('visited_tailor_store')
-
-        "You entered the shop. The shelves are filled with colorful silks, and some exquisite dresses are displayed on the mannequins. Noticing your arrival, a tailor lady comes in from the back room and approaches you."
+    if pytfall.enter_location("tailor_store", music=True, env="shops"):
+        "You enter the shop. The shelves are filled with colorful silks, and some exquisite dresses are displayed on the mannequins. Noticing your arrival, a tailor lady comes in from the back room and approaches you."
 
         show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
         with dissolve
@@ -24,6 +12,10 @@ label tailor_store:
         t "Oh, a new customer! Welcome to my store."
         t "I'm honored to present you our wares. All pieces you see were acquired from the most renowned merchants. "
         t "But If you have any special requests, just tell me. I'm sure I will be able to help you."
+    else:
+        show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
+        with dissolve
+        t "Welcome back, take a look at our latest arrivals!"
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")

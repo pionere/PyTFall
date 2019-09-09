@@ -1,16 +1,9 @@
 label swimming_pool:
-    $ iam.enter_location(has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"],
-                        coords=[[.2, .45], [.42, .6], [.7, .5]])
-    # Music
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("swimming_pool")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg swimming_pool
     with dissolve
 
-    if not global_flags.has_flag('visited_swimming_pool'):
-        $ global_flags.set_flag('visited_swimming_pool')
+    if pytfall.enter_location("swimming_pool", music=True, env="swimming_pool", coords=[(.2, .45), (.42, .6), (.7, .5)],
+                             has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"]):
         $ block_say = True
         show expression npcs["Henry_beach"].get_vnsprite() as henry
         $ h = npcs["Henry_beach"].say
@@ -21,22 +14,15 @@ label swimming_pool:
         hide henry
         $ del h
 
-    show screen swimming_pool
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen swimming_pool
     while 1:
         $ result = ui.interact()
 
-        if result == "swim":
-            hide screen swimming_pool
-            show screen swimmong_pool_swim
-            with dissolve
-        elif result == "leave":
-            hide screen swimming_pool
-            jump city_beach
-        elif result[0] == "pool":
-            hide screen swimmong_pool_swim
+        if result[0] == "pool":
+            hide screen swimming_pool_swim
             $ result = result[1]
             if result == "swim":
                 jump single_swim_pool
@@ -51,10 +37,17 @@ label swimming_pool:
             python hide:
                 char = result[1]
                 iam.start_int(char, img=iam.select_beach_img_tags(char, "pool"))
+        elif result[0] == "control":
+            hide screen swimming_pool
+            if result[1] == "swim":
+                show screen swimming_pool_swim
+                with dissolve
+            elif result[1] == "return":
+                jump city_beach
 
 
 screen swimming_pool():
-    use top_stripe(True, return_button_action=Return("leave"))
+    use top_stripe(True)
 
     style_prefix "action_btns"
     frame:
@@ -72,16 +65,16 @@ screen swimming_pool():
             align (.01, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action Return("leave")
+            action Return(["control", "return"])
 
         $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
         imagebutton:
             pos (290, 510)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action Return("swim")
+            action Return(["control", "swim"])
 
-screen swimmong_pool_swim():
+screen swimming_pool_swim():
     style_prefix "action_btns"
     frame:
         has vbox
@@ -101,9 +94,10 @@ label single_swim_pool:
     elif hero.get_stat("health") < hero.get_max("health")/2:
         "You are too wounded at the moment."
     elif hero.take_money(10, reason="Swimming Pool"):
-        play world "underwater.mp3"
         scene bg pool_swim
         with dissolve
+
+        $ pytfall.enter_location("swimming_pool", music=False, env="underwater")
 
         $ hero.take_ap(1)
         $ temp = hero.get_skill("swimming")
@@ -138,7 +132,6 @@ label single_swim_pool:
         jump swimming_pool
     else:
         "You don't have enough gold."
-    $ global_flags.set_flag("keep_playing_music")
     jump swimming_pool
 
 label instructor_swim_pool:
@@ -147,9 +140,10 @@ label instructor_swim_pool:
     elif hero.get_stat("health") < hero.get_max("health")/2:
         "You are too wounded at the moment."
     elif hero.take_money(50, reason="Swimming Pool"):
-        play world "underwater.mp3"
         scene bg pool_swim
         with dissolve
+
+        $ pytfall.enter_location("swimming_pool", music=False, env="underwater")
 
         $ hero.take_ap(1)
         $ temp = hero.get_skill("swimming")
@@ -189,7 +183,6 @@ label instructor_swim_pool:
         jump swimming_pool
     else:
         "You don't have enough Gold."
-    $ global_flags.set_flag("keep_playing_music")
     jump swimming_pool
 
 label mc_action_work_swim_pool: # here we could use an option to meet characters with a certain probability
@@ -451,7 +444,6 @@ label mc_action_work_swim_pool: # here we could use an option to meet characters
         hide expression picture with dissolve
         $ del picture, spool_group
 
-    $ global_flags.set_flag("keep_playing_music")
     jump swimming_pool
 
 label swimming_pool_build_group:
@@ -473,7 +465,7 @@ label swimming_pool_build_group:
         else:
             $ trainee = result[1]
             if result[0] == "interact":
-                $ iam.start_int(trainee[0], img=iam.select_beach_img_tags(char, "pool"), exit="swimming_pool_build_group", bg="swimming_pool")
+                $ iam.start_int(trainee[0], img=iam.select_beach_img_tags(char, "pool"), exit="swimming_pool_build_group", bg=["swimming_pool", "swimming_pool"])
             elif result[0] == "dismiss":
                 $ spool_group.members.remove(trainee)
                 $ iam.dispo_reward(trainee[0], -randint(8, 12))

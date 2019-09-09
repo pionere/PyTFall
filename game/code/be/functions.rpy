@@ -79,19 +79,6 @@ init -11 python:
 
         return battle
 
-    def get_random_battle_track():
-        # get a list of all battle tracks:
-        folder = content_path("sfx", "music", "be")
-        battle_tracks = [fn for fn in listfiles(folder) if check_music_extension(fn)]
-        return os.path.join(folder, choice(battle_tracks))
-
-    def be_hero_escaped(team):
-        '''Punish team for escaping'''
-        for i in team:
-            i.PP = 0
-            mod_by_max(i, "vitality", -.3)
-            mod_by_max(i, "mp", -.3)
-
     def run_default_be(enemy_team, your_team=None,
                        background="battle_arena_1", end_background=None,
                        track="random", skill_lvl=float("inf"), give_up=None,
@@ -122,8 +109,8 @@ init -11 python:
         pre_aps = [member.PP for member in your_team]
 
         global battle
-        battle = BE_Core(bg=background, start_sfx=get_random_image_dissolve(1.5),
-                    end_bg=end_background, end_sfx=dissolve,
+        battle = BE_Core(bg=background, start_gfx="random",
+                    end_bg=end_background, end_gfx=dissolve,
                     music=track, quotes=prebattle,
                     max_skill_lvl=skill_lvl, give_up=give_up,
                     use_items=use_items, teams=[your_team, enemy_team])
@@ -142,7 +129,11 @@ init -11 python:
 
         rv = battle.combat_status
         if rv == "escape":
-            be_hero_escaped(your_team)
+            # Punish team for escaping
+            for i in your_team:
+                i.PP = 0
+                mod_by_max(i, "vitality", -.3)
+                mod_by_max(i, "mp", -.3)
         elif rv != "surrender":
             rv = battle.win
             if rv is True:

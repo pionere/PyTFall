@@ -1,27 +1,18 @@
 label village_town:
-    $ iam.enter_location(goodtraits=["Scars", "Undead", "Furry", "Monster", "Not Human", "Aggressive", "Vicious", "Sadist", "Assassin"],
-                        badtraits=["Sexy Air", "Virtuous", "Optimist", "Peaceful", "Elegant", "Energetic", "Exhibitionist", "Divine Creature", "Healer", "Knight"],
-                        goodoccupations=["SIW"], coords=[[.2, .7], [.45, .72], [.75, .7]])
-
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("Town")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg village_town
     with dissolve
 
-    if not global_flags.flag('visited_village_town'):
-        $ global_flags.set_flag('visited_village_town')
+    if pytfall.enter_location("village_town", music=True, env="town", coords=[(.2, .7), (.45, .72), (.75, .7)],
+                             goodtraits=["Scars", "Undead", "Furry", "Monster", "Not Human", "Aggressive", "Vicious", "Sadist", "Assassin"], goodoccupations=["SIW"],
+                             badtraits=["Sexy Air", "Virtuous", "Optimist", "Peaceful", "Elegant", "Energetic", "Exhibitionist", "Divine Creature", "Healer", "Knight"]):
         "The 'slums' of the city..."
         "The home of poor, miscreants and lawbreakers."
         "Not to mention an occasional escaped slave."
 
-    show screen village_town
-
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen village_town
     while 1:
         $ result = ui.interact()
         if result[0] == 'jump':
@@ -55,11 +46,10 @@ screen village_town:
             action [Hide("village_town"), Jump("village_town_work")]
 
 label village_town_work:
-    scene bg workshop with dissolve
+    scene bg workshop
+    with dissolve
 
-    if not global_flags.flag('visited_village_town_work'):
-        $ global_flags.set_flag('visited_village_town_work')
-
+    if pytfall.enter_location("village_town_work", music=False, env="town"): # FIXME env?
         $ n = npcs["NKCell_town"].say
         show expression npcs["NKCell_town"].get_vnsprite() as npc
         with dissolve
@@ -86,7 +76,6 @@ label village_town_work:
         "Work" if hero.PP > 0:
             $ time_limit = None
         "Leave":
-            $ global_flags.set_flag("keep_playing_music")
             jump village_town
 
     python:
@@ -383,6 +372,5 @@ label village_town_work_end:
 
     $ renpy.stop_predict(*[item.icon for item in sources])
     $ del source_items, moving_items, basket, hand_item, hand_protection, next_pp_time, used_pp, running, last_time, sources, time_limit, item
-    $ global_flags.set_flag("keep_playing_music")
     jump village_town
     

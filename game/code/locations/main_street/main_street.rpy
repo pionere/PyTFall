@@ -1,21 +1,14 @@
 label main_street:
-    $ iam.enter_location(goodtraits=["Human", "Kleptomaniac"], badtraits=["Not Human", "Alien", "Strange Eyes"],
-                        coords=[[.1, .7], [.57, .54], [.93, .61]])
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("main_street")
-    $ global_flags.del_flag("keep_playing_music")
-
-    #$ global_flags.set_flag("visited_mainstreet", True)
-
     scene bg main_street
     with dissolve
+
+    $ pytfall.enter_location("main_street", music=True, env="main_street", coords=[(.1, .7), (.57, .54), (.93, .61)],
+                             goodtraits=["Human", "Kleptomaniac"], badtraits=["Not Human", "Alien", "Strange Eyes"])
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
     show screen main_street
-
     while 1:
         $ result = ui.interact()
 

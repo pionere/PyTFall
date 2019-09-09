@@ -27,7 +27,7 @@ label intro:
     hide txt2
     with dissolve
 
-    play world "intro-1.mp3" fadein 2.0 fadeout 2.0
+    play music "content/sfx/music/intro/intro-1.mp3" fadein 2.0 fadeout 2.0
     "Through trade and seemingly endless supply of slaves from the City of Crossgate, which grew from a small provincial city into the Slave Trade capital of the world in a matter of years, many new city-states arose."
 
     show bg story dark_city with dissolve
@@ -81,7 +81,8 @@ label intro:
     show expression hes:
         linear 3 alpha 0
     $ renpy.pause (3.0, hard=True)
-    play world "tremor.mp3" fadein 2.0 fadeout 2.0
+    stop music
+    play events "events/tremor.mp3" fadein 2.0 fadeout 2.0
     scene black with dissolve
     show bg story dark_city with dissolve
     pause 1.0
@@ -93,7 +94,7 @@ label intro:
         alpha 0
         linear 2.0 alpha 1.0
     $ renpy.pause (1.0, hard=True)
-    play music "content/sfx/music/intro-2.mp3" fadeout 2.0
+    play music "content/sfx/music/intro/intro-2.mp3" fadeout 2.0
     $ flash = Fade(.75, 0.25, .75, color="darkred")
     $ sflash = Fade(.25, 0, .25, color="darkred")
     show bg story sky2 with flash

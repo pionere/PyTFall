@@ -1,34 +1,18 @@
 label cafe:
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("shops", fadein=1.5)
-    $ global_flags.del_flag("keep_playing_music")
-
-    if global_flags.get_flag("waitress_cafe", [-1])[0] != day:
-        python hide:
-            who = global_flags.get_flag("waitress_ice", [0, None])
-            who = getattr(who[1], "id", None)
-            who = [w for w in ["Mel_cafe", "Monica_cafe", "Chloe_cafe"] if w != who]
-            who = npcs[(choice(who))]
-            global_flags.set_flag("waitress_cafe", value=[day, who])
-
     scene bg cafe
     with dissolve
 
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
-
-    $ waitress = global_flags.flag("waitress_cafe")[1]
-
-    show expression waitress.get_vnsprite() as npc
+    show expression pytfall.shops_stores["Cafe"].waitress.get_vnsprite() as npc
     with dissolve
 
-    if global_flags.has_flag('visited_cafe'):
-        $ iam.greeting_cafe(waitress)
-    else:
-        $ global_flags.set_flag('visited_cafe')
-        waitress.say "Welcome to the Cafe!"
+    if pytfall.enter_location("cafe", music=True, env="cafe"):
+        pytfall.shops_stores["Cafe"].waitress.say "Welcome to the Cafe!"
         "Here you can find delicious food and tasty beverages!"
+    else:
+        $ iam.greeting_cafe(pytfall.shops_stores["Cafe"].waitress)
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
     if not hero.has_flag("dnd_ate_in_cafe"):
         $ inviting_character = iam.would_invite(locked_random("randint", 500, 1000))
@@ -43,7 +27,6 @@ label cafe:
         $ del inviting_character
 
 label cafe_menu: # after she said her lines but before we show menu controls, to return here when needed
-    show expression waitress.get_vnsprite() as npc
     show screen cafe_eating
     while 1:
         $ result = ui.interact()
@@ -55,7 +38,7 @@ label cafe_menu: # after she said her lines but before we show menu controls, to
             jump mc_action_cafe_eat_alone_cafe_invitation
         if result == "eat_group":
             jump cafe_eat_group
-        $ del waitress, result
+        $ del result
         jump main_street
 
 label cafe_shopping:

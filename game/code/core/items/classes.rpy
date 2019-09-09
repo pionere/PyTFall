@@ -449,7 +449,41 @@ init -9 python:
                 self.gold = int(random.uniform(.6, .8) * self.gold)
 
     class GeneralStore(ItemShop):
-        '''General Store (sells basic items) FIXME obsolete
-        '''
-        def __init__(self, name, inv_length, locations, *args, **kwargs):
-            ItemShop.__init__(self, name, inv_length, locations, *args, **kwargs)
+        pass # FIXME obsolete
+
+    class CafeShop(ItemShop):
+        def __init__(self, **kwargs):
+            super(CafeShop, self).__init__("Cafe", **kwargs)
+            self.servers = None
+
+        @property
+        def waitress(self):
+            if self.servers is None:
+                self.init_day()
+            return self.servers[0]
+
+        @property
+        def server(self):
+            if self.servers is None:
+                self.init_day()
+            return self.servers[0]
+
+        def init_day(self):
+            servers = [npcs[w] for w in ["Mel_cafe", "Monica_cafe", "Chloe_cafe"]]
+            shuffle(servers)
+            self.servers = servers
+
+        def next_day(self):
+            super(CafeShop, self).next_day()
+            self.servers = None
+
+    class Tavern(ItemShop):
+        def __init__(self, **kwargs):
+            super(Tavern, self).__init__("Tavern", **kwargs)
+            self.status = None
+            self.bet = 5 # defaul dice bet
+
+        def next_day(self):
+            super(Tavern, self).next_day()
+            # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
+            self.status = weighted_choice([["cozy", 40], ["lively", 40], ["brawl", 20]])

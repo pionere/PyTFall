@@ -85,12 +85,12 @@ label city_tavern_play_dice: # starting the dice game
     if 'Drunk' in hero.effects: # dizzy screen does not look good with dices animation...
         "You are too drunk for games at the moment."
         jump city_tavern_menu
-    if hero.gold < global_flags.flag("city_tavern_dice_bet"):
+    if hero.gold < pytfall.shops_stores["Tavern"].bet:
         "Sadly, you don't have enough money to make a bet."
         jump city_tavern_menu
 
     hide drunkards with dissolve
-    $ city_tavern_current_dice_bet = global_flags.flag("city_tavern_dice_bet") # current bet may increase after every victory
+    $ city_tavern_current_dice_bet = pytfall.shops_stores["Tavern"].bet # current bet may increase after every victory
 
 
 label city_tavern_play_dice_another_round: # additional rounds continue from here

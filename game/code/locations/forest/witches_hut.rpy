@@ -1,21 +1,13 @@
 label witches_hut:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("shops", fadein=1.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg witches_hut
     with dissolve
 
     show expression npcs["Abby_the_witch"].get_vnsprite() as npc
     with dissolve
 
-    if global_flags.has_flag('visited_witches_hut'):
-        $ w = npcs["Abby_the_witch"].say
-        w "Welcome back!"
-    else:
+    if pytfall.enter_location("witches_hut", music=True, env="shops"):
         $ w = npcs["Abby_the_witch"]
         $ w = Character("???", color=w.say_style["color"], what_color=w.say_style["what_color"], show_two_window=True)
-        $ global_flags.set_flag('visited_witches_hut')
         w "New Customer!"
         extend " Welcome to my Potion Shop!"
         w "I am Abby, the Witch, both Cool and Wicked. You'll never know what you run into here!"
@@ -25,6 +17,9 @@ label witches_hut:
         w "Oh, and I also know a few decent [temp] spells if you're interested."
         w "Check out the best home brew in the realm and some other great items in stock!"
         $ del temp
+    else:
+        $ w = npcs["Abby_the_witch"].say
+        w "Welcome back!"
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")

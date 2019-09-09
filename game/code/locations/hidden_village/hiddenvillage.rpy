@@ -1,20 +1,14 @@
 label hiddenvillage_entrance:
-    $ iam.enter_location(limited_location=True, goodtraits=["Curious"], coords=[[.2, .25], [.55, .2], [.8, .18]])
-    # Music
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("village", fadein=.5)
-    $ global_flags.del_flag("keep_playing_music")
-
-    if global_flags.has_flag('visited_hidden_village'): # should be changed to not global_flags.has_flag('visited_hidden_village') before the release !!!!!!!!!!!!!!!!!!!
-        $ global_flags.set_flag('visited_hidden_village')
-
     scene bg hiddenvillage_entrance
     with dissolve
-    show screen hiddenvillage_entrance
+
+    $ pytfall.enter_location("village", music=True, env="village", coords=[(.2, .25), (55, .2), (.8, .18)],
+                             limited_location=True, goodtraits=["Curious"])
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen hiddenvillage_entrance
     while 1:
         $ result = ui.interact()
 
@@ -49,31 +43,25 @@ screen hiddenvillage_entrance:
             tooltip "Ninja Shop"
 
 label hidden_village_shop: # ninja shop logic
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("shops", fadein=1.5)
-    $ global_flags.del_flag("keep_playing_music")
-
-    hide bg hiddenvillage_entrance
-
     scene bg workshop
     with dissolve
+
     show expression npcs["Ren_hidden_village"].get_vnsprite() as ren
     with dissolve
 
-    $ r = npcs["Ren_hidden_village"]
-    if global_flags.flag('hidden_village_shop_first_enter'):
-        r.say "Hey, [hero.name]. Need something?"
-    else:
-        $ r = Character("???", color=r.say_style["color"], what_color=r.say_style["what_color"], show_two_window=True)
-        $ global_flags.set_flag('hidden_village_shop_first_enter')
-        r "Hm? Ah, I've heard about you."
+    if pytfall.enter_location("ninja_shop", music=True, env="shops"):
+        $ r = npcs["Ren_hidden_village"]
+        $ tmp = Character("???", color=r.say_style["color"], what_color=r.say_style["what_color"], show_two_window=True)
+        tmp "Hm? Ah, I've heard about you."
         extend " Welcome to my Tools Shop."
-        $ r = npcs["Ren_hidden_village"].say
+        $ r = r.say
         r "I'm Ren. We sell ninja stuff here."
         r "If we are interested, I can sell you some leftovers. Of course, it won't be cheap for an outsider like you."
         r "But you won't find these things anywhere else, so it is worth it."
         r "Wanna take a look?"
-    $ del r
+        $ del r, tmp
+    else:
+        npcs["Ren_hidden_village"].say "Hey, [hero.name]. Need something?"
 
     python:
         focus = False

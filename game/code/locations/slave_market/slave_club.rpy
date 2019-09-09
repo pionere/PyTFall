@@ -11,7 +11,7 @@ label slave_market_club:
         
         if result == ["control", "return"]: 
             hide screen slavemarket_club
-            jump slave_market_controls
+            jump slave_market
 
 screen slavemarket_club():
     use top_stripe(True)

@@ -73,7 +73,6 @@ label start_frog_event:
             "Not interested in green slime bags, you continue your quest looking for some fun bags."
             $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! It's further fate is unknown.")
     $ kill_event("show_frog")
-    $ global_flags.set_flag("keep_playing_music")
     jump forest_entrance
 
 label frog1_event_poke:
@@ -117,7 +116,6 @@ label frog1_event_poke:
             "You turn around and run towards the city, screaming like a little bitch."
             $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! It's further fate is unknown.")
     $ kill_event("show_frog")
-    $ global_flags.set_flag("keep_playing_music")
     $ del f1
     jump forest_entrance
 
@@ -295,7 +293,6 @@ label frog1_event_abby_3:
     $ menu_extensions.remove_extension("Abby The Witch Main", "Give her the eye")
 
     $ register_event("show_frog_final", screen=True, locations=["forest_entrance"], trigger_type="auto", restore_priority=1, priority=300, start_day=day, dice=100, max_runs=100)
-    $ global_flags.set_flag("keep_playing_music")
     $ del w
     jump forest_entrance
 

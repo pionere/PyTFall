@@ -251,7 +251,7 @@ init -1 python: # Core classes:
         def __init__(self, teams=None, logical=False,
                      max_skill_lvl=float("inf"), max_turns=False,
                      use_items=False, give_up=None,
-                     bg=None, start_sfx=None, end_bg=None, end_sfx=None,
+                     bg=None, start_gfx=None, end_bg=None, end_gfx=None,
                      music=None, quotes=False):
             """Creates an instance of BE scenario.
             :param teams: the opponents (a pair of teams)
@@ -262,9 +262,9 @@ init -1 python: # Core classes:
             :param use_items: allows use of items during combat.
             --- non-logical parameters ---
             :param bg: the background of the battle
-            :param start_sfx: the transition from the current-bg to the battle-bg
+            :param start_gfx: the transition from the current-bg to the battle-bg, or "random" to choose a random dissolve with 1.5s transition
             :param end_bg: the background after the battle
-            :param end_sfx: the transition from the battle-bg to the end_bg
+            :param end_gfx: the transition from the battle-bg to the end_bg
             :param music: the track to play, or "random" to choose a random battle track
             :param quotes: Decide if we run quotes at the start of the battle.
             """
@@ -294,10 +294,10 @@ init -1 python: # Core classes:
                                                         "mirage": Mirage(bg, resize=get_size(bg),
                                                         amplitude=.04, wavelength=10, ycrop=10)})
 
-                self.start_sfx = start_sfx
+                self.start_gfx = PyTGFX.get_random_image_dissolve(1.5) if start_gfx == "random" else start_gfx
                 self.end_bg = end_bg
-                self.end_sfx = end_sfx
-                self.music = get_random_battle_track() if music == "random" else music
+                self.end_gfx = end_gfx
+                self.music = PyTSFX.get_random_battle_track() if music == "random" else music
 
                 self.quotes = quotes
 
@@ -641,10 +641,10 @@ init -1 python: # Core classes:
 
                 renpy.maximum_framerate(60)
 
-                if self.music:
-                    renpy.music.stop()
-                    renpy.music.stop(channel="world")
-                    renpy.music.play(self.music)
+                #if self.music:
+                #    #renpy.music.stop()
+                #    #renpy.music.play(self.music, channel="world")
+                pytfall.enter_location("battle", music=self.music, env=None)
 
                 # Show the BG:
                 renpy.scene()
@@ -659,8 +659,9 @@ init -1 python: # Core classes:
                 renpy.show("bg", what=self.bg)
                 renpy.show_screen("battle_overlay", self)
                 renpy.show_screen("be_status_overlay")
-                if self.start_sfx: # Special Effects:
-                    renpy.with_statement(self.start_sfx)
+                # Transition Effect:
+                if self.start_gfx:
+                    renpy.with_statement(self.start_gfx)
 
                 if self.quotes:
                     self.start_turn_events.append(RunQuotes(self.teams[0]))
@@ -752,11 +753,12 @@ init -1 python: # Core classes:
                             bg = ImageReference("bg " + bg)
                     renpy.show("bg", what=bg)
 
-                if self.end_sfx:
-                    renpy.with_statement(self.end_sfx)
+                if self.end_gfx:
+                    renpy.with_statement(self.end_gfx)
 
                 if self.music:
                     renpy.music.stop()
+                    #renpy.music.stop(channel="world")
 
             # restore the teams
             corps = self.corpses

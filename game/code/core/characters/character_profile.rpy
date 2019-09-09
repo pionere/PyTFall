@@ -21,10 +21,11 @@ label char_profile:
     $ change_char_in_profile("init")
 
     scene bg scroll
-    $ renpy.retain_after_load()
-    show screen char_profile
     with dissolve
 
+    $ pytfall.enter_location("management", music=True, env=None)
+
+    show screen char_profile
     while 1:
         $ result = ui.interact()
 
@@ -67,7 +68,7 @@ label char_profile:
                         $ items_transfer([hero, char])
                         show screen char_profile
                     elif result[1] == "interaction":
-                        $ iam.start_int(char, img=char.show('girlmeets', gm_mode=True, label_cache=True), bg=True, exit="char_profile", keep_music=False)
+                        $ iam.start_int(char, img=char.show('girlmeets', gm_mode=True, label_cache=True), bg=True, exit="char_profile")
                 elif result[0] == "dropdown":
                     python:
                         if result[1] == "workplace":

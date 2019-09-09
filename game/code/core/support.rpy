@@ -4,17 +4,7 @@ init -9 python:
     class PyTFallStatic(_object):
         """This class should(in the future...) hold all static information which should not be stored in the save files
         """
-        world_music = dict()
-
-        @staticmethod
-        def load_music(key):
-            if key not in PyTFallStatic.world_music:
-                dir = content_path("sfx", "music", "world")
-                PyTFallStatic.world_music[key] = [fn for fn in listfiles(dir) if fn.startswith(key) and check_music_extension(fn)]
-        @staticmethod
-        def play_music(key, fadein=0):
-            PyTFallStatic.load_music(key)
-            renpy.play(choice(PyTFallStatic.world_music[key]), channel="world", fadein=fadein)
+        pass # FIXME obsolete?
 
     class PyTFallWorld(_object):
         '''This class will guide all AI/Logic inside of the world
@@ -68,8 +58,8 @@ init -9 python:
             # Shops:
             shops_stores = [
                 ItemShop('General Store', gold=15000, sells=["any"], sell_margin=.7),
-                ItemShop('Cafe', sells=["food"], sell_margin=1.1),
-                ItemShop('Tavern', sells=["alcohol"], sell_margin=1.1),
+                CafeShop(sells=["food"], sell_margin=1.1),
+                Tavern(sells=["alcohol"], sell_margin=1.1),
                 ItemShop('Work Shop', sells=["axe", "armor", "special", "dagger", "fists", "rod", "claws", "sword", "bow", "shield", "tool", "whip", "throwing", "crossbow", "scythe", "other"]),
                 ItemShop('Witches Hut', sells=["amulet", "ring", "restore", "other", "rod", "dagger", "treasure"]),
                 ItemShop("Witch Spells Shop", gold=5000, sells=["scroll"], sell_margin=1, buy_margin=5.0),
@@ -249,6 +239,21 @@ init -9 python:
                 tl.end("PyTFall population ND")
 
         # GUI helper functions
+        def enter_location(self, location, music, env=None, coords=None, **kwargs):
+            PyTSFX.set_music(music)
+            PyTSFX.set_env(env)
+
+            if coords is not None:
+                iam.enter_location(env, coords, **kwargs)
+
+            self.location = location
+
+            location = "visited_" + location
+            if global_flags.has_flag(location):
+                return False
+            global_flags.set_flag(location)
+            return True
+
         def look_around(self):
             self.world_events.run_events("look_around", cost=1)
 
@@ -417,8 +422,13 @@ init -9 python:
         """
         def __init__(self):
             data = load_db_json("city_map.json")
-            for i in data:
-                setattr(self, i, data[i])
+            for k, v in data.iteritems():
+                # Add mandatory field(s):
+                for p in v:
+                    if "pos" not in p:
+                        p["pos"] = (0, 0)
+
+                setattr(self, k, v)
 
         def __call__(self, map):
             return getattr(self, map)

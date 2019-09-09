@@ -1,32 +1,28 @@
 label mainscreen:
-    # Music related:
-    # First Run (Fadeout added)
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("pytfall", fadein=(15 if global_flags.has_flag("game_start") else 0))
-    $ global_flags.del_flag("keep_playing_music")
-
     scene black
-    show screen mainscreen
+    with dissolve
 
+    if pytfall.enter_location("main_screen", music=True, env=None):
+        # First Run (Fadeout added)
+        $ PyTSFX.set_music(False)
+        $ PyTSFX.queue_music(10)
+        $ PyTSFX.set_music(True)
+
+    show screen mainscreen
     if not persistent.showed_pyp_hint:
         $ persistent.showed_pyp_hint = True
         show screen tutorial
 
-    # Prediction Helpers:
-    # TODO lt: Stop predictions when we've moved to far away from the images!
-    python hide:
-        pytfall.world_quests.run_quests("auto") # Run active quests
-        pytfall.world_events.run_events("auto") # Run current events
+    $ pytfall.world_quests.run_quests("auto") # Run active quests
+    $ pytfall.world_events.run_events("auto") # Run current events
 
     while 1:
         $ result = ui.interact()
 
-        if result == "city":
-            $ global_flags.set_flag("keep_playing_music")
         hide screen mainscreen
         jump expression result
 
-screen mainscreen():
+screen mainscreen:
     python:
         hero_home = hero.home
         if global_flags.has_flag("game_start"):

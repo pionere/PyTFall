@@ -12,8 +12,7 @@ label angelica_meet:
     show expression npcs["Angelica_mage_tower"].get_vnsprite() as angelica
     with dissolve
 
-    if not global_flags.flag("met_angelica"):
-        $ global_flags.set_flag("met_angelica")
+    if pytfall.enter_location("angelica", music=True, env="mages_tower"):
         # cleanup
         $ global_flags.del_flag("mt_counter")
         $ kill_event("pre_angelica_meet")
@@ -41,7 +40,6 @@ label angelica_meet:
             "Not really":
                 a "Oh? Well, never mind then..."
                 a "I'll be around if you change your mind."
-                $ global_flags.set_flag("keep_playing_music")
                 jump mages_tower
 
     $ pytfall.shops_stores["Angelica Shop"].visible = True # done here so it is not enabled if the user is not interested in magic, but also not barred forever 
@@ -64,7 +62,6 @@ label angelica_menu:
             a "Later!"
             hide angelica with dissolve
             $ del a
-            $ global_flags.set_flag("keep_playing_music")
             jump mages_tower
 
 label angelica_spells:

@@ -571,6 +571,21 @@ label after_load:
             if t >= store.day:
                 hero.set_flag("cnd_can_access_cemetery_dungeon", t)
             global_flags.del_flag("can_access_cemetery_dungeon")
+        if global_flags.has_flag("met_peevish"):
+            global_flags.del_flag("met_peevish")
+            global_flags.set_flag("visited_peevish")
+        if global_flags.has_flag("met_aine"):
+            global_flags.del_flag("met_aine")
+            global_flags.set_flag("visited_aine")
+        if global_flags.has_flag("met_angelica"):
+            global_flags.del_flag("met_angelica")
+            global_flags.set_flag("visited_angelica")
+        if global_flags.has_flag("visited_ra"):
+            global_flags.del_flag("visited_ra")
+            global_flags.set_flag("visited_realtor")
+        if global_flags.has_flag("been_in_old_ruins"):
+            global_flags.del_flag("been_in_old_ruins")
+            global_flags.set_flag("visited_old_ruins")
         if hero.has_flag("health_bonus_from_eating_in_cafe"):
             global_flags.set_flag("health_bonus_from_eating_in_cafe", hero.flag("health_bonus_from_eating_in_cafe"))
             hero.del_flag("health_bonus_from_eating_in_cafe")
@@ -1424,6 +1439,37 @@ label after_load:
             del pytfall.jail.focused
 
             del store.jail
+
+        temp = pytfall.shops_stores["Cafe"]
+        if not isinstance(temp, CafeShop):
+            global_flags.del_flag("waitress_cafe")
+            global_flags.del_flag("waitress_ice")
+
+            new_cafe = CafeShop()
+            for attr, v2 in vars(temp).items():
+                if not hasattr(new_cafe, attr):
+                    setattr(new_cafe, attr, v2)
+
+            pytfall.shops_stores["Cafe"] = new_cafe
+
+        temp = pytfall.shops_stores["Tavern"]
+        if not isinstance(temp, Tavern):
+            new_tavern = Tavern()
+            for attr, v2 in vars(temp).items():
+                if not hasattr(new_tavern, attr):
+                    setattr(new_tavern, attr, v2)
+
+            pytfall.shops_stores["Tavern"] = new_tavern
+
+            if global_flags.has_flag("city_tavern_dice_bet"):
+                new_tavern.bet = global_flags.flag("city_tavern_dice_bet")
+                global_flags.del_flag("city_tavern_dice_bet")
+
+            if hero.has_flag("dnd_fought_in_tavern"):
+                new_tavern.status = "after brawl"
+                hero.del_flag("dnd_fought_in_tavern")
+            elif global_flags.has_flag("visited_tavern"):
+                new_tavern.next_day()
 
         if hasattr(store, "schools"):
             pytfall.school = store.schools.popitem()[1]

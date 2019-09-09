@@ -1,30 +1,23 @@
 label general_store:
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("shops", fadein=1.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg general_store
     with dissolve
-
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
 
     show expression npcs["Yukiko_shop"].get_vnsprite() as npc
     with dissolve
 
     $ y = npcs["Yukiko_shop"].say
-    if global_flags.has_flag('visited_general_store'):
-        y "Welcome back!"
-    else:
-        $ global_flags.set_flag('visited_general_store')
+    if pytfall.enter_location("general_store", music=True, env="shops"):
         y "Welcome to PyTFall's General Store!"
         y "Here you can buy all sorts of items!"
-        y "Please take a look at our selection: "
+        y "Please take a look at our selection:"
+    else:
+        y "Welcome back!"
     $ del y
 
-label general_store_shopping:
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
+label general_store_shopping:
     python:
         focus = False
         item_price = 0

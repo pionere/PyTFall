@@ -69,7 +69,7 @@ init -9 python:
                 return PyTGFX.message("You don't have enough Gold!")
             hero.take_ap(1)
 
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
             hero.add_char(char)
             char.reset_workplace_action()
             char.home = pytfall.streets
@@ -295,7 +295,7 @@ init -9 python:
                 return PyTGFX.message("You don't have enough Gold!")
             hero.take_ap(1)
 
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
             self.slaves.remove(char)
             self.slave_index[0] = 0
             if char.employer != hero:
@@ -311,7 +311,7 @@ init -9 python:
             if not hero.take_ap(1):
                 return PyTGFX.message("You don't have time (Action Point) for that!")
 
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
             hero.add_money(self.sell_price(char), "SlaveTrade")
 
             self.captures.remove(char)
@@ -338,7 +338,7 @@ init -9 python:
                 return PyTGFX.message("You don't have enough Gold for the upfront payment of Blue's services!")
             hero.take_ap(1)
 
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
             hero.take_money(base_price, reason="Jail Fees")
             if blue_train:
                 hero.take_money(blue_price, reason="Blue's Fees")
@@ -361,7 +361,7 @@ init -9 python:
                 return "You don't have enough money to do this!"
             hero.take_ap(1)
 
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
 
             self.cells.remove(char)
             self.cell_index[0] = 0

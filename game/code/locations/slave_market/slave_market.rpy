@@ -1,11 +1,8 @@
 label slave_market:
-    # Music related:
-    $ PyTFallStatic.play_music("slavemarket", fadein=1.5)
+    scene bg slave_market
+    with dissolve
 
-    if not global_flags.has_flag("visited_sm"):
-        $ global_flags.set_flag("visited_sm")
-        scene bg slave_market
-        with dissolve
+    if pytfall.enter_location("slave_market", music=True, env="slave_market"):
         show expression "content/gfx/bg/locations/slave_podium.webp" at truecenter as slave_market_slaves
 
         "What's this?"
@@ -74,15 +71,10 @@ label slave_market:
 
         $ del g, s, spr
 
-label slave_market_controls:
-    scene bg slave_market
-
-    show screen slavemarket
-    with fade
-
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen slavemarket
     while 1:
         $ result = ui.interact()
 
@@ -127,7 +119,7 @@ label sm_free_slaves:
         "You need to bring slaves as a part of your team to free them!"
         $ del chrs, s
         hide stan with dissolve
-        jump slave_market_controls
+        jump slave_market
     else:
         $ our_char = None
         menu:
@@ -138,7 +130,7 @@ label sm_free_slaves:
             "Nevermind":
                 hide stan with dissolve
                 $ del our_char, chrs, s
-                jump slave_market_controls
+                jump slave_market
 
         show expression our_char.get_vnsprite() as slave at mid_right with dissolve
 
@@ -182,7 +174,7 @@ label sm_free_slaves:
     $ del our_char, chrs, cost, s
     hide slave
     hide stan with dissolve
-    jump slave_market_controls
+    jump slave_market
 
 label slave_market_work:
     scene bg shower with dissolve
@@ -194,7 +186,7 @@ label slave_market_work:
         "Work all day" if hero.PP >= 200 and len(pytfall.sm.inhabitants) > 1: # PP_PER_AP
             $ use_ap = hero.PP/100                                    # PP_PER_AP
         "Nothing":
-            jump slave_market_controls
+            jump slave_market
 
     python:
         slaves = min(use_ap, len(pytfall.sm.inhabitants))
@@ -391,12 +383,12 @@ label slave_market_work_end:
         hero.take_ap(use_ap)
 
         del result, use_ap, slaves, slave_index, effectiveness, dirt, missed, cleaned, sponge_loc, sponge_in_hand
-    jump slave_market_controls
+    jump slave_market
 
 label blue_menu:
     $ g = npcs["Blue_slavemarket"].say
-    scene bg slave_market with fade
-    show expression npcs["Blue_slavemarket"].get_vnsprite() as blue with dissolve
+    show expression npcs["Blue_slavemarket"].get_vnsprite() as blue
+    with dissolve
     g "[hero.nickname]!"
     g "Welcome back to our fine establishment!"
     while 1:
@@ -416,7 +408,7 @@ label blue_menu:
                 g "Goodbye!"
                 $ del g
                 hide blue with dissolve
-                jump slave_market_controls
+                jump slave_market
 
 screen slavemarket():
     use top_stripe(True)

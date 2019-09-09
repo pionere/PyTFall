@@ -421,8 +421,9 @@ label shop_control:
         elif result[1] == 'buy/sell':
             if purchasing_dir == 'buy':
                 if char.take_money(item_price*amount, "Items"):
-                    play sound "content/sfx/sound/world/purchase_1.ogg"
                     python hide:
+                        PyTSFX.purchase()
+
                         total = item_price*amount
                         shop.inventory.remove(focus, amount)
                         char.inventory.append(focus, amount)
@@ -436,8 +437,9 @@ label shop_control:
                 $ total = item_price*amount
                 $ msg = shop.check_sell(focus, total)
                 if msg is None:
-                    play sound "content/sfx/sound/world/purchase_1.ogg"
                     python hide:
+                        PyTSFX.purchase()
+
                         char.add_money(total, reason="Items")
                         char.inventory.remove(focus, amount)
                         shop.inventory.append(focus, amount)

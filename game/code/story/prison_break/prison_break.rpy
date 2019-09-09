@@ -40,18 +40,16 @@ label storyi_start: # beginning point of the dungeon;
         storyi_prison_location = "Dung"
         controlled_exit = False
 
-    stop music
-    stop world fadeout 2.0
+    #stop music
+    #stop world fadeout 2.0
     scene black with dissolve
     # show expression Text("Some time later", style="TisaOTM", align=(0.5, 0.33), size=40) as txt1:
         # alpha 0
         # linear 3.5 alpha 1.0
     # pause 2.5
     # hide txt1
-    play world "Theme2.ogg" fadein 2.0 loop
     show bg story d_entrance with eye_open
-    if not global_flags.has_flag("been_in_old_ruins"):
-        $ global_flags.set_flag("been_in_old_ruins")
+    if pytfall.enter_location("old_ruins", music="content/sfx/music/events/Theme2.ogg", env=None):
         hero.say "I've found the ruins of a tower near the city."
         hero.say "It may be not safe here, but I bet there is something valuable deep inside!"
         "You can enter and exit the ruins at any point, but it will consume your AP."
@@ -137,10 +135,11 @@ screen prison_break_controls(): # control buttons screen
                     text "Test Boss" size 15
 
 label storyi_bossroom:
-    stop music
-    stop world fadeout 2.0
-    play world "events/6.ogg" fadein 2.0 loop
-    play events2 "events/wind1.mp3" fadein 2.0 loop
+    #stop music
+    #stop world fadeout 2.0
+    #play world "events/6.ogg" fadein 2.0 loop
+    $ pytfall.enter_location("old_ruins", music="content/sfx/music/events/ruins_boss.ogg", env="wind1")
+    #play events2 "events/wind1.mp3" fadein 2.0 loop
     show bg story p2 with dissolve
     show sinister_star:
         pos (704, 91)
@@ -156,8 +155,8 @@ label storyi_bossroom:
             $ pass
         "Return to the ground floor":
             call storyi_show_bg from _call_storyi_show_bg
-            play world "Theme2.ogg" fadein 2.0 loop
-            stop events2
+            $ pytfall.enter_location("old_ruins", music="content/sfx/music/events/Theme2.ogg", env=None)
+            #stop events2
             hide sinister_star
             jump storyi_gui_loop
     show sinister_star:
@@ -203,9 +202,9 @@ label storyi_bossroom:
         hide sinister_star with dissolve
         extend " You pick it up and put in your pocket."
         $ hero.add_item("Red Star")
-        stop events2
+        #stop events2
         call storyi_show_bg from _call_storyi_show_bg_1
-        play world "Theme2.ogg" fadein 2.0 loop
+        $ pytfall.enter_location("old_ruins", music="content/sfx/music/events/Theme2.ogg", env=None)
         "You return to the ground floor."
         $ del result, enemy_team
         jump storyi_gui_loop
@@ -243,7 +242,7 @@ label storyi_randomfight:  # initiates fight with random enemy team
                                 end_background=result, skill_lvl=4, give_up="escape")
 
     if result is True:
-        play world "Theme2.ogg" fadein 2.0 loop
+        $ pytfall.enter_location("old_ruins", music="content/sfx/music/events/Theme2.ogg", env=None)
 
         if storyi_prison_location not in storyi_treasures and dice(hero.get_stat("luck")+30):
             python hide:

@@ -1,11 +1,10 @@
 label hero_profile:
     scene bg h_profile
-
-    #$ renpy.retain_after_load()
-
-    show screen hero_profile
     with dissolve
 
+    $ pytfall.enter_location("management", music=True, env=None)
+
+    show screen hero_profile
     while 1:
         $ result = ui.interact()
 
@@ -37,7 +36,6 @@ label hero_profile:
         elif result[0] == 'control':
             if result[1] == 'return':
                 hide screen hero_profile
-                $ global_flags.set_flag("keep_playing_music") # FIXME sure?
                 $ last_label, hero_profile_entry = hero_profile_entry, None
                 jump expression last_label
         elif result[0] == "dropdown":
@@ -82,15 +80,15 @@ label hero_profile:
                     tag = "urban"
 
                 if tag == "beach":
-                    bg = "city_beach_cafe"
+                    bg = ["city_beach_cafe", "beach_cafe"]
                 elif tag == "urban":
-                    bg = "main_street"
+                    bg = ["main_street", "main_street"]
                 elif tag == "suburb":
-                    bg = "beach_rest"
+                    bg = ["beach_rest", "beach_main"]
                 else:
-                    bg = "city_park"
+                    bg = ["city_park", "city_park"]
 
-                iam.start_int(char, img=char.show("girlmeets", tag, label_cache=True, type="reduce", gm_mode=True), bg=bg, exit="hero_profile", keep_music=False)
+                iam.start_int(char, img=char.show("girlmeets", tag, label_cache=True, type="reduce", gm_mode=True), bg=bg, exit="hero_profile")
 
 # Screens:
 screen hero_profile():

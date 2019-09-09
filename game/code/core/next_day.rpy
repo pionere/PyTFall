@@ -121,10 +121,7 @@ label next_day:
     else: # Do the calculations:
         show screen next_day_calculations
 
-        if global_flags.flag("nd_music_play"):
-            $ global_flags.del_flag("nd_music_play")
-            $ PyTFallStatic.play_music("pytfall")
-        $ global_flags.set_flag("keep_playing_music")
+        $ pytfall.enter_location("management", music=True, env=None)
 
         $ nd_turns = getattr(store, "nd_turns", 1)
         while nd_turns:
@@ -1030,7 +1027,7 @@ screen next_day():
                             image = PyTGFX.scale_content(image, csize, csize)
                             fixed = Fixed(xysize=(csize, csize))
                             fixed.add(Transform(image, align=(.5, .5)))
-                            image = [fixed, randint(4, 5), get_random_image_dissolve(1.5)]
+                            image = [fixed, randint(4, 5), PyTGFX.get_random_image_dissolve(1.5)]
                             if idx < num_imgs/2:
                                 images_left.extend(image)
                             else:

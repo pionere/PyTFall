@@ -1,26 +1,16 @@
-#Angelica
-
 label mages_tower:
-    $ iam.enter_location(goodtraits=["Psychic", "Curious"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"],
-                        coords=[[.07, .8], [.57, .64], [.93, .61]])
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("mages_tower")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg mages_tower
     with dissolve
 
-    if not global_flags.has_flag('visited_mages_tower'):
-        $ global_flags.set_flag('visited_mages_tower')
+    if pytfall.enter_location("mages_tower", music=True, env="mages_tower", coords=[(.07, .8), (.57, .64), (.93, .61)],
+                             goodtraits=["Psychic", "Curious"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"]):
         "Real mages, other practitioners of Arcane Arts and some plain weirdos hang around here."
         "Try not to get yourself blown up :)"
-
-    show screen mages_tower
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen mages_tower
     while 1:
         $ result = ui.interact()
 
@@ -37,7 +27,7 @@ screen mages_tower():
     style_prefix "action_btns"
     frame:
         has vbox
-        if global_flags.has_flag("met_angelica"):
+        if global_flags.has_flag("visited_angelica"):
             textbutton "Find Angelica":
                 action Hide("mages_tower"), Jump("angelica_meet")
         textbutton "Look Around":

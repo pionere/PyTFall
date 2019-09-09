@@ -51,68 +51,68 @@ init -2 python:
                 return "girl_room"
 
         @staticmethod
-        def select_char_location(char, image_tags): # selects room background for interactions
+        def select_char_location(char, image_tags): # selects background (image, env) for interactions # TODO use locations?
             # select bg based on the location-tags
             if "beach" in image_tags:
-                return "city_beach"
+                return ["city_beach", "beach_main"]
             elif "pool" in image_tags:
-                return "pool_lockers"
+                return ["pool_lockers", "swimming_pool"]
             elif "onsen" in image_tags:
-                return "onsen"
+                return ["onsen", "park_gates"] # TODO specific env instead of the fountain?
             elif "living" in image_tags:
                 pass #return iam.select_char_room(char)
             elif "indoors" in image_tags:
                 if "public" in image_tags:
-                    return "city_bar"
+                    return ["city_bar", "cafe"] # TODO indoor env?
                 elif "dungeon" in image_tags:
-                    return "slave_market"
+                    return ["slave_market", "slave_market"]
                 else:
                     pass # return iam.select_char_room(char)
             elif "outdoors" in image_tags:
                 if "nature" in image_tags:
                     if "urban" in image_tags:
-                        return "city_park"
+                        return ["city_park", "city_park"]
                     else:
-                        return "forest_%d" % randint(1, 4)
+                        return ["forest_%d" % randint(1, 4), "forest_entrance"]
                 elif "urban" in image_tags:
-                    return "main_street"
+                    return ["main_street", "main_street"]
                 else:
-                    return "wildness"
+                    return ["wildness", "forest_entrance"] # TODO dark_forest env?
             elif "urban" in image_tags:
-                return "main_street"
+                return ["main_street", "main_street"]
             elif "wildness" in image_tags:
-                return "wildness"
+                return ["wildness", "forest_entrance"] # TODO dark_forest env?
             elif "suburb" in image_tags:
-                return "hiddenvillage_alley"
+                return ["hiddenvillage_alley", "village"]
             elif "stage" in image_tags:
-                return "stage"
+                return ["stage", None] # FIXME stage env?
             elif "public" in image_tags:
-                return "city_bar"
+                return ["city_bar", "cafe"]
             elif "nature" in image_tags:
-                return "forest_%d" % randint(1, 4)
+                return ["forest_%d" % randint(1, 4), "forest_entrance"]
             elif "dungeon" in image_tags:
-                return "slave_market"
+                return ["slave_market", "slave_market"]
             elif "no bg" in image_tags or "simple bg" in image_tags:
                 # no location information -> try to select location based on the clothes
                 if "swimsuit" in image_tags:
-                    return "city_beach"
+                    return ["city_beach", "beach_main"]
                 if "sportswear" in image_tags:
-                    return "city_park"
+                    return ["city_park", "city_park"]
                 if "formal" in image_tags:
-                    return "main_street"
+                    return ["main_street", "main_street"]
                 if "ninja" in image_tags or "armor" in image_tags or "miko" in image_tags:
-                    return "arena_outside"
+                    return ["arena_outside", "arena_outside"]
                 if "yukata" in image_tags:
-                    return "onsen"
+                    return ["onsen", "park_gates"] # TODO specific env instead of the fountain?
                 if "nurse" in image_tags:
-                    return "infirmary"
+                    return ["infirmary", None] # FIXME infirmary env?
                 if "schoolgirl" in image_tags:
-                    return "academy_town"
+                    return ["academy_town", "library"]
                 #if "lingerie" in image_tags or "indoor" in image_tags or "no clothes" in image_tags:
                 #    return iam.select_char_room(char)
                 # TODO "everyday", "transformed", "cosplay", "ripped", "revealing", "cow", "cat", "bunny", "dog", "maid", "after sex" ?
             # last fall-back -> in her/his room
-            return iam.select_char_room(char)
+            return [iam.select_char_room(char), None]
 
         @staticmethod
         def select_background_for_fight(place):

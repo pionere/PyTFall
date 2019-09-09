@@ -774,6 +774,7 @@ init -9 python:
                 if logical:
                     result = True
                 else:
+                    pytfall.enter_location("arena_inside", music=False, env=None)
                     result = renpy.call_screen("confirm_chainfight", setup, encounter, off_team.leader, enemy_team.leader)
                     if result == "break":
                         return (enemy_team, off_team), combat_log
@@ -785,24 +786,20 @@ init -9 python:
                 if result is True:
                     battle = run_auto_be(off_team, enemy_team, simple_ai=nd_run)
                 else:
-                    renpy.music.stop(channel="world")
-                    renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-                    track = get_random_battle_track()
-                    renpy.music.play(track, fadein=1.5)
+                    #pytfall.enter_location("arena_inside", music=False, env=None)
+                    renpy.sound.play("content/sfx/sound/arena/prepare_%d.mp3" % randint(1, 2))
                     renpy.pause(.5)
 
                     enemy_team.setup_controller()
 
-                    battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5),
-                                     end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                    battle = BE_Core(bg=ImageReference("chainfights"), start_gfx="random", music="random",
+                                     end_bg="battle_arena_1", end_gfx=dissolve, give_up="surrender",
                                      max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
                     battle.start_battle()
 
                     # Reset the controllers:
                     #off_team.reset_controller()
                     enemy_team.reset_controller()
-
-                    renpy.music.stop(fadeout=1.0)
 
                 combat_log.extend(battle.combat_log)
                 if battle.winner != off_team:
@@ -905,24 +902,20 @@ init -9 python:
             if logical is True:
                 battle = run_auto_be(off_team, def_team, simple_ai=nd_run)
             else:
-                renpy.music.stop(channel="world")
-                renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-                track = get_random_battle_track()
-                renpy.music.play(track, fadein=1.5)
+                pytfall.enter_location("arena_inside", music=False, env=None)
+                renpy.sound.play("content/sfx/sound/arena/prepare_%d.mp3" % randint(1, 2))
                 renpy.pause(.5)
 
                 def_team.setup_controller()
 
-                battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
-                                 end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                battle = BE_Core(bg="battle_dogfights_1", start_gfx="random", music="random",
+                                 end_bg="battle_arena_1", end_gfx=dissolve, give_up="surrender",
                                  max_turns=off_team.leader is not hero, teams=[off_team, def_team])
                 battle.start_battle()
 
                 # Reset the controllers:
                 #off_team.reset_controller()
                 def_team.reset_controller()
-
-                renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
             loser = def_team if winner is off_team else off_team
@@ -1021,24 +1014,20 @@ init -9 python:
             if logical:
                 battle = run_auto_be(off_team, def_team, simple_ai=nd_run)
             else:
-                renpy.music.stop(channel="world")
-                renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-                track = get_random_battle_track()
-                renpy.music.play(track, fadein=1.5)
+                pytfall.enter_location("arena_inside", music=False, env=None)
+                renpy.sound.play("content/sfx/sound/arena/prepare_%d.mp3" % randint(1, 2))
                 renpy.pause(.5)
 
                 def_team.setup_controller()
 
-                battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
-                                 end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                battle = BE_Core(bg="battle_arena_1", start_gfx="random", music="random",
+                                 end_bg="battle_arena_1", end_gfx=dissolve, give_up="surrender",
                                  max_turns=off_team.leader is not hero, teams=[off_team, def_team])
                 battle.start_battle()
 
                 # Reset the controllers:
                 #off_team.reset_controller()
                 def_team.reset_controller()
-
-                renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
             loser = def_team if winner is off_team else off_team

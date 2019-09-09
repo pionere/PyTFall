@@ -1,20 +1,8 @@
 label time_temple:
-    # Music
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("cemetery", fadein=.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg time_temple
     with dissolve
-    show screen time_temple
 
-    if global_flags.has_flag("visited_time_temple"):
-        show expression npcs["time_miel"].get_vnsprite() as npc
-        with dissolve
-        $ t = npcs["time_miel"].say
-        t "Welcome to the Temple. May I help you?"
-    else:
-        $ global_flags.set_flag("visited_time_temple")
+    if pytfall.enter_location("time_temple", music=False, env="time_temple"):
         "You enter a massive dimly lit building. Strange voiceless figures in the hoods sweep the floor and replace burned-out candles."
         show expression npcs["time_miel"].get_vnsprite() as npc
         with dissolve
@@ -22,6 +10,13 @@ label time_temple:
         "A strange girl of unknown race approaches you. Most of her belly is a giant, working hourglass."
         t "Welcome to the Temple of Time, stranger. I'm Miel, its caretaker."
         t "If you need something, I'm here to help. Please don't bother others."
+    else:
+        show expression npcs["time_miel"].get_vnsprite() as npc
+        with dissolve
+        $ t = npcs["time_miel"].say
+        t "Welcome to the Temple. May I help you?"
+
+    show screen time_temple
 
     menu time_temple_menu:
         "Healing":
@@ -223,7 +218,6 @@ label time_temple:
     with dissolve
     hide screen time_temple
     $ del t
-    $ global_flags.set_flag("keep_playing_music")
     stop sound
     jump graveyard_town
 

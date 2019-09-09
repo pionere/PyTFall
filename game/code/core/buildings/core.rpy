@@ -442,7 +442,7 @@ init -10 python:
                 self.daily_modifier *= mod
 
         def remove_upgrade(self, upgrade):
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
 
             cost, materials, in_slots, ex_slots = upgrade.get_cost()
             self.in_slots -= in_slots

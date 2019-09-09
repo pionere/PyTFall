@@ -22,19 +22,10 @@ label forest_dark_continue:
     scene expression forest_location
     with dissolve
 
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("forest_entrance")
-    $ global_flags.del_flag("keep_playing_music")
-
-    if not global_flags.has_flag('visited_deep_forest'):
-        $ global_flags.set_flag('visited_deep_forest')
-        $ block_say = True
+    if pytfall.enter_location("deep_forest", music=False, env="forest_entrance"):
         "You step away from the city walls and go deep into the forest. It's not safe here, better to be on guard."
-        $ block_say = False
 
     show screen city_dark_forest
-
     while 1:
         $ result = ui.interact()
 
@@ -42,7 +33,6 @@ label forest_dark_continue:
             $ came_to_equip_from = "forest_dark_continue"
             $ eqtarget = result
             $ equip_girls = [result]
-            $ global_flags.set_flag("keep_playing_music")
             $ equipment_safe_mode = True
             $ forest_bg_change = False
 
@@ -94,7 +84,6 @@ label city_dark_forest_explore:
 
         "Each member of your party should have at least 20 PP (and 1 AP is recommended)."
 
-        $ global_flags.set_flag("keep_playing_music")
         $ forest_bg_change = False
         jump forest_dark_continue
     else:
@@ -121,7 +110,6 @@ label city_dark_forest_ruines_part:
 
         "Each member of your party should have at least 20 PP (and 2 AP is recommended)."
 
-        $ global_flags.set_flag("keep_playing_music")
         jump forest_dark_continue
     else:
         hide screen city_dark_forest
@@ -135,7 +123,6 @@ label mc_action_city_dark_forest_rest:
 
     "You take a short rest before moving on, restoring mp and vitality."
     $ forest_bg_change = False
-    $ global_flags.set_flag("keep_playing_music")
 
     python hide:
         for i in hero.team:
@@ -158,7 +145,6 @@ label city_dark_forest_hideout:
             "You carefully approach the hideout when a group of bandits attacks you."
         "Leave them be":
             show screen city_dark_forest
-            $ global_flags.set_flag("keep_playing_music")
             jump forest_dark_continue
 
     call city_dark_forest_hideout_fight from _call_city_dark_forest_hideout_fight
@@ -297,17 +283,15 @@ label dark_forest_girl_meet:
         $ char.restore_portrait()
         $ char.hide_portrait_overlay()
         $ del spr, temp, choices # FIXME del char if possible
-        $ global_flags.set_flag("keep_playing_music")
         jump forest_dark_continue
     $ del temp, choices
 
 label mc_action_city_dark_forest_river:
-    play world "forest_lake.ogg"
-    $ global_flags.set_flag("keep_playing_music")
-    $ hero.set_flag("dnd_dark_forest_river")
-    $ forest_bg_change = False
     scene bg forest_lake
     with dissolve
+    $ pytfall.enter_location("deep_forest", music=False, env="forest_lake")
+    $ hero.set_flag("dnd_dark_forest_river")
+    $ forest_bg_change = False
     "You found a river. Fresh, clean water restores some of your vitality."
     python hide:
         for i in hero.team:

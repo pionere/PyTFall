@@ -18,7 +18,6 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
     $ iam.sparring_start(char)
     hide screen girl_interactions
 
-    $ last_track = renpy.music.get_playing("world")
     python hide:
         pre_aps = char.PP
         back = iam.select_background_for_fight(iam.label_cache)
@@ -41,15 +40,15 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
         $ char.set_stat("health", char.get_max("health")/2)
     if hero.get_stat("health") < hero.get_max("health")/2:
         $ hero.set_stat("health", hero.get_max("health")/2)
-    if last_track:
-        play world last_track
-    $ del last_track
 
     $ iam.restore_img()
 
-    show screen girl_interactions
+    scene expression iam.bg_cache
 
-    show expression iam.bg_cache
+    $ PyTSFX.set_env(iam.env_cache)
+
+    show screen girl_interactions
+    with dissolve
 
     $ iam.sparring_end(char)
     jump girl_interactions

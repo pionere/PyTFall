@@ -1,16 +1,11 @@
 label graveyard_town:
-    $ iam.enter_location(goodtraits=["Undead", "Divine Creature", "Demonic Creature"],
-                        badtraits=["Elf", "Android", "Monster", "Human", "Furry", "Slime"],
-                        coords=[[.1, .55], [.5, .84], [.92, .45]])
-    # Music
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("cemetery", fadein=.5)
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg graveyard_town
     with dissolve
-    show screen graveyard_town
 
+    $ pytfall.enter_location("cemetery", music=True, env="cemetery", coords=[(.1, .55), (.5, .84), (.92, .45)],
+                             goodtraits=["Undead", "Divine Creature", "Demonic Creature"], badtraits=["Elf", "Android", "Monster", "Human", "Furry", "Slime"])
+
+    show screen graveyard_town
     while 1:
         $ result = ui.interact()
 
@@ -18,11 +13,19 @@ label graveyard_town:
             $ iam.start_int(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True,
                         exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"]))
 
-        elif result == ["control", "return"]:
+        elif result[0] == "control":
             hide screen graveyard_town
-            jump city
+            if result[1] == "return":
+                jump city
+            elif result[1] == "temple":
+                jump time_temple
+            elif result[1] == "graves":
+                jump show_dead_list
+            elif result[1] == "dungeon":
+                jump enter_dungeon
 
 label show_dead_list:
+    $ pytfall.enter_location("cemetery", music=False, env="cemetery")
     $ dead_chars = pytfall.afterlife.inhabitants # list of dead characters
     if not dead_chars:
         "You look around, but all tombstones are old and worn out. Nothing interesting."
@@ -245,19 +248,19 @@ screen graveyard_town():
             pos (93, 306)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("graveyard_town"), Function(global_flags.set_flag, "keep_playing_music"), Jump("time_temple")]
+            action Return(["control", "temple"])
             tooltip "Temple"
         $ img = im.Scale("content/gfx/interface/icons/cemetery.png", 80, 80)
         imagebutton:
             pos (580, 220)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("graveyard_town"), Jump("show_dead_list")]
+            action Return(["control", "graves"])
             tooltip "Graves"
         $ img = im.Scale("content/gfx/interface/icons/mausoleum.png", 80, 80)
         imagebutton:
             pos (1090, 180)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("graveyard_town"), Jump("enter_dungeon")]
+            action Return(["control", "dungeon"])
             tooltip "Dungeon\nBeware all who enter here"

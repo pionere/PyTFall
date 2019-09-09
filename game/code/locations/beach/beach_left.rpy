@@ -1,30 +1,31 @@
 label city_beach_left:
-    $ iam.enter_location(goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"],
-                        coords=[[.15, .5], [.5, .45], [.7, .8]])
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("beach_main")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg city_beach_left
     with dissolve
-    show screen city_beach_left
+
+    $ pytfall.enter_location("city_beach_left", music=True, env="beach_main", coords=[(.15, .5), (.5, .45), (.7, .8)],
+                             goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"])
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen city_beach_left
     while 1:
         $ result = ui.interact()
 
-        if result[0] == 'jump':
+        if result[0] == "jump":
             python hide:
                 char = result[1]
                 iam.start_int(char, img=iam.select_beach_img_tags(char))
-
-        elif result == ['control', 'return']:
-            $ global_flags.set_flag("keep_playing_music")
+        elif result[0] == "control":
             hide screen city_beach_left
-            jump city_beach
+            if result[1] == "return":
+                jump city_beach
+            elif result[1] == "cafe":
+                jump city_beach_cafe_main
+            elif result[1] == "fish":
+                jump fishing_logic
+            elif result[1] == "rest":
+                jump mc_action_city_beach_rest
 
 screen city_beach_left():
     use top_stripe(True)
@@ -46,7 +47,7 @@ screen city_beach_left():
             pos (380, 300)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_left"), Jump("city_beach_cafe_main")]
+            action Return(["control", "cafe"])
             tooltip "Beach Café"
 
         $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
@@ -61,7 +62,7 @@ screen city_beach_left():
             pos(960, 400)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_left"), Jump("fishing_logic"), With(dissolve)]
+            action Return(["control", "fish"])
             tooltip "Fishing Docks"
 
 
@@ -70,7 +71,7 @@ screen city_beach_left():
             pos (400, 545)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_left"), Jump("mc_action_city_beach_rest")]
+            action Return(["control", "rest"])
             tooltip "Rest"
 
 label mc_action_city_beach_rest:
@@ -303,7 +304,6 @@ label fishing_logic:
             jump mc_action_beach_start_fishing
         "Nothing":
             $ del m, q
-            $ global_flags.set_flag("keep_playing_music")
             jump city_beach_left
 
 label mc_action_beach_start_fishing:
@@ -344,7 +344,6 @@ label mc_action_beach_start_fishing:
                     $ hero.remove_item("Magic Bait")
                     $ fishing_attempts = 6
                 "Cancel":
-                    $ global_flags.set_flag("keep_playing_music")
                     $ del c0, c1, c2, fishing_skill, fishing_attempts, min_fish_price
                     jump city_beach_left
 
@@ -398,7 +397,6 @@ label end_fishing:
         for i in cleanup:
             if hasattr(store, i):
                 delattr(store, i)
-    $ global_flags.set_flag("keep_playing_music")
     jump city_beach_left
 
 screen fishing_area(num_fish):

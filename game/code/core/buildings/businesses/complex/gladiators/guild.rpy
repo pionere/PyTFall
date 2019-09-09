@@ -443,21 +443,13 @@ init -6 python: # Guild, Tracker and Log.
             renpy.show(bg)
             #renpy.hide_screen("building_management")
 
-            last_track = renpy.music.get_playing("world")
-
             self.run_event(e, False, True)
 
             # adjust hero's ap
             hero.PP -= min(200, max((aps - f.PP) for f, aps in member_aps.iteritems())) # PP_PER_AP
 
             # return to caller:
-            #  show building_management
-            renpy.scene()
-            renpy.show("bg scroll")
-            renpy.show_screen("building_management")
-            #  restart sound
-            if last_track:
-                renpy.music.play(last_track, channel="world", fadein=1)
+            jump("building_management")
 
         def reschedule_event(self, e):
             self.update_fighters(e.guild_chars(), True)
@@ -626,24 +618,20 @@ init -6 python: # Guild, Tracker and Log.
             if logical is True:
                 battle = run_auto_be(off_team, def_team, simple_ai=False)
             else:
-                renpy.music.stop(channel="world")
-                renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-                track = get_random_battle_track()
-                renpy.music.play(track, fadein=1.5)
+                pytfall.enter_location("arena_inside", music=False, env=None)
+                renpy.sound.play("content/sfx/sound/arena/prepare_%d.mp3" % randint(1, 2))
                 renpy.pause(.5)
 
                 def_team.setup_controller()
 
-                battle = BE_Core(bg="battle_indoor_1", start_sfx=get_random_image_dissolve(1.5),
-                                 end_bg="b_city_1", end_sfx=dissolve, give_up="surrender",
+                battle = BE_Core(bg="battle_indoor_1", start_gfx="random", music="random",
+                                 end_bg="b_city_1", end_gfx=dissolve, give_up="surrender",
                                  max_turns=True, teams=[off_team, def_team]) 
                 battle.start_battle()
 
                 # Reset the controllers:
                 #off_team.reset_controller()
                 def_team.reset_controller()
-
-                renpy.music.stop(fadeout=1.0)
 
             # restore status of the members
             for f in chain(off_team, def_team):

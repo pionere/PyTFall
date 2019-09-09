@@ -6,7 +6,7 @@ label city_tavern_play_poker: # additional rounds continue from here
     if 'Drunk' in hero.effects: # dizzy screen does not look good with dices animation...
         "You are too drunk for games at the moment."
         jump city_tavern_menu
-    if hero.gold < global_flags.flag("city_tavern_dice_bet"):
+    if hero.gold < pytfall.shops_stores["Tavern"].bet:
         "Sadly, you don't have enough money to make a bet."
         jump city_tavern_menu
 
@@ -14,7 +14,7 @@ label city_tavern_play_poker: # additional rounds continue from here
     python:
         selected_dice = 0 # index of the dice selected by the player - goes from 1 to 5; 0 means no selected
         selected_ai_dice = 0 # same for ai
-        city_tavern_current_dice_bet = global_flags.flag("city_tavern_dice_bet")
+        city_tavern_current_dice_bet = pytfall.shops_stores["Tavern"].bet
 
 label city_tavern_show_poker_dices_start:
     hide screen city_tavern_show_poker_dices

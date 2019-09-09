@@ -3,9 +3,9 @@ init python:
     register_gossip("peevish_forest", "gossip_peevish_in_forest", dice=100)
 
 label peevish_meeting:
-    $ p = Character("???", color="lawngreen", what_color="lawngreen", show_two_window=True)
+    $ pytfall.enter_location("peevish", music=False, env=None)
 
-    stop world
+    $ p = Character("???", color="lawngreen", what_color="lawngreen", show_two_window=True)
 
     hide screen forest_entrance
     with dissolve
@@ -22,7 +22,7 @@ label peevish_meeting:
     show expression npcs["Peevish"].get_vnsprite() as peevish
     with dissolve
 
-    play world "irish.mp3" fadein 2.0
+    play music "content/sfx/music/events/irish.mp3" fadein 2.0
     # with vpunch
     p "Hello dumbass!"
     p "Wow. Can you see me? There aren't many who can!"
@@ -44,6 +44,9 @@ label peevish_meeting:
 
     hide peevish
     hide bg forest_entrance
+
+    stop music fadeout 1.0
+
     show bg forest_entrance
     with dissolve
 
@@ -66,8 +69,6 @@ label peevish_meeting:
     extend " Talk to me when you have some G's on you!"
 
     $ pytfall.shops_stores["Peevish Shop"].visible = True 
-    $ global_flags.set_flag("met_peevish")
-    $ global_flags.del_flag("keep_playing_music")
     $ del p, temp
     $ stop_gossip("peevish_forest")
     jump forest_entrance
@@ -105,13 +106,12 @@ label peevish_menu:
     with dissolve
     $ del shop, focus, item_price, amount, purchasing_dir, char
     p "Come back when you have more {color=gold}gold{/color}!"
-    if not (global_flags.has_flag("revealed_aine_location") or global_flags.has_flag("met_aine")):
+    if not (global_flags.has_flag("revealed_aine_location") or global_flags.has_flag("visited_aine")):
         p "Oh! Before I forget!"
         p "I have a goodie, goodie sis that usually hangs around the park area. She is magical too so you might not be able to see her until you train up a bit..."
         p "Sure wish you weren't such a wuss..."
         extend " Now you can get the hell out of here!"
         $ global_flags.set_flag("revealed_aine_location")
     hide peevish with dissolve
-    $ global_flags.set_flag("keep_playing_music")
     $ del p
     jump forest_entrance

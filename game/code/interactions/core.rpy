@@ -126,8 +126,9 @@ init -1 python:
             # reset self
             self.mode = None
             #self.label_cache = ""
-            self.bg_cache = ""
-            self.jump_cache = ""
+            self.bg_cache = None
+            self.env_cache = None
+            self.jump_cache = None
             self.img_cache = None
             self.char = None
             self.img = None
@@ -250,7 +251,8 @@ init -1 python:
 
             mode = The mode to use.
             char = The character to use.
-            bg = The background to use. Use to override enter_location function. Set to True to select based on the char image.
+            bg = The background to use. A pair of strings to specify the location and the env (sound).
+                 Use to override enter_location function. Set to True to select based on the char image.
             img = The image to use.
             exit = The exit label to use. Overrides enter_location.
             """
@@ -274,10 +276,12 @@ init -1 python:
             if bg is not None:
                 if bg is True:
                     # set bg based on the char image
-                    bg = iam.select_char_location(char, self.get_image_tags())
-                #else:
+                    bg, env = iam.select_char_location(char, self.get_image_tags())
+                else:
                     # direct set of the bg
+                    bg, env = bg
                 self.bg_cache = "bg " + bg
+                self.env_cache = env
 
             if hasattr(store, "char"):
                 self.prev_char = store.char
@@ -290,18 +294,14 @@ init -1 python:
             else:
                 jump(mode)
 
-        def start_int(self, char, bg=None, img=None, exit=None, keep_music=True):
+        def start_int(self, char, bg=None, img=None, exit=None):
             """
             Starts the girlsmeet scenario.
             char = The character to use.
             bg = The background to use. Use to override enter_location function. Set to True to select based on the char image.
             img = The image for the character.
             exit = The exit label to use. Use to override enter_location function.
-            keep_music = Whether we need to set the keep_playing_music flag after ending the interaction
             """
-            # Music flag:
-            if keep_music is True:
-                global_flags.set_flag("keep_playing_music")
             friends_disp_check(char)
             if char.has_flag("cnd_interactions_blowoff"):
                 if exit is None:
@@ -320,15 +320,16 @@ init -1 python:
             """
             self.start("girl_trainings", char, bg, img, exit)
 
-        def enter_location(self, coords=None, **kwargs):
+        def enter_location(self, env, coords=None, **kwargs):
             """
             Enters the current location for the GM system.
             """
             label = str(last_label)
             self.label_cache = label
             self.bg_cache = "bg " + label
-            self.show_girls = False
+            self.env_cache = env
             self.coords = coords
+            self.show_girls = False
 
             # Creation:
             if label not in self.girlcells:

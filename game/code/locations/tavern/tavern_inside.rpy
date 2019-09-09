@@ -1,42 +1,31 @@
 label tavern_town:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("tavern")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg tavern_inside
     with dissolve
 
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
-
-    if hero.has_flag("dnd_fought_in_tavern"): # after a brawl tavern will be unavailable until the next turn
-        show expression npcs["Rita_tavern"].get_vnsprite() as npc
-        with dissolve
-        npcs["Rita_tavern"].say "I'm sorry, we are closed for maintenance. Please return tomorrow."
-        jump city
-
-    if global_flags.has_flag('visited_tavern'):
-        if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
-            $ global_flags.set_flag("tavern_status", value=[day, 
-                                    weighted_choice([["cozy", 40], ["lively", 40], ["brawl", 20]])])
-    else:
-        $ global_flags.set_flag('visited_tavern')
-        $ global_flags.set_flag("city_tavern_dice_bet", 5) # default dice bet
+    if pytfall.enter_location("tavern", music=False, env="tavern"):
         show expression npcs["Rita_tavern"].get_vnsprite() as npc
         with dissolve
         npcs["Rita_tavern"].say "Oh, hello! Welcome to our tavern! We will always have a seat for you! *wink*"
         hide npc
         with dissolve
-        $ global_flags.set_flag("tavern_status", value=[day, "cozy"])
+        $ pytfall.shops_stores["Tavern"].status = "cozy"
+    else:
+        if pytfall.shops_stores["Tavern"].status == "after brawl": # after a brawl tavern will be unavailable until the next turn
+            show expression npcs["Rita_tavern"].get_vnsprite() as npc
+            with dissolve
+            npcs["Rita_tavern"].say "I'm sorry, we are closed for maintenance. Please return tomorrow."
+            jump city
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
 label city_tavern_menu: # "lively" status is limited by drunk effect; every action rises drunk counter, and every action with drunk effect active decreases AP
-    scene bg tavern_inside
     if 'Drunk' in hero.effects:
         if not hero.has_flag("dnd_tavern_dizzy"):
             "You feel a little dizzy... Perhaps you should go easy on drinks."
             $ hero.set_flag("dnd_tavern_dizzy")
         $ PyTGFX.double_vision_on("bg tavern_inside")
-    $ temp = global_flags.flag("tavern_status")[1]
+    $ temp = pytfall.shops_stores["Tavern"].status
     python hide:
         dir = content_path("events", "tavern_entry", temp)
         images = [file for file in listfiles(dir) if check_content_extension(file)]
@@ -52,17 +41,18 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
             "The place is loud and lively today, with townsmen drinking and talking at every table."
         else:
             $ del temp
-            python hide:
-                renpy.music.stop(channel="world")
-                renpy.music.play("brawl.mp3", channel="world")
+            $ pytfall.enter_location("tavern", music=False, env="brawl")
+            #renpy.music.play("brawl.mp3", channel="world")
             "You step into the room... right into a fierce tavern brawl!"
             menu:
                 "Join it!":
+                    $ hero.mod_stat("reputation", -1)
                     jump city_tavern_brawl_fight
                 "Leave while you can":
                     jump city
         $ hero.set_flag("dnd_was_in_tavern")
     $ del temp
+
     show screen city_tavern_inside
     while 1:
         $ result = ui.interact()
@@ -84,7 +74,7 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
             jump city
 
 label city_tavern_choose_label:
-    $ bet = global_flags.flag("city_tavern_dice_bet")
+    $ bet = pytfall.shops_stores["Tavern"].bet
     "Here you can set how much to bet to avoid doing it before every game in the tavern. The more your tier, the higher bets are available."
     "The current bet is [bet] Gold."
     menu:
@@ -103,7 +93,7 @@ label city_tavern_choose_label:
             $ bet = 200
         "500" if hero.tier >= 5:
             $ bet = 500
-    $ global_flags.set_flag("city_tavern_dice_bet", bet)
+    $ pytfall.shops_stores["Tavern"].bet = bet
     $ del bet
     jump city_tavern_menu
 
@@ -124,7 +114,7 @@ screen city_tavern_inside():
                 yalign .5
                 action Return("shop")
                 text "Buy a drink" size 15
-            $ temp = global_flags.flag("tavern_status")[1]
+            $ temp = pytfall.shops_stores["Tavern"].status
             if hero.has_ap():
                 if temp == "lively":
                     button:
@@ -203,40 +193,54 @@ label mc_action_tavern_relax:
 
 label city_tavern_brawl_fight:
     if len(hero.team) == 1:
-        "You go inside, and a few thugs immediately notice you."
+        "You go inside and a few thugs immediately notice you."
     else:
         "You nod to your teammates and go inside. A few thugs immediately notice you."
 
-    $ num = randint(2, 5)
-    $ i = 0
-    while i < num:
-        if i != 0:
+    $ group_counter = randint(2, 5)
+    while group_counter > 0:
+        if pytfall.shops_stores["Tavern"].status == "brawl":
+            $ pytfall.shops_stores["Tavern"].status = "after brawl"
+        else:
             "Another group is approaching you!"
             menu:
                 "Fight!":
                     $ pass
                 "Run away":
-                    "You quickly leave the tavern."
-                    $ hero.set_flag("dnd_fought_in_tavern")
-                    $ del num, i
-                    jump city
+                    $ group_counter = -1
 
-        call city_tavern_thugs_fight from _call_city_tavern_thugs_fight
-        if hero.has_flag("dnd_fought_in_tavern"):
-            if hero.gold > 50:
-                $ hero.take_money(min(hero.gold, randint(50, 150)*(i+1)), reason="Tavern")
-                "You were beaten and robbed..."
-            else:
-                "You were beaten..."
-            $ del num, i
-            jump city
+        if group_counter > 0:
+            python hide:
+                global group_counter
+                enemies = ["Thug", "Assassin", "Barbarian"]
+                enemy_team = Team(name="Enemy Team")
+                for j in range(randint(2, 3)):
+                    id = random.choice(enemies)
+                    min_lvl = mobs[id]["min_lvl"]
+                    mob = build_mob(id=id, level=randint(min_lvl, min_lvl+20))
+                    #mob.front_row = 1
+                    enemy_team.add(mob)
+                back = iam.select_background_for_fight("tavern")
+                result = run_default_be(enemy_team, background=back, end_background="tavern_inside", skill_lvl=3,
+                                        slaves=False, prebattle=True)
 
-        $ i += 1
+                if result is True:
+                    group_counter -= 1
+                else:
+                    group_counter = -2
 
-    "The fight is finally over. You found a few coins in thugs pockets."
-    $ hero.add_money(randint(50, 150)*(i+1), reason="Tavern")
-    $ hero.set_flag("dnd_fought_in_tavern")
-    $ del num, i
+    if group_counter == 0:
+        "The fight is finally over. You found a few coins in thugs pockets."
+        $ hero.add_money(randint(50, 150)*(i+1), reason="Tavern")
+    elif group_counter == -1:
+        "You quickly leave the tavern."
+    else:
+        if hero.gold > 50:
+            $ hero.take_money(min(hero.gold, randint(50, 150)*(i+1)), reason="Tavern")
+            "You were beaten and robbed..."
+        else:
+            "You were beaten..."
+    $ del group_counter
     jump city
 
 
@@ -273,24 +277,6 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
         "You don't have enough money to join others, so there is nothing interesting for you at the moment."
 
     jump city_tavern_menu
-
-label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
-    python hide:
-        enemies = ["Thug", "Assassin", "Barbarian"]
-        enemy_team = Team(name="Enemy Team")
-        for j in range(randint(2, 3)):
-            id = random.choice(enemies)
-            min_lvl = mobs[id]["min_lvl"]
-            mob = build_mob(id=id, level=randint(min_lvl, min_lvl+20))
-            #mob.front_row = 1
-            enemy_team.add(mob)
-        back = iam.select_background_for_fight("tavern")
-        result = run_default_be(enemy_team, background=back, end_background="tavern_inside", skill_lvl=3,
-                                slaves=False, prebattle=True)
-
-        if result is not True:
-            hero.set_flag("dnd_fought_in_tavern")
-    return
 
 label city_tavern_shopping: # tavern shop with alcohol, available in all modes except brawl
     hide drunkards with dissolve

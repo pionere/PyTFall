@@ -1,24 +1,22 @@
 label city_park:
-    $ iam.enter_location(goodtraits=["Elf", "Furry"], badtraits=["Aggressive", "Adventurous"],
-                        coords=[[.1, .7], [.4, .45], [.74, .73]])
-
     scene bg city_park
     with dissolve
 
-    show screen city_park
+    $ pytfall.enter_location("park", music=True, env="city_park", coords=[(.1, .7), (.4, .45), (.74, .73)],
+                             goodtraits=["Elf", "Furry", "Human"], badtraits=["Aggressive", "Adventurous"])
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen city_park
     while 1:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ iam.start_int(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True), keep_music=False)
+            $ iam.start_int(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             #if result[1] in ['jumpgates', 'return'):
-                $ global_flags.set_flag("keep_playing_music")
                 hide screen city_park
                 jump city_parkgates
 
@@ -51,7 +49,7 @@ screen city_park():
             action [Hide("city_park"), Jump("mc_action_park_rest")]
             tooltip "Rest"
 
-        if global_flags.has_flag("met_aine"):
+        if global_flags.has_flag("visited_aine"):
             $ img = im.Scale("content/gfx/interface/icons/aine.png", 75, 75)
             imagebutton:
                 pos (1090, 340)

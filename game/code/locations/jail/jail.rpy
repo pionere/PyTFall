@@ -1,23 +1,16 @@
 label city_jail:
-    # Music related:
-    #if not global_flags.has_flag("keep_playing_music"):
-    #    $ PyTFallStatic.play_music("cityjail", fadein=.5)
-    #$ global_flags.del_flag("keep_playing_music")
-
     scene bg jail
     with dissolve
 
-    if not global_flags.flag('visited_city_jail'):
-        $ global_flags.set_flag('visited_city_jail')
+    if pytfall.enter_location("jail", music=True, env="jail"):
         "The city jail..."
         "Temporary home of miscreants and lawbreakers."
         "Not to mention an occasional escaped slave."
 
-    show screen city_jail
-
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
+    show screen city_jail
     while True:
         $ result = ui.interact()
         if result == "escapees":
@@ -61,22 +54,16 @@ label city_jail:
             jump city
 
 label hero_in_jail:
-    # Music related
-    $ renpy.music.stop(channel="world")
-    $ global_flags.del_flag("keep_playing_music")
-
     scene bg jail_cell
     with dissolve
 
-    if not global_flags.flag('visited_city_jail_hero_cell'):
-        $ global_flags.set_flag('visited_city_jail_hero_cell')
+    if pytfall.enter_location("jail_cell", music=False, env="jail"):
         "This place is awful..."
         extend " How could you end up here?"
         "Of course you know, how..."
 
     show screen hero_cell
-
-    while True:
+    while 1:
         $ result = ui.interact()
         if result == "guards":
             hide screen hero_cell

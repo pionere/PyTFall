@@ -5,6 +5,8 @@ label girl_interactions:
 
     scene expression iam.bg_cache
 
+    $ PyTSFX.set_music(False) # TODO pytfall.enter_location("interaction", False, iam.env_cache) ?
+
     show screen girl_interactions
     with dissolve
 

@@ -88,7 +88,7 @@ label fashion_show:
     $ hero.set_flag("dnd_fashion_show")
 
     # FIXME play relevant music
-    #$ PyTFallStatic.play_music("fashion_show")
+    #$ PyTSFX.play_music("fashion_show")
 
     # The Party:
     $ style = [("lingerie", "lingeries"),

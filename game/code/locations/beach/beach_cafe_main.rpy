@@ -1,21 +1,9 @@
 label city_beach_cafe_main:
-    $ iam.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
-                        coords=[[.15, .75], [.65, .62], [.9, .8]])
-    # Music related:
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("beach_cafe")
-    $ global_flags.del_flag("keep_playing_music")
-
-    if global_flags.get_flag("waitress_ice", [-1])[0] != day:
-        python hide:
-            who = global_flags.get_flag("waitress_cafe", [0, None])
-            who = getattr(who[1], "id", None)
-            who = [w for w in ["Mel_cafe", "Monica_cafe", "Chloe_cafe"] if w != who]
-            who = npcs[(choice(who))]
-            global_flags.set_flag("waitress_ice", value=[day, who])
-
     scene bg city_beach_cafe_main
     with dissolve
+
+    $ pytfall.enter_location("beach_cafe", music=True, env="beach_cafe", coords=[(.15, .75), (.65, .62), (.9, .8)],
+                             goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"])
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
@@ -35,7 +23,6 @@ label city_beach_cafe_main:
         $ del inviting_character
 
     show screen city_beach_cafe_main
-
     while 1:
         $ result = ui.interact()
 
@@ -44,9 +31,14 @@ label city_beach_cafe_main:
                 char = result[1]
                 iam.start_int(char, img=iam.select_beach_img_tags(char, "beach_cafe"))
 
-        elif result == ['control', 'return']:
+        elif result[0] == "control":
             hide screen city_beach_cafe_main
-            jump city_beach_left
+            if result[1] == "return":
+                jump city_beach_left
+            elif result[1] == "left":
+                jump city_beach_cafe
+            elif result[1] == "return":
+                jump mc_action_city_beach_ice
 
 
 screen city_beach_cafe_main:
@@ -68,7 +60,7 @@ screen city_beach_cafe_main:
             pos (642, 390)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_cafe_main"), Jump("mc_action_city_beach_ice")]
+            action Return(["control", "ice"])
             tooltip "Ice Cream"
 
         $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
@@ -76,7 +68,7 @@ screen city_beach_cafe_main:
             align (.01, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_cafe_main"), Jump("city_beach_cafe")]
+            action Return(["control", "left"])
 
         $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 90, 60), vertical=True)
         imagebutton:
@@ -88,21 +80,17 @@ screen city_beach_cafe_main:
 label mc_action_city_beach_ice:
     if hero.has_flag("dnd_ice_in_cafe"):
         "You already had an icecream today. Too much of it, and a cold is guaranteed."
-        $ global_flags.set_flag("keep_playing_music")
         jump city_beach_cafe_main
 
-    $ waitress = global_flags.flag("waitress_ice")[1]
-
     scene bg icestand
-    show expression waitress.get_vnsprite() as npc at truecenter
+    show expression pytfall.shops_stores["Cafe"].server.get_vnsprite() as npc at truecenter
     show screen city_beach_ice_stand
 
     if global_flags.flag('visited_ice'):
-        waitress.say "Welcome back! What can I have you today?"
+        pytfall.shops_stores["Cafe"].server.say "Welcome back! What can I have you today?"
     else:
         $ global_flags.set_flag('visited_ice')
-        waitress.say "Welcome to the finest Ice Cream stand in the city!"
-    $ del waitress
+        pytfall.shops_stores["Cafe"].server.say "Welcome to the finest Ice Cream stand in the city!"
 
     while 1:
         $ result = ui.interact()
@@ -114,7 +102,6 @@ label mc_action_city_beach_ice:
         if result == "ice_group":
             $ inviting_character = hero
             jump mc_action_ice_invitation
-        $ global_flags.set_flag("keep_playing_music")
         jump city_beach_cafe_main
 
 screen city_beach_ice_stand:
@@ -169,5 +156,4 @@ label mc_action_ice_invitation:
             "You could spend time with your team, but sadly you are too poor to afford it at the moment."
 
     $ del inviting_character
-    $ global_flags.set_flag("keep_playing_music")
     jump city_beach_cafe_main

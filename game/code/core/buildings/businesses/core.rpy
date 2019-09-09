@@ -129,7 +129,7 @@ init -12 python:
             self.job_effectiveness_mod += getattr(upgrade, "job_effectiveness_mod", 0)
 
         def remove_upgrade(self, upgrade):
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
 
             cost, materials, in_slots, ex_slots = upgrade.get_cost()
             building = self.building
@@ -187,7 +187,7 @@ init -12 python:
             return True
 
         def reduce_capacity(self):
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            PyTSFX.purchase()
 
             cost, materials, in_slots, ex_slots = self.get_expansion_cost()
             building = self.building

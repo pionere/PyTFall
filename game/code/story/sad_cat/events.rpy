@@ -26,7 +26,6 @@ label found_sad_cat_1:
             show expression temp at left
             "The cat is frightened as you approach, and quickly runs away."
             $ kill_event("found_sad_cat_1")
-    $ global_flags.set_flag("keep_playing_music")
     $ del temp
     jump main_street
 
@@ -61,7 +60,6 @@ label found_sad_cat_2:
                 show expression temp at left
                 "The cat is frightened as you approach, and quickly runs away."
                 $ kill_event("found_sad_cat_2")
-    $ global_flags.set_flag("keep_playing_music")
     $ del temp, fish
     jump main_street
 
@@ -96,7 +94,6 @@ label found_sad_cat_3:
                 show expression temp at left
                 "The cat is frightened as you approach, and quickly runs away."
                 $ kill_event("found_sad_cat_3")
-    $ global_flags.set_flag("keep_playing_music")
     $ del temp, fish
     jump main_street
 
@@ -152,7 +149,6 @@ label found_sad_cat_4:
     else:
         hero.say "It still can be healed with a healing potion, but I don't have any right now."
 
-    $ global_flags.set_flag("keep_playing_music")
     $ cat.restore_portrait()
     $ del cat, potion, temp
     jump main_street

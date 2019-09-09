@@ -9,12 +9,11 @@ label building_management:
         mouse_cursor = config.mouse
 
     scene bg scroll
+    with dissolve
+
+    $ pytfall.enter_location("management", music=True, env=None)
 
     show screen building_management
-    with fade
-
-    $ global_flags.set_flag("keep_playing_music")
-
     while 1:
         $ result = ui.interact()
         if not result or not isinstance(result, (list, tuple)):
@@ -681,7 +680,7 @@ screen building_management_leftframe_businesses_mode:
                 style "pb_button"
                 xalign .5
                 action [Function(bm_mid_frame_mode.expand_capacity),
-                        Play("audio", "content/sfx/sound/world/purchase_1.ogg"), SensitiveIf(can_build)]
+                        Function(PyTSFX.purchase), SensitiveIf(can_build)]
                 tooltip "Expand the business!"
             null height 5
             text "To Cut Back:"

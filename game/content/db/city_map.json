@@ -71,8 +71,7 @@
         {
             "id": "witches_hut",
             "name": "Witches Hut",
-            "x": 700,
-            "y": 550,
+            "pos": [700, 550],
             "img": "content/gfx/interface/icons/neitral.png"
         }
     ],
@@ -80,8 +79,7 @@
         {
             "id": "tavern_inside",
             "name": "Night & Day",
-            "x": 820,
-            "y": 550,
+            "pos": [820, 550],
             "img": "content/gfx/interface/icons/tavern.png"
         }
     ]
