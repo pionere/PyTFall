@@ -9,11 +9,10 @@ label building_management:
         mouse_cursor = config.mouse
 
     scene bg scroll
-    with dissolve
-
     $ pytfall.enter_location("management", music=True, env=None)
 
     show screen building_management
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
         if not result or not isinstance(result, (list, tuple)):

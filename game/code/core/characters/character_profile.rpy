@@ -21,11 +21,10 @@ label char_profile:
     $ change_char_in_profile("init")
 
     scene bg scroll
-    with dissolve
-
     $ pytfall.enter_location("management", music=True, env=None)
 
     show screen char_profile
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

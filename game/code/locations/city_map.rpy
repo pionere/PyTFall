@@ -12,11 +12,10 @@ init python:
 
 label city:
     scene bg pytfall
-    with dissolve
-
     $ pytfall.enter_location("city", music=True, env=None)
 
     show screen city_screen
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 
