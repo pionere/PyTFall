@@ -67,7 +67,6 @@ init -1 python:
             renpy.with_statement(dissolve)
 
             pytfall.enter_location("management", music="content/sfx/music/context/gallery.mp3", env=None)
-            #renpy.music.play("content/sfx/music/world/reflection.mp3", channel="world", fadein=1.5)
 
             tag = "gallery_tv_img"
             loop = first = True
@@ -109,12 +108,7 @@ init -1 python:
                 loop = renpy.call_screen("gallery_trans")
                 renpy.hide(tag)
 
-            #renpy.music.stop(fadeout=1.0)
-            pytfall.enter_location("management", music=True, env=None)
-
-            renpy.show_screen("gallery")
-            renpy.with_statement(dissolve)
-            # FIXME jump("gallery") ?
+            jump("gallery")
 
     class PagerGui(_object):
         def __init__(self, content, page_size=10):

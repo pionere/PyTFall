@@ -68,6 +68,7 @@ init -1 python:
 
                     self.add_timer(m['timer'], [{"function": "_move_npc", "arguments": [p, m] }])
 
+            pytfall.enter_location("dungeon", music=False, env="dungeon")
             return self.hero
 
         def load(self, name, **arguments):
@@ -413,7 +414,6 @@ label enter_dungeon:
             "You can not enter the dungeon for [temp] more days."
         else:
             "To enter the dungeon you have to wait till tomorrow."
-        $ global_flags.set_flag("keep_playing_music")
         $ del temp
         jump graveyard_town
 
@@ -422,7 +422,6 @@ label enter_dungeon:
         "Yes":
             $ hero.set_flag("cnd_can_access_cemetery_dungeon", day + randint(3, 5))
         "No":
-            $ global_flags.set_flag("keep_playing_music")
             jump graveyard_town
 
     python:
@@ -434,10 +433,6 @@ label enter_dungeon:
             pc = dungeon.enter(at={ "x": 1, "y": 1, "dx": 1, "dy": 0 })
             dungeon.say("", "You enter the mausoleum. The door shuts behind you; you cannot get out this way!")
         mpos = None
-    # Music
-    if not global_flags.has_flag("keep_playing_music"):
-        $ PyTFallStatic.play_music("dungeon", fadein=.5)
-    $ global_flags.del_flag("keep_playing_music")
 
     # Place a player position on a dungeon stage.
     # dx,dy means direction. If dy=1, it's down. If dx=-1, it's left.
@@ -645,6 +640,7 @@ label enter_dungeon_r:
             elif _return == "torch":
                 if dungeon.light is None:
                     dungeon.light = "torch"
+                    renpy.sound.play("content/sfx/sound/dungeon/torch_whoosh.mp3")
                     # TODO add event to turn off?
                 else:
                     dungeon.light = None
@@ -662,7 +658,6 @@ label enter_dungeon_r:
                 came_to_equip_from = "enter_dungeon_r"
                 eqtarget = _return
                 equip_girls = [_return]
-                global_flags.set_flag("keep_playing_music")
                 equipment_safe_mode = True
                 renpy.jump("char_equip")
 

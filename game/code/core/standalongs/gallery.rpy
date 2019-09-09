@@ -6,9 +6,11 @@ label gallery:
             tl.end("Loading Gallery")
 
     scene bg gallery
-    show screen gallery
     with dissolve
 
+    $ pytfall.enter_location("management", music=True, env=None)
+
+    show screen gallery
     python hide:
         while 1:
             result = ui.interact()

@@ -20,7 +20,7 @@ label interactions_shopping:
         t "Check out our latest collection. Your [txt] will love it:"
     else:
         t "Welcome back!"
-        if char.status == "free"
+        if char.status == "free":
             $ txt = "a lady" if char.gender == "female" else "a gentleman"
         else:
             $ txt = "one of your %s" % ("ladies" if char.gender == "female" else "guys")
