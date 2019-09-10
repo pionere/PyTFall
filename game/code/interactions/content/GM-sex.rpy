@@ -191,10 +191,12 @@ label interactions_sex_scene_select_place:
                 "Where would you like to do it?"
                 "Beach":
                     show bg city_beach with fade
+                    $ PyTSFX.set_env("beach_main")
                     $ sex_scene_location = "beach"
                     $ char.gfx_mod_stat("joy", 10 if "Masochist" in char.traits else -10)
                 "Park":
                     show bg city_park with fade
+                    $ PyTSFX.set_env("city_park")
                     $ sex_scene_location = "park"
                     $ char.gfx_mod_stat("joy", 10 if "Masochist" in char.traits else -10)
                 "Room":
@@ -210,9 +212,11 @@ label interactions_sex_scene_select_place:
 
             "Beach":
                 show bg city_beach with fade
+                $ PyTSFX.set_env("beach_main")
                 $ sex_scene_location = "beach"
             "Park":
                 show bg city_park with fade
+                $ PyTSFX.set_env("city_park")
                 $ sex_scene_location = "park"
             "Room":
                 show bg girl_room with fade
