@@ -1,15 +1,26 @@
-###### j0
-# quick navigation, search "j" + number, example: j0 - this panel
-#
-#  1 - shopping - shopping
-###### j1
 label interactions_shopping:
-    # TODO items/interactions lt: Get rid of this or update it to modern PyTFall!
-    #copied from tailor shop
-    #then modified for own use
+    if iam.check_for_bad_stuff(char):
+        jump girl_interactions_end
+
+    if iam.flag_count_checker(char, "interactions_shopping") != 0:
+        $ iam.refuse_because_tired(char)
+        jump girl_interactions
+
+    if not iam.want_shopping(char):
+        $ char.gfx_mod_stat("disposition", -randint(1, 2))
+        $ iam.int_reward_exp(char, .1)
+        $ iam.refuse_invite_any(char)
+        jump girl_interactions
+
+    $ iam.accept_invite(char)
     hide screen girl_interactions
 
+    $ iam.set_img("girlmeets", ("no bg", "simple bg", "indoors"), exclude=["swimsuit", "indoor", "wildness", "suburb", "beach", "pool", "onsen", "nature"], resize=(300, 300), type="ptls", gm_mode=True)
+
     scene bg tailor_store
+    with dissolve
+
+    show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
     with dissolve
 
     $ t = npcs["Kayo_Sudou"].say
@@ -26,191 +37,187 @@ label interactions_shopping:
             $ txt = "one of your %s" % ("ladies" if char.gender == "female" else "guys")
         t "Ah with [txt]. Let see what they'd like!"
 
+    hide npc with dissolve
+
     python:
         focus = False
+        item_price = 0
         purchasing_dir = None
         shop = pytfall.shops_stores["Tailor Store"]
         char.inventory.set_page_size(18)
 
-    show screen tailor_store_shopping_girl
+    show screen interactions_shopping
     with dissolve
 
     python:
-        txt = ''
+        temp, txt = None, []
         while True:
             result = ui.interact()
-            if result[0] == 'shop':
-                if result[1] == 'first_page':shop.inventory.first()
-                elif result[1] == 'last_page':shop.inventory.last()
-                elif result[1] == 'next_page':shop.inventory.next()
-                elif result[1] == 'prev_page':shop.inventory.prev()
-                elif result[1] == 'prev_filter':shop.inventory.apply_filter('prev')
-                elif result[1] == 'next_filter':shop.inventory.apply_filter('next')
+            if result[0] == "item":
+                if result[1] == char:
+                    purchasing_dir = "sell"
+                    item_price = shop.sell_margin
                 else:
-                    purchasing_dir = 'buy'
-                    focus = shop.inventory.getitem(result[1])
+                    purchasing_dir = "buy"
+                    item_price = shop.buy_margin
+                focus = result[2]
+                item_price = int(focus.price * item_price)
+            elif result[0] == "shop":
+                if result[1] == "buy":
+                    if count_owned_items(focus, char) != 0:
+                         iam.refuse_shop(char)
+                    elif not can_equip(focus, char, silent=True):
+                         iam.items_deny_bad_item(char)
+                    elif hero.take_money(item_price, reason="Gifts"):
+                        PyTSFX.purchase()
 
-            elif result[0] == 'inv':
-                if result[1] == 'first_page':char.inventory.first()
-                elif result[1] == 'last_page':char.inventory.last()
-                elif result[1] == 'next_page':char.inventory.next()
-                elif result[1] == 'prev_page':char.inventory.prev()
-                elif result[1] == 'prev_filter':char.inventory.apply_filter('prev')
-                elif result[1] == 'next_filter':char.inventory.apply_filter('next')
-                else:
-                    purchasing_dir = 'sell'
-                    focus = char.inventory.getitem(result[1])
+                        t = [t for t in char.basetraits if set(t.base_skills).intersection(focus.mod_skills)]
+                        if char.status == "free":
+                            if t:
+                                t = choice(t)
+                                txt.append("%s will definitly make me a better %s." % (focus.id, t.id))
+                                char.gfx_mod_stat('disposition', 1)
+                                char.gfx_mod_stat("affection", affection_reward(char))
 
-            elif result[0] == 'control':
-                if result[1] == 'buy/sell':
-                    if purchasing_dir == 'buy':
-                        result = hero.take_money(focus.price, reason="Gifts")
+                            if item_price > 1000:
+                                txt.append("Ohh, thank you! I love the %s. Thank you so much." % focus.id)
+                                char.gfx_mod_stat('disposition', 6)
+                                char.gfx_mod_stat("affection", affection_reward(char, 1.5, stat="gold"))
+                                char.gfx_mod_stat('joy', 4)
+                            else:
+                                txt.append("Thank you. I like it very much.")
+                                char.gfx_mod_stat('disposition', 3)
+                                char.gfx_mod_stat("affection", affection_reward(char, stat="gold"))
+                                char.gfx_mod_stat('joy', 3)
+                        else: # a slave
+                            if t:
+                                t = choice(t)
+                                txt.append("%s will definitly make me a better %s for %s." % (focus.id, t.id, char.mc_ref))
+                                char.gfx_mod_stat('disposition', 1)
+                                char.gfx_mod_stat("affection", affection_reward(char))
 
-                        if result:
-                            if char.status == "free":
-                                for t in char.basetraits:
-                                    if set(t.base_skills).intersection(focus.mod_skills):
-                                        txt == "%s will definitly make me a better %s.\n" % (focus.id, t.id)
-                                        char.gfx_mod_stat('disposition', 1)
-                                        char.gfx_mod_stat("affection", affection_reward(char))
+                            if char.get_stat("joy") < 40:
+                                if item_price > 1000:
+                                    txt.append("Thank you very much %s. I will put the %s to good use." % (char.mc_ref, focus.id))
+                                    char.gfx_mod_stat('disposition', 4)
+                                    char.gfx_mod_stat('joy', 2)
+                                else:
+                                    txt.append("Thank you %s for the %s." % (char.mc_ref, focus.id))
+                                    char.gfx_mod_stat('disposition', 2)
+                                    char.gfx_mod_stat('joy', 1)
 
-                                if focus.price > 1000:
-                                    txt += "Ohh, thank you! I love the %s. Thank you so much.\n" % focus.id
+                            elif char.get_stat("joy") < 80:
+                                if item_price > 1000:
+                                    txt.append("Thank you *KISS* very *VERY* much %s *KISS* for the %s ." % (char.mc_ref, focus.id))
+                                    char.gfx_mod_stat('disposition', 5)
+                                    char.gfx_mod_stat('joy', 3)
+                                else:
+                                    txt.append("*KISS* Thank you %s. I like the %s." % (char.mc_ref, focus.id))
+                                    char.gfx_mod_stat('disposition', 2)
+                                    char.gfx_mod_stat('joy', 2)
+
+                            else:
+                                if item_price > 1000:
+                                    txt.append("%s! I love the %s. Thank you so much." % (char.mc_ref.upper(), focus.id))
+                                    txt.append("%s gives you a kiss that leaves you breathless for a moment." % char.pC)
                                     char.gfx_mod_stat('disposition', 6)
-                                    char.gfx_mod_stat("affection", affection_reward(char, "gold", 1.5))
                                     char.gfx_mod_stat('joy', 4)
                                 else:
-                                    txt += "Thank you. I like it very much.\n"
+                                    txt.append("%s *KISS* Thank you %s. I like the %s." % (char.mc_ref, char.mc_ref, focus.id))
                                     char.gfx_mod_stat('disposition', 3)
-                                    char.gfx_mod_stat("affection", affection_reward(char, "gold"))
                                     char.gfx_mod_stat('joy', 3)
-                            else: # a slave
-                                for t in char.basetraits:
-                                    if set(t.base_skills).intersection(focus.mod_skills):
-                                        txt == "%s will definitly make me a better %s for Master.\n" % (focus.id, t.id)
-                                        char.gfx_mod_stat('disposition', 1)
-                                        char.gfx_mod_stat("affection", affection_reward(char))
 
-                                if char.get_stat("joy") < 40:
-                                    if focus.price > 1000:
-                                        txt += "Thank you very much Master. I will put the %s to good use.\n" % focus.id
-                                        char.gfx_mod_stat('disposition', 4)
-                                        char.gfx_mod_stat('joy', 2)
-                                    else:
-                                        txt += "Thank you Master for the %s.\n"%focus.id
-                                        char.gfx_mod_stat('disposition', 2)
-                                        char.gfx_mod_stat('joy', 1)
+                        shop.inventory.remove(focus)
+                        char.inventory.append(focus)
+                        shop.gold += item_price
+                        shop.total_items_price -= item_price
+                        break
+                    else:
+                        PyTGFX.message("You don't have enough Gold!")
+                elif result[1] == "sell" and can_transfer(char, hero, focus):
+                    t = shop.check_sell(focus, item_price)
+                    if t is None:
+                        shop.gold -= item_price
+                        shop.total_items_price += item_price
+                        if char.status == "free":
+                            char.add_money(item_price, reason="Items")
+                        else:
+                            hero.add_money(item_price, reason="Items")
+                        char.inventory.remove(focus)
+                        shop.inventory.append(focus)
 
-                                elif char.get_stat("joy") < 80:
-                                    if focus.price > 1000:
-                                        txt += "Thank you *KISS* very *VERY* much Master *KISS* for the %s .\n" % focus.id
-                                        char.gfx_mod_stat('disposition', 5)
-                                        char.gfx_mod_stat('joy', 3)
+                        PyTSFX.purchase()
 
-                                    else:
-                                        txt += "*KISS* Thank you Master. I like the %s.\n" % focus.id
-                                        char.gfx_mod_stat('disposition', 2)
-                                        char.gfx_mod_stat('joy', 2)
-
-                                else:
-                                    if focus.price > 1000:
-                                        txt += "MASTER! I love the %s. Thank you so much.\n%s gives you a kiss that leaves you breathless for a moment.\n" % (focus.id, char.pC)
-                                        char.gfx_mod_stat('disposition', 6)
-                                        char.gfx_mod_stat('joy', 4)
-
-                                    else:
-                                        txt += "Master *KISS* Thank you Master. I like the %s.\n" % focus.id
-                                        char.gfx_mod_stat('disposition', 3)
-                                        char.gfx_mod_stat('joy', 3)
-
-                            shop.inventory.remove(focus)
-                            char.inventory.append(focus)
-                            shop.gold += focus.price
-                            break
+                        iam.accept_sell(char)
 
                         focus = False
+                    else:
+                        narrator(t)
 
-                    elif purchasing_dir == 'sell':
-                        if shop.gold >= focus.price:
-                            shop.gold -= focus.price
-                            hero.add_money(focus.price, reason="Items")
-                            char.inventory.remove(focus)
-                            shop.inventory.append(focus)
+            elif result == ["control", "return"]:
+                break
 
-                            if char.occupation=='Prostitute':
-                                txt += "Prostitute test"
-
-                            if char.occupation=='Stripper':
-                                txt += "Stripper test"
-
-                            if char.occupation=='Server':
-                                txt += "Server test"
-
-                            if char.occupation=='Warrior':
-                                txt += "Warrior test"
-
-                            if char.occupation=='Healer':
-                                txt += "Healer test"
-
-                            break
-
-                        focus = False
-
-                elif result[1] == 'return':
-                    break
-
-    hide screen tailor_store_shopping_girl
+    hide screen interactions_shopping
     with dissolve
 
-    if txt !='':
-        char.say "[txt]"
+    python:
+        if txt:
+            for t in txt:
+                char.say(t)
+            iam.int_reward_exp(char)
+            if char.autoequip:
+                char.auto_equip(char.last_known_aeq_purpose)
+        else:
+            iam.dispo_reward(char, -randint(4, 6))
+            iam.disappointed(char)
 
+    $ iam.restore_img()
     $ PyTSFX.set_env(iam.env_cache)
 
-    $ del t, txt, shop, focus, purchasing_dir
+    $ del t, txt, temp, shop, focus, item_price, purchasing_dir
     jump girl_interactions
 
-screen tailor_store_shopping_girl():
-    frame:
-        align (.5, 0)
-        xmaximum 600
-        ymaximum 120
-
-        hbox:
-            null width 30
-            add im.Scale("content/gfx/interface/icons/gold.png", 40, 40) align(.5, .5)
-            null width 20
-            text (u'{size=+1}{color=gold}{b}= %s{/b}' % hero.gold) align(.5, .5)
-            null width 60
-            text (u'{size=+1}Day  =  %d' % day) align(.5, .5)
-            null width 50
-
-    use shop_inventory(ref=char, x=.0, title="Inventory")
-    use shop_inventory(ref=shop, x=1.0, title="Tailor Store")
+screen interactions_shopping:
+    if controlled_char(char):
+        use shop_inventory(ref=char, x=.0)
+    else:
+        fixed:
+            align .01, .5
+            xysize 310, 310
+            frame:
+                background Frame("content/gfx/frame/MC_bg.png", 5, 5)
+                add iam.img align .5, .5
+    use shop_inventory(ref=shop, x=1.0)
 
     if focus:
-        frame background Frame("content/gfx/frame/mes12.jpg", 5, 5):
-            align (.5, .15)
-            xmaximum 700
-            ymaximum 400 # changed so the other frame can go below
-            hbox:
-                use itemstats(item=focus,mode='normal')
-            frame background Solid((0, 0, 0, 0)):
-                align (.5, 1.0)
-                hbox:
-                    text (u' Price: %s' % focus.price)
-                    null width 20
-                    textbutton "Buy/Sell" action Return(['control','buy/sell']) maximum (150, 30)
-        if char.eqslots['body']: # only show the currently equiped item if there is one
-            frame background Frame("content/gfx/frame/mes12.jpg", 5, 5):
-                align (.5, .95)
-                xmaximum 700
-                ymaximum 300
-                use itemstats(item=char.eqslots['body']) # added a mode to the itemstats
+        $ temp = char.eqslots.get(focus.slot, None)
+        if temp: # only show the currently equiped item if there is one
+            frame:
+                background Frame("content/gfx/frame/mes12.jpg", 5, 5)
+                align (.5, .05)
+                use itemstats(item=temp, size=(580, 300))
 
-    $ img = im.Scale("content/gfx/interface/buttons/shape69.png", 40, 40)
-    imagebutton:
-        align (.99, 0)
-        idle img
-        hover im.MatrixColor(img, im.matrix.brightness(.15))
-        action Return(["control", "return"])
+        frame:
+            background Frame("content/gfx/frame/mes12.jpg", 5, 5)
+            align (.5, .98)
+            use itemstats(item=focus, size=(540, 300))
+
+        frame:
+            background Frame("content/gfx/frame/MC_bg.png", 5, 5)
+            align (.765, .75)
+            padding 6, 6
+            has vbox spacing 4
+            #offset -300, 400
+
+            style_prefix "proper_stats"
+            text "Price:" size 18 xalign .5
+            text str(item_price) color "gold" size 24 xalign .5
+            textbutton purchasing_dir.capitalize():
+                style "basic_button"
+                action Return(["shop", purchasing_dir])
+                xsize 75
+                xalign .5
+
+    fixed:
+        offset -281, 680
+        use exit_button

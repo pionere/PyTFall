@@ -139,6 +139,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             pwa.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 4))
             pwa.gm_choice("Hire", condition="char.employer != hero", index=(m, 5))
             pwa.gm_choice("Sparring", condition="char.employer != hero", index=(m, 6))
+            pwa.gm_choice("Shopping", index=(m, 7))
 
             # PLAY A GAME
             m = 9

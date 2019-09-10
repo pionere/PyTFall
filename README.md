@@ -21,16 +21,19 @@ Modules currently include (bold ones are only in this branch):
 - Schools
 - Jail
 
-Additional differences to the master branch:
+<b>Additional</b> differences to the master branch:
+
 - Added big events
 - New mini games
 - More complex relationship management (disposition vs. affection, insults, invitations, etc...)
 - New locations, NPCs
 - (Not complete) Reputation system: hero can end up in jail, events based on fame/reputation
-- New Action Point system
+- New Action Point System
+- New Sound System (ambient sounds)
 - Reworked Jobs, School
 - Extended ingame tagger
 - Different Jail, Exploration Guild, exploration logic
+- Configurable battle-speed (except for the sound effects), auto-combat in the Arena
 - Hero's home is more visible
 - GUI extensions
 - Overall support for animated content (items, buildings etc...). Remark: support(!), not actual content

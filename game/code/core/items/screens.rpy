@@ -103,8 +103,8 @@ screen shopping(left_ref=None, right_ref=None):
                     padding 3, 3
                     fixed:
                         xysize 250, 25
-                        label "Retail Price:" text_color "gold" text_size 22 xalign .0 yalign .5
-                        label "[total_price]" text_color "gold" text_size 22 xalign 1.0 yalign .5
+                        label "Retail Price:" text_color "gold" text_size 22 align .0, .5
+                        label "[total_price]" text_color "gold" text_size 22 align 1.0, .5
 
                 fixed:
                     xsize 180
@@ -154,10 +154,7 @@ screen shopping(left_ref=None, right_ref=None):
                     action Return(['item', 'buy/sell'])
                     xsize 100
                     xalign .5
-                    if purchasing_dir == "buy":
-                        text "Buy"
-                    elif purchasing_dir == "sell":
-                        text "Sell"
+                    text purchasing_dir.capitalize()
 
     fixed:
         xoffset -281
@@ -448,7 +445,7 @@ label shop_control:
                     $ amount = 1
                     $ focus = None
                 else:
-                    $ renpy.say("", msg)
+                    $ narrator(msg)
                 $ del msg, total
 
     elif result[0] == 'control':

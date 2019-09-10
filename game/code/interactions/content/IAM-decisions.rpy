@@ -71,6 +71,14 @@ init -2 python:
             return l_ch < char.get_stat("disposition")
 
         @staticmethod
+        def want_shopping(char):
+            if char.status != "free":
+                return True
+            l_ch = 100 - check_submissivity(char) * 50
+
+            return l_ch < char.get_stat("disposition")
+
+        @staticmethod
         def want_eat(char):
             if char.status != "free":
                 return True
@@ -102,14 +110,14 @@ init -2 python:
             return l_ch < char.get_stat("disposition")
 
         @staticmethod
-        def want_gift(character, n):
+        def want_gift(char, n):
             """
             Decide whether the character wants to accept the Nth gifts from the hero
             """
-            l_ch = 3 + check_submissivity(character)
-            if check_lovers(character):
+            l_ch = 3 + check_submissivity(char)
+            if check_lovers(char):
                 l_ch += 1
-            if dice(character.get_stat("affection")/20) or dice(character.get_stat("disposition")/40):
+            if dice(char.get_stat("affection")/20) or dice(char.get_stat("disposition")/40):
                 l_ch += 1
 
             return l_ch >= n

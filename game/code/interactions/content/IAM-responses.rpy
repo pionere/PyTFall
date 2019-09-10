@@ -1026,7 +1026,7 @@ init -2 python:
             elif "Kuudere" in char_traits:
                 lines = ("Do you see? It is quite reasonable, if you think about it.", )
             elif "Kamidere" in char_traits:
-                lines = ("You can always learn from be if you want to.", )
+                lines = ("You can always learn from me if you want to.", )
             elif "Bokukko" in char_traits:
                 lines = ("I hope you get it now, because I do not know how else I could explain it to you.", )
             elif "Ane" in char_traits:
@@ -1416,7 +1416,7 @@ init -2 python:
             elif "Bokukko" in char_traits:
                 lines = ("See ya. Can't stand to be with you for even a moment longer.", "Yeah, about time. Starting now, you and I are strangers!")
             elif "Ane" in char_traits:
-                lines = ("I don't want to be here any more. Goodbye.", "You and I are now complete strangers. This has already been decided.")
+                lines = ("I don't want to be here anymore. Goodbye.", "You and I are now complete strangers. This has already been decided.")
             elif "Yandere" in char_traits:
                 lines = ("I don't want to see your face anymore. Goodbye.", "I no longer feel like I need to be at your side, so... Farewell.")
             else:
@@ -1514,6 +1514,66 @@ init -2 python:
             else:
                 lines = ("I'm so happy! Many thanks, [mc_ref].", "You're amazing. This is exactly what I wanted! Thank you.", "Oh, you shouldn't have. Thank you, I really love this.", "This gift is fabulous! Thank you so much!")
             iam.say_line(character, lines, "shy", ("note", "reset"))
+
+        @staticmethod
+        def accept_sell(character):
+            """
+            Output line when a character sells an item because the hero tell them to
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Well, if you say so.", "Alright, I can live without it.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Uhm.. Ok... right...", "Ehm.. right... yes...", "Right, right...")
+            elif "Tsundere" in char_traits:
+                lines = ("Not that I needed anyway.", "Oh that? I don't use it anymore.")
+            elif "Kuudere" in char_traits:
+                lines = ("Yes, I though about to get rid of it for ages.", "Alright. It is useless anyway.")
+            elif "Yandere" in char_traits:
+                lines = ("Ok, I don't see a reason to keep it.", "Yes, I think I'm better off without it.")
+            elif "Dandere" in char_traits:
+                lines = ("Yes. You are right... I don't need that anymore.", "I guess it was not used anyway...")
+            elif "Ane" in char_traits:
+                lines = ("Ooh right. I don't need it anymore.", "Yes, you are right. Please get rid of this for me, will you?")
+            elif "Imouto" in char_traits:
+                lines = ("Huhu, make free space for something new, right? ♪", "You want to make my life lighter, right? ♪")
+            elif "Kamidere" in char_traits:
+                lines = ("Fine, it is just a useless item.", "I don't use it, so just get rid of it!")
+            elif "Bokukko" in char_traits:
+                lines = ("Man, why did I have this in the first place?", "Of course, there is no need for that anymore!")
+            else:
+                lines = ("Now that you mention it, it is really useless.", "Thanks, I wanted to sell this for some time.")
+            iam.say_line(character, lines)
+
+        @staticmethod
+        def refuse_shop(character):
+            """
+            Output line when a character refuses a shopping gift because they have it already
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("This particular item is not required at the moment.", "I have one of these already.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Um... I-I can not accept this...", "It's... I already have one, sorry...")
+            elif "Tsundere" in char_traits:
+                lines = ("As expected from an idiot like you. I already have one!", "Another one? Really? What's wrong with you?")
+            elif "Kuudere" in char_traits:
+                lines = ("Why would I want an another one of these?", "Stop it. I have this already.")
+            elif "Yandere" in char_traits:
+                lines = ("Don't you see? I have this already.", "Huh? Do you think I should collect these?")
+            elif "Dandere" in char_traits:
+                lines = ("Another one?..", "One more? Why?")
+            elif "Ane" in char_traits:
+                lines = ("I appreciate the thought, but I don't really want one more of this.", "Oh, but I have this already. Don't you remember?")
+            elif "Imouto" in char_traits:
+                lines = ("Wha? I have it already!", "Ugh. I have this already. Boring!")
+            elif "Kamidere" in char_traits:
+                lines = ("You can't remember something so simple? Pathetic.", "Pfft. Naturally, I have no need for another one of these.")
+            elif "Bokukko" in char_traits:
+                lines = ("C'mon, really? Another one of these?", "Another one? Do you think I'm obsessed with these?")
+            else:
+                lines = ("Sorry, I don't want another one of these.", "I don't think I need more of these.")
+            iam.say_line(character, lines, overlay_args=("puzzled", "reset"))
 
         @staticmethod
         def refuse_gift(character):
