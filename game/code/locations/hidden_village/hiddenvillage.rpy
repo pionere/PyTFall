@@ -1,6 +1,5 @@
 label hiddenvillage_entrance:
     scene bg hiddenvillage_entrance
-    with dissolve
 
     $ pytfall.enter_location("village", music=True, env="village", coords=[(.2, .25), (55, .2), (.8, .18)],
                              limited_location=True, goodtraits=["Curious"])
@@ -9,6 +8,7 @@ label hiddenvillage_entrance:
     $ pytfall.world_events.run_events("auto")
 
     show screen hiddenvillage_entrance
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

@@ -1,9 +1,9 @@
 label slave_market:
     scene bg slave_market
-    with dissolve
 
     if pytfall.enter_location("slave_market", music=True, env="slave_market"):
         show expression "content/gfx/bg/locations/slave_podium.webp" at truecenter as slave_market_slaves
+        with dissolve
 
         "What's this?"
         extend " WHAT THE HELL IS THIS???"
@@ -75,6 +75,7 @@ label slave_market:
     $ pytfall.world_events.run_events("auto")
 
     show screen slavemarket
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

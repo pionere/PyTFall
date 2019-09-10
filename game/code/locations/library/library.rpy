@@ -24,7 +24,6 @@ init python:
 
 label academy_town:
     scene bg academy_town
-    with dissolve
 
     if pytfall.enter_location("library", music=True, env="library", coords=[(.1, .55), (.45, .64), (.86, .65)],
                             badtraits=["Adventurous", "Slime", "Monster"], goodtraits=["Curious"], has_tags=["girlmeets", "schoolgirl"]):
@@ -47,6 +46,7 @@ label academy_town:
     $ pytfall.world_events.run_events("auto")
 
     show screen academy_town
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

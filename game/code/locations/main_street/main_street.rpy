@@ -1,6 +1,5 @@
 label main_street:
     scene bg main_street
-    with dissolve
 
     $ pytfall.enter_location("main_street", music=True, env="main_street", coords=[(.1, .7), (.57, .54), (.93, .61)],
                              goodtraits=["Human", "Kleptomaniac"], badtraits=["Not Human", "Alien", "Strange Eyes"])
@@ -9,6 +8,7 @@ label main_street:
     $ pytfall.world_events.run_events("auto")
 
     show screen main_street
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

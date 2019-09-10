@@ -1,6 +1,5 @@
 label arena_inside:
     scene bg battle_arena_1
-    with dissolve
 
     $ pytfall.enter_location("arena_inside", music=True, env="arena_inside")
 
@@ -8,6 +7,7 @@ label arena_inside:
     $ pytfall.world_events.run_events("auto")
 
     show screen arena_inside
+    with dissolve # dissolve the whole scene, not just the bg
     # Predicting:
     python:
         arena_img_predict = ["chainfights", "bg battle_dogfights_1", "bg battle_arena_1"]

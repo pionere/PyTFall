@@ -27,7 +27,6 @@ label arena_outside:
     $ setup_xeona()
 
     scene bg arena_outside
-    with dissolve
 
     if pytfall.enter_location("arena", music=True, env="arena_outside", coords=[(.1, .6), (.59, .64), (.98, .61)],
                              goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"], goodoccupations=["Combatant"]):
@@ -45,6 +44,7 @@ label arena_outside:
     $ pytfall.world_events.run_events("auto")
 
     show screen arena_outside
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

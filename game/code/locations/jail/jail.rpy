@@ -1,6 +1,5 @@
 label city_jail:
     scene bg jail
-    with dissolve
 
     if pytfall.enter_location("jail", music=True, env="jail"):
         "The city jail..."
@@ -11,6 +10,7 @@ label city_jail:
     $ pytfall.world_events.run_events("auto")
 
     show screen city_jail
+    with dissolve # dissolve the whole scene, not just the bg
     while True:
         $ result = ui.interact()
         if result == "escapees":

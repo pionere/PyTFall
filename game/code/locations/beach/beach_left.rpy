@@ -1,6 +1,5 @@
 label city_beach_left:
     scene bg city_beach_left
-    with dissolve
 
     $ pytfall.enter_location("city_beach_left", music=True, env="beach_main", coords=[(.15, .5), (.5, .45), (.7, .8)],
                              goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"])
@@ -9,6 +8,7 @@ label city_beach_left:
     $ pytfall.world_events.run_events("auto")
 
     show screen city_beach_left
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

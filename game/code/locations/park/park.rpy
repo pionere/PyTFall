@@ -1,6 +1,5 @@
 label city_park:
     scene bg city_park
-    with dissolve
 
     $ pytfall.enter_location("park", music=True, env="city_park", coords=[(.1, .7), (.4, .45), (.74, .73)],
                              goodtraits=["Elf", "Furry", "Human"], badtraits=["Aggressive", "Adventurous"])
@@ -9,16 +8,16 @@ label city_park:
     $ pytfall.world_events.run_events("auto")
 
     show screen city_park
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 
         if result[0] == 'jump':
             $ iam.start_int(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
 
-        elif result[0] == 'control':
-            #if result[1] in ['jumpgates', 'return'):
-                hide screen city_park
-                jump city_parkgates
+        elif result == ["control", "return"]:
+            hide screen city_park
+            jump city_parkgates
 
 screen city_park():
     use top_stripe(True)
@@ -39,7 +38,7 @@ screen city_park():
             align (.01, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action Return(['control', 'jumpgates'])
+            action Return(["control", "return"])
 
         $ img = im.Scale("content/gfx/interface/icons/park_swing.png", 80, 80)
         imagebutton:

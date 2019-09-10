@@ -1,11 +1,11 @@
 label slave_market_club: 
     scene bg slave_market_club
-    show screen slavemarket_club
-    with fade
-    
+
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
-    
+
+    show screen slavemarket_club
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
         

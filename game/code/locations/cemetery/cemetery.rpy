@@ -1,11 +1,11 @@
 label graveyard_town:
     scene bg graveyard_town
-    with dissolve
 
     $ pytfall.enter_location("cemetery", music=True, env="cemetery", coords=[(.1, .55), (.5, .84), (.92, .45)],
                              goodtraits=["Undead", "Divine Creature", "Demonic Creature"], badtraits=["Elf", "Android", "Monster", "Human", "Furry", "Slime"])
 
     show screen graveyard_town
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

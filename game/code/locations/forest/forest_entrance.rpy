@@ -1,6 +1,5 @@
 label forest_entrance:
     scene bg forest_entrance
-    with dissolve
 
     if pytfall.enter_location("dark_forest", music=True, env="forest_entrance", coords=[(.1, .7), (.39, .84), (.88, .71)],
                              goodtraits=["Furry", "Monster", "Scars", "Adventurous", "Curious"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"]):
@@ -10,6 +9,7 @@ label forest_entrance:
     $ pytfall.world_events.run_events("auto")
 
     show screen forest_entrance
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

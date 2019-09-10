@@ -1,6 +1,5 @@
 label village_town:
     scene bg village_town
-    with dissolve
 
     if pytfall.enter_location("village_town", music=True, env="town", coords=[(.2, .7), (.45, .72), (.75, .7)],
                              goodtraits=["Scars", "Undead", "Furry", "Monster", "Not Human", "Aggressive", "Vicious", "Sadist", "Assassin"], goodoccupations=["SIW"],
@@ -13,6 +12,7 @@ label village_town:
     $ pytfall.world_events.run_events("auto")
 
     show screen village_town
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
         if result[0] == 'jump':

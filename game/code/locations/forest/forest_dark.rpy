@@ -17,15 +17,13 @@ label forest_dark_continue:
     if forest_bg_change:
         $ background_number = choice(list(i for i in range(1, 7) if i != background_number))
         $ forest_location = "content/gfx/bg/locations/forest_" + str(background_number) + ".webp"
-    else:
-        $ forest_bg_change = True
     scene expression forest_location
-    with dissolve
 
     if pytfall.enter_location("deep_forest", music=False, env="forest_entrance"):
         "You step away from the city walls and go deep into the forest. It's not safe here, better to be on guard."
 
     show screen city_dark_forest
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 
@@ -71,7 +69,7 @@ screen city_dark_forest():
             button:
                 xysize (120, 40)
                 yalign .5
-                action Jump("dark_forest_exit")
+                action [Hide("city_dark_forest"), Jump("dark_forest_exit"), With(dissolve)]
                 text "Leave" size 15
                 keysym "mousedown_3"
 
@@ -83,7 +81,6 @@ label city_dark_forest_explore:
             "Unfortunately, you are too tired at the moment. Maybe another time."
 
         "Each member of your party should have at least 20 PP (and 1 AP is recommended)."
-
         $ forest_bg_change = False
         jump forest_dark_continue
     else:
@@ -91,7 +88,6 @@ label city_dark_forest_explore:
             jump mc_action_city_dark_forest_river
         elif not global_flags.has_flag("found_old_ruins") and dice(5):
             $ global_flags.set_flag("found_old_ruins")
-            hide screen city_dark_forest
             jump storyi_start
         elif dice(20) and not hero.has_flag("dnd_dark_forest_girl"):
             jump dark_forest_girl_meet
@@ -109,95 +105,77 @@ label city_dark_forest_ruines_part:
             "Unfortunately, you are too tired to explore dungeons. Maybe another time."
 
         "Each member of your party should have at least 20 PP (and 2 AP is recommended)."
-
+        $ forest_bg_change = False
         jump forest_dark_continue
     else:
-        hide screen city_dark_forest
         jump storyi_start
 
 label mc_action_city_dark_forest_rest:
     $ hero.set_flag("dnd_dark_forest_rested")
-    $ forest_bg_change = False
     scene bg camp
     with dissolve
 
     "You take a short rest before moving on, restoring mp and vitality."
-    $ forest_bg_change = False
 
     python hide:
         for i in hero.team:
             i.gfx_mod_stat("vitality", i.get_max("vitality")/4)
             i.gfx_mod_stat("health", i.get_max("health")/20)
             i.gfx_mod_stat("mp", i.get_max("mp")/5)
+    $ forest_bg_change = False
     jump forest_dark_continue
 
 label city_dark_forest_hideout:
-    hide screen city_dark_forest
-    scene bg forest_hideout
-    with dissolve
-
-    $ forest_bg_change = False
-
-    menu:
-        "You found bandits hideout inside an old abandoned castle."
-
-        "Attack them":
-            "You carefully approach the hideout when a group of bandits attacks you."
-        "Leave them be":
-            show screen city_dark_forest
-            jump forest_dark_continue
-
-    call city_dark_forest_hideout_fight from _call_city_dark_forest_hideout_fight
-
-    $ N = randint(1, 3)
-    $ j = 0
-    while j < N:
+    $ group_counter = total = randint(2, 4)
+    while group_counter > 0:
         scene bg forest_hideout
         with dissolve
 
-        "Another group is approaching you!"
+        if group_counter == total:
+            menu:
+                "You found bandits hideout inside an old abandoned castle."
+                "Attack them":
+                    "You carefully approach the hideout when a group of bandits attacks you."
+                "Leave them be":
+                    $ group_counter = total = 0
+        else:
+            "Another group is approaching you!"
 
-        call city_dark_forest_hideout_fight from _call_city_dark_forest_hideout_fight_1
+        if group_counter > 0:
+            $ enemy_team = Team(name="Enemy Team")
+            python hide:
+                for i in range(3):
+                    mob = choice(["Samurai", "Warrior", "Archer", "Soldier", "Barbarian", "Orc", "Infantryman", "Thug", "Mercenary", "Dark Elf Archer"])
+                    min_lvl = mobs[mob]["min_lvl"]
+                    mob = build_mob(id=mob, level=randint(min_lvl, min_lvl+20))
+                    enemy_team.add(mob)
 
-        $ j += 1
+            $ result = iam.select_background_for_fight("forest")
+            $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
+            if result is True:
+                $ group_counter -= 1
+            elif result == "escape":
+                scene black
+                pause 1.0
+                $ group_counter = total = 0
+            else:
+                jump game_over
+            $ del result, enemy_team
 
-    show screen city_dark_forest
-    scene bg forest_hideout
-    with dissolve
+    if total != 0:
+        "After killing all bandits, you found stash with loot."
 
-    "After killing all bandits, you found stash with loot."
-
-    python hide:
-        for type, price in (("treasure", 300), ("restore", 100), ("armor", 300), ("weapon", 300)):
-            if locked_dice(50):
-                give_to_mc_item_reward(type, tier=2, price=price)
+        python hide:
+            for type, price in (("treasure", 300), ("restore", 100), ("armor", 300), ("weapon", 300)):
+                if locked_dice(50):
+                    give_to_mc_item_reward(type, tier=2, price=price)
+        $ forest_bg_change = False
+    else:
+        $ forest_bg_change = True
+    $ del total, group_counter
     jump forest_dark_continue
 
-label city_dark_forest_hideout_fight:
-    $ enemy_team = Team(name="Enemy Team")
-    python hide:
-        for i in range(3):
-            mob = choice(["Samurai", "Warrior", "Archer", "Soldier", "Barbarian", "Orc", "Infantryman", "Thug", "Mercenary", "Dark Elf Archer"])
-            min_lvl = mobs[mob]["min_lvl"]
-            mob = build_mob(id=mob, level=randint(min_lvl, min_lvl+20))
-            enemy_team.add(mob)
-
-    $ result = iam.select_background_for_fight("forest")
-    $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
-    if result is True:
-        $ del result, enemy_team
-    elif result == "escape":
-        $ del result, enemy_team
-        scene black
-        pause 1.0
-        jump forest_dark_continue
-    else:
-        jump game_over
-    return
-
 label city_dark_forest_fight:
-    $ forest_bg_change = False
-
     $ enemy_team = Team(name="Enemy Team")
     python hide:
         mob = choice(["slime", "were", "harpy", "goblin", "wolf", "bear",
@@ -249,9 +227,11 @@ label city_dark_forest_fight:
     if result is True:
         $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",
                                  "potions", "restore"], tier=2)
+        $ forest_bg_change = False
     elif result == "escape":
         scene black
         pause 1.0
+        $ forest_bg_change = True
     else:
         jump game_over
     $ del result, enemy_team
@@ -270,19 +250,22 @@ label dark_forest_girl_meet:
         $ char = random.choice(choices)
         $ spr = char.get_vnsprite()
         show expression spr with dissolve
-        "You found a girl lost in the woods and escorted her to the city."
         $ char.override_portrait("portrait", "happy")
         $ char.show_portrait_overlay("love", "reset")
-        $ char.say("She happily kisses you in the chick as a thanks. Maybe you should try to find her in the city later.")
-        if char.get_stat("disposition") < 450:
-            $ char.gfx_mod_stat("disposition", 100)
+        if char.gender == "female":
+            "You found a girl lost in the woods and escorted her to the city."
+            char.say "She happily kisses you on the cheek as a thanks."
         else:
-            $ char.gfx_mod_stat("disposition", 50)
-        $ char.gfx_mod_stat("affection", affection_reward(char))
-        hide expression spr with dissolve
+            "You found a guy lost in the woods and escorted him to the city."
+            char.say "He wholeheartedly thanks you for your help."
+        extend " Maybe you should try to find [char.op] in the city later."
         $ char.restore_portrait()
         $ char.hide_portrait_overlay()
-        $ del spr, temp, choices # FIXME del char if possible
+        $ char.gfx_mod_stat("disposition", get_linear_value_of(char.get_stat("disposition"), 0, 100, char.get_max("disposition"), 0))
+        $ char.gfx_mod_stat("affection", affection_reward(char))
+        hide expression spr with dissolve
+        $ del char, spr, temp, choices
+        $ forest_bg_change = True
         jump forest_dark_continue
     $ del temp, choices
 
@@ -291,20 +274,13 @@ label mc_action_city_dark_forest_river:
     with dissolve
     $ pytfall.enter_location("deep_forest", music=False, env="forest_lake")
     $ hero.set_flag("dnd_dark_forest_river")
-    $ forest_bg_change = False
     "You found a river. Fresh, clean water restores some of your vitality."
     python hide:
         for i in hero.team:
             i.gfx_mod_stat("vitality", i.get_max("vitality")/2)
+    $ forest_bg_change = False
     jump forest_dark_continue
 
 label dark_forest_exit:
-    hide screen city_dark_forest
-    with dissolve
-
     $ del background_number, forest_location, forest_bg_change
-    if hasattr(store, "j"):
-        $ del store.j
-    if hasattr(store, "N"):
-        $ del store.N
     jump forest_entrance

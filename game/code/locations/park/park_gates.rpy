@@ -1,6 +1,5 @@
 label city_parkgates:
     scene bg city_parkgates
-    with dissolve
 
     if pytfall.enter_location("park_gates", music=True, env="city_park", coords=[(.1, .75), (.4, .67), (.9, .7)],
                              goodtraits=["Elf", "Furry", "Human"], badtraits=["Aggressive", "Adventurous"]):
@@ -10,6 +9,7 @@ label city_parkgates:
     $ pytfall.world_events.run_events("auto")
 
     show screen city_parkgates
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

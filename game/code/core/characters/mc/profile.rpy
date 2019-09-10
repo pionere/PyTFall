@@ -1,10 +1,10 @@
 label hero_profile:
     scene bg h_profile
-    with dissolve
 
     $ pytfall.enter_location("management", music=True, env=None)
 
     show screen hero_profile
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

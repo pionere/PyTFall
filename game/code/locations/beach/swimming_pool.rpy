@@ -1,16 +1,13 @@
 label swimming_pool:
     scene bg swimming_pool
-    with dissolve
 
     if pytfall.enter_location("swimming_pool", music=True, env="swimming_pool", coords=[(.2, .45), (.42, .6), (.7, .5)],
                              has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"]):
-        $ block_say = True
         show expression npcs["Henry_beach"].get_vnsprite() as henry
         $ h = npcs["Henry_beach"].say
         h "Welcome to the swimming pool!"
         h "It's not free, but we don't have sea monsters and big waves here, so it's perfect for a novice swimmer!"
         h "We also provide swimming lessons at a reasonable price. Feel free to ask anytime!"
-        $ block_say = False
         hide henry
         $ del h
 
@@ -18,6 +15,7 @@ label swimming_pool:
     $ pytfall.world_events.run_events("auto")
 
     show screen swimming_pool
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 

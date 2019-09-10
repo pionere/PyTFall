@@ -1,6 +1,5 @@
 label mages_tower:
     scene bg mages_tower
-    with dissolve
 
     if pytfall.enter_location("mages_tower", music=True, env="mages_tower", coords=[(.07, .8), (.57, .64), (.93, .61)],
                              goodtraits=["Psychic", "Curious"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"]):
@@ -11,6 +10,7 @@ label mages_tower:
     $ pytfall.world_events.run_events("auto")
 
     show screen mages_tower
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
 
