@@ -296,15 +296,8 @@ screen char_rename(char=None):
     modal True
     zorder 1
     frame:
-        if isinstance(char, Player):
-            background Frame("content/gfx/frame/post_battle.png", 500, 400)
-            xysize(500, 400)
-        elif char.status != "slave":
-            background Frame("content/gfx/frame/post_battle.png", 500, 300)
-            xysize(500, 300)
-        else:
-            background Frame("content/gfx/frame/post_battle.png", 500, 500)
-            xysize(500, 500)
+        background Frame("content/gfx/frame/post_battle.png", 100, 100)
+        padding 80, 50
         align (.5, .5)
         vbox:
             style_prefix "wood"

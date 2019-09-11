@@ -26,7 +26,7 @@ label city_beach_cafe_main:
     while 1:
         $ result = ui.interact()
 
-        if result[0] == 'jump':
+        if result[0] == "jump":
             python hide:
                 char = result[1]
                 iam.start_int(char, img=iam.select_beach_img_tags(char, "beach_cafe"))
@@ -37,7 +37,7 @@ label city_beach_cafe_main:
                 jump city_beach_left
             elif result[1] == "left":
                 jump city_beach_cafe
-            elif result[1] == "return":
+            elif result[1] == "ice":
                 jump mc_action_city_beach_ice
 
 
@@ -87,7 +87,7 @@ label mc_action_city_beach_ice:
     show screen city_beach_ice_stand
 
     if global_flags.flag('visited_ice'):
-        pytfall.shops_stores["Cafe"].server.say "Welcome back! What can I have you today?"
+        $ iam.greeting_back(pytfall.shops_stores["Cafe"].server)
     else:
         $ global_flags.set_flag('visited_ice')
         pytfall.shops_stores["Cafe"].server.say "Welcome to the finest Ice Cream stand in the city!"

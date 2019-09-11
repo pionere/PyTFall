@@ -5,14 +5,14 @@ label general_store:
     show expression npcs["Yukiko_shop"].get_vnsprite() as npc
     with dissolve
 
-    $ y = npcs["Yukiko_shop"].say
     if pytfall.enter_location("general_store", music=True, env="shops"):
+        $ y = npcs["Yukiko_shop"].say
         y "Welcome to PyTFall's General Store!"
         y "Here you can buy all sorts of items!"
         y "Please take a look at our selection:"
+        $ del y
     else:
-        y "Welcome back!"
-    $ del y
+        $ iam.greeting_back(npcs["Yukiko_shop"])
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")

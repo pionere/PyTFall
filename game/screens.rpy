@@ -6,7 +6,7 @@
 #
 # Screen that's used to display adv-mode dialogue.
 # http://www.renpy.org/doc/html/screen_special.html#say
-screen say(who, what, side_image=None, two_window=False):
+screen say(who, what, char=None, side_image=None, two_window=False):
     zorder 10
     # add Transform(Text("PyTFaLL", style="earthkid", color=black, size=50), alpha=.6) align (0.6, 0.9)
     # add Transform(Text("PyTFaLL", style="earthkid", color=azure, size=70), alpha=.5) align (0.1, 0.95)
@@ -19,8 +19,12 @@ screen say(who, what, side_image=None, two_window=False):
             xysize (config.screen_width, config.screen_height)
             action Return()
 
+    # Overwrite who by char if applicable
+    if char is not None:
+        $ who = char.nickname
+
     # Decide if we want to use the one-window or two-window variant.
-    if not two_window:
+    if two_window is False:
 
         # The one window variant.
         window:
@@ -44,8 +48,7 @@ screen say(who, what, side_image=None, two_window=False):
                 window:
                     style "say_who_window"
 
-                    text who:
-                        id "who"
+                    text who id "who"
 
             window:
                 id "window"
@@ -58,20 +61,16 @@ screen say(who, what, side_image=None, two_window=False):
     # If there's a side image, display it above the text.
     if side_image:
         # In order to have more control over the say screen portraits for Chars we pass instances of Char here:
-        if isinstance(side_image, Char):
-            if side_image.say_screen_portrait_overlay_mode == "zoom_fast":
-                add At(side_image.say_screen_portrait, interactions_zoom(.2)) pos 219, 639 anchor .5, .5
-            elif side_image.say_screen_portrait_overlay_mode == "zoom_slow":
-                add At(side_image.say_screen_portrait, interactions_zoom(1.2)) pos 219, 639 anchor .5, .5
-            elif side_image.say_screen_portrait_overlay_mode == "test_case":
-                add side_image.say_screen_portrait pos 219, 639 anchor .5, .5
-                # add interactions_surprised_tr pos 150, 650 yanchor 1.0
-            else:
-                add side_image.say_screen_portrait pos 219, 639 anchor .5, .5
+        if hasattr(char, "say_screen_portrait_overlay_mode"):
+            $ mode = char.say_screen_portrait_overlay_mode
+            if mode == "zoom_fast":
+                $ side_image = At(side_image, interactions_zoom(.2))
+            elif mode == "zoom_slow":
+                $ side_image = At(side_image, interactions_zoom(1.2))
+            add side_image pos 219, 639 anchor .5, .5
 
-
-            if side_image.say_screen_portrait_overlay_mode not in [None] + STATIC_CHAR.UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS:
-                timer .0001 action Function(interactions_portraits_overlay.change, side_image.say_screen_portrait_overlay_mode)
+            if mode not in [None] + STATIC_CHAR.UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS:
+                timer .0001 action Function(interactions_portraits_overlay.change, mode)
                 add interactions_portraits_overlay
         else:
             add side_image xalign 0.138 yalign 0.968

@@ -17,9 +17,6 @@ label storyi_start: # beginning point of the dungeon;
         blueprint = PyTGFX.scale_img("content/events/StoryI/blueprint.webp", 660, 540)
         point = "content/gfx/interface/icons/move15.png" # the point which shows location on the map; it's actually a part of the main gui
 
-        #enemy_soldier = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=PyTGFX.scale_img("content/mobs/ct1.png", 120, 120))
-        #enemy_soldier2 = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=PyTGFX.scale_img("content/mobs/h1.png", 120, 120))
-
         fight_chance = 100
 
         storyi_data = load_json("code/story/prison_break/coordinates_1.json")
@@ -73,7 +70,7 @@ label storyi_continue: # the label where we return after visiting characters equ
 
 label storyi_exit:
     $ last_label = "forest_dark" if controlled_exit else "forest_entrance"
-    $ del sflash, q_dissolve, eye_open, eye_shut, map_scroll, blueprint, point, fight_chance #, enemy_soldier, enemy_soldier2 
+    $ del sflash, q_dissolve, eye_open, eye_shut, map_scroll, blueprint, point, fight_chance 
     $ del storyi_data, storyi_loc_map, storyi_prison_location, storyi_treasures, controlled_exit
     jump expression last_label
 

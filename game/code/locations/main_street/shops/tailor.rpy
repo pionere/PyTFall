@@ -15,7 +15,7 @@ label tailor_store:
     else:
         show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
         with dissolve
-        t "Welcome back, take a look at our latest arrivals!"
+        $ iam.comment_line(npcs["Kayo_Sudou"], "Welcome back, take a look at our latest arrivals!")
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")

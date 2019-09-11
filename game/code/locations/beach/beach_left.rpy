@@ -261,7 +261,7 @@ label fishing_logic:
     scene bg fishing_bg with dissolve
 
     $ m = npcs["Mor"].say
-    if not global_flags.flag('visited_fish_city_beach'):
+    if not global_flags.has_flag('visited_fish_city_beach'):
         $ register_quest("Fishery")
         show expression npcs["Mor"].get_vnsprite() as npc
         with dissolve

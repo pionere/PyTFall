@@ -18,6 +18,7 @@ init -2 python:
             if overlay_args is not None:
                 character.show_portrait_overlay(*overlay_args)
             if gossip is True:
+                # normal say in 'context'
                 character.say("... " + result + " ...")
                 #character.say("... ")
                 ## record_say...
@@ -27,11 +28,20 @@ init -2 python:
                 ##renpy.store._last_say_kwargs = {}
                 #extend(result)
                 #extend(" ...")
-            else:
+            elif gossip is False:
+                # normal say with interaction
                 character.say(result)
+            else:
+                # comment (transient say)
+                character.say(result + "{p=0.2}{nw}")
             if overlay_args is not None:
                 character.hide_portrait_overlay()
             character.restore_portrait()
+
+        @staticmethod
+        def comment_line(character, line, **kwargs):
+            kwargs["gossip"] = None
+            iam.say_line(character, [line], **kwargs)
 
         @staticmethod
         def greet_lover(character):
@@ -1164,7 +1174,7 @@ init -2 python:
         @staticmethod
         def refuse_to_give(character):
             """
-            Output line when a character denies to give money or to access to an item.
+            Output line when a character denies to give money.
             """
             global block_say
             char_traits = character.traits
@@ -1224,7 +1234,7 @@ init -2 python:
             else:
                 lines = ("Hey, I need this too, you know.", "Eh? Can't you just buy your own?")
             block_say = True
-            iam.say_line(character, lines)
+            iam.say_line(character, lines, gossip=None)
             block_say = False
 
         @staticmethod
@@ -1257,7 +1267,7 @@ init -2 python:
             else:
                 lines = ("Thanks, but I don't like these kinds of things.", "I'm sorry, but I absolutely hate this.")
             block_say = True
-            iam.say_line(character, lines, overlay_args=("sweat", "reset"))
+            iam.say_line(character, lines, overlay_args=("sweat", "reset"), gossip=None)
             block_say = False
 
         @staticmethod
@@ -1290,7 +1300,7 @@ init -2 python:
             else:
                 lines = ("I'm sorry, but I absolutely need this.", )
             block_say = True
-            iam.say_line(character, lines)
+            iam.say_line(character, lines, gossip=None)
             block_say = False
 
         @staticmethod
@@ -1323,7 +1333,7 @@ init -2 python:
             else:
                 lines = ("No, I don't want to.", "Eh? I think I'm doing great already.", "Don't worry, I think I can manage my stuff.")
             block_say = True
-            iam.say_line(character, lines)
+            iam.say_line(character, lines, gossip=None)
             block_say = False
 
         @staticmethod
@@ -1356,7 +1366,7 @@ init -2 python:
             else:
                 lines = ("Sorry, but I don't want to.", "Thanks for the care, but I have to refuse it.")
             block_say = True
-            iam.say_line(character, lines)
+            iam.say_line(character, lines, gossip=None)
             block_say = False
 
         @staticmethod
@@ -4230,7 +4240,124 @@ init -2 python:
 
                     mood = "defiant"
 
-            iam.say_line(character, lines, mood, overlay_args)
+            iam.say_line(character, lines, mood, overlay_args, gossip=None)
+
+        @staticmethod
+        def greeting_back(character):
+            """
+            Output line when the NPC greets the returning hero without location information
+            assumptions: the value of reputation is between -1000 and 1000
+                         the value of fame is between 0 and 1000
+            """
+            rep, fame = hero.get_stat("reputation"), hero.get_stat("fame")
+            overlay_args = None
+            if rep > 600:
+                if fame > 750:
+                    lines = ("Glad to see you, %s!" % ("Madame" if hero.gender == "female" else "Sir"), "It's nice to see you, %s!" % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "shy" if dice(50) else "ecstatic"
+                    overlay_args=("like", "reset")
+                elif fame > 500:
+                    lines = ("Glad to see you, %s!" % hero.nickname, "It's nice to see you, %s!" % hero.nickname)
+
+                    mood = "happy"
+                    overlay_args=("note", "reset")
+                elif fame > 250:
+                    lines = ("Welcome back!", "Nice to see you again!")
+
+                    mood = "happy" if dice(50) else "confident"
+                    if dice(25):
+                        overlay_args=("note", "reset")
+                else:
+                    lines = ("Nice to see you!", "Hey, how can I help you?")
+
+                    mood = "confident"
+            elif rep > 200:
+                # reputation 200 .. 600
+                if fame > 750:
+                    lines = ("Welcome back, %s!" % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "shy" if dice(50) else "happy"
+                    overlay_args=("like" if dice(25) else "note", "reset")
+                elif fame > 500:
+                    lines = ("Welcome back, %s!" % hero.name, "Glad to see you, %s!" % hero.name, "How can I help you, %s?" % hero.name)
+
+                    mood = "happy"
+                    if dice(50):
+                        overlay_args=("note", "reset")
+                elif fame > 250:
+                    lines = ("Welcome back!", "Glad to see you again!", "Hi, how can I help you?")
+
+                    mood = "confident"
+                else:
+                    lines = ("Welcome!", "Glad to see you!", "Hi, how can I help you?")
+
+                    mood = "indifferent"
+            elif rep > -200:
+                # reputation -200 .. 200
+                if fame > 750:
+                    lines = ("Welcome back, %s." % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "happy"
+                elif fame > 500:
+                    lines = ("Welcome back, %s." % hero.name, "Glad to see you, %s." % hero.name, "How can I help you, %s?" % hero.name)
+
+                    mood = "happy" if dice(50) else "uncertain"
+                elif fame > 250:
+                    lines = ("Welcome back.", "Glad to see you again.", "Hi, how can I help you?")
+
+                    mood = "uncertain"
+                else:
+                    lines = ("Welcome.", "Glad to see you.", "How can I help you?")
+
+                    mood = "indifferent"
+            elif rep > -600:
+                # reputation -600 .. -200
+                if fame > 750:
+                    lines = ("We were expecting you, %s!" % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "scared" if dice(50) else "sad"
+                    overlay_args=("sweat" if dice(50) else "scared", "reset")
+                elif fame > 500:
+                    lines = ("Greetings, let me know if you need something.", )
+
+                    mood = "sad" if dice(50) else "uncertain"
+                    if dice(50):
+                        overlay_args=("sweat", "reset")
+                elif fame > 250:
+                    lines = ("What do you want?", )
+
+                    mood = "defiant"
+                    if dice(25):
+                        overlay_args=("sweat", "reset")
+                else:
+                    lines = ("Can I help you?", )
+
+                    mood = "indifferent"
+            else:
+                # reputation -1000 .. -600
+                if fame > 750:
+                    lines = ("Greetings, %s." % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "scared"
+                    overlay_args=("scared", "reset")
+                elif fame > 500:
+                    lines = ("Yes, %s?!" % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "sad"
+                    overlay_args=("sweat", "reset")
+                elif fame > 250:
+                    lines = ("What can I get you?", "Do you want something?")
+
+                    mood = "uncertain"
+                    if dice(50):
+                        overlay_args=("sweat", "reset")
+                else:
+                    lines = ("Yes? What is it?", )
+
+                    mood = "defiant"
+
+            iam.say_line(character, lines, mood, overlay_args, gossip=None)
 
         ##############################           GOSSIPS           ##############################
 

@@ -19,7 +19,7 @@ label witches_hut:
         $ del temp
     else:
         $ w = npcs["Abby_the_witch"].say
-        w "Welcome back!"
+        $ iam.greeting_back(npcs["Abby_the_witch"])
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
@@ -44,7 +44,8 @@ label witch_menu:
             jump witches_hut_exit
 
 label witches_hut_shopping:
-    $ gfx_overlay.notify(msg="Sweet!", tkwargs={"style": "interactions_text"})
+    $ iam.comment_line(npcs["Abby_the_witch"], "Sweet!")
+    #$ gfx_overlay.notify(msg="Sweet!", tkwargs={"style": "interactions_text"})
     python:
         focus = False
         item_price = 0
@@ -61,12 +62,14 @@ label witches_hut_shopping:
 
     hide screen shopping
     with dissolve
-    $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
+    $ iam.comment_line(npcs["Abby_the_witch"], "Let me know if you need anything else.")
+    #$ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
     $ del shop, focus, item_price, amount, purchasing_dir, char
     jump witch_menu
 
 label witches_hut_shopping_spells:
-    $ gfx_overlay.notify(msg="Sweet!", tkwargs={"style": "interactions_text"})
+    $ iam.comment_line(npcs["Abby_the_witch"], "Sweet!")
+    #$ gfx_overlay.notify(msg="Sweet!", tkwargs={"style": "interactions_text"})
     python:
         focus = False
         item_price = 0
@@ -83,7 +86,8 @@ label witches_hut_shopping_spells:
 
     hide screen shopping
     with dissolve
-    $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
+    $ iam.comment_line(npcs["Abby_the_witch"], "Let me know if you need anything else.")
+    #$ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
     $ del shop, focus, item_price, amount, purchasing_dir, char
     jump witch_menu
 

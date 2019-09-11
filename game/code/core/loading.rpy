@@ -236,6 +236,10 @@ init 11 python:
                         name = get_first_name(char.gender)
                         char.name = name
                         char.fullname = " ".join([name, get_last_name()])
+                    if not char.nickname:
+                        char.nickname = char.name
+                    if not char.fullname:
+                        char.fullname = char.name
 
                     # @Review: We make sure all traits get applied first!
                     for key in ("blocked_traits", "ab_traits"):

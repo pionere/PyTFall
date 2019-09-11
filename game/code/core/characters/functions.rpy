@@ -236,8 +236,9 @@ init -11 python:
 
         mob = Mob()
         mob.id = id
+        mob.name = mob.nickname = mob.fullname = data["name"]
 
-        for i in ("name", "desc", "battle_sprite", "portrait", "origin", "locations", "full_race", "front_row"):
+        for i in ("desc", "battle_sprite", "portrait", "origin", "locations", "full_race", "front_row"):
             temp = data.get(i, None)
             if temp is not None:
                 setattr(mob, i, temp)

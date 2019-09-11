@@ -18,7 +18,7 @@ init -9 python:
         MOOD_TAGS = {"angry", "confident", "defiant", "ecstatic", "happy",
                      "indifferent", "in pain", "insane", "sad", "scared",
                      "suggestive", "shy", "tired", "uncertain"}
-        UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS = ["zoom_fast", "zoom_slow", "test_case"]
+        UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS = ["zoom_fast", "zoom_slow"]
         BASE_UPKEEP = 2.5 # Per tier, conditioned in get_upkeep method.
         BASE_WAGES = {"SIW": 20, "Combatant": 30, "Server": 15, "Specialist": 40 }
         TRAININGS = {"Abby Training": "Abby the Witch",
@@ -41,9 +41,7 @@ init -9 python:
             self.portrait = None
             self.gold = 0
 
-            self.name = None
-            self.fullname = None
-            self.nickname = None
+            self.name = self.fullname = self.nickname = None
 
             self._mc_ref = None # This is how characters refer to MC (hero). May depend on case per case basis and is accessed through obj.mc_ref property.
             self.height = "average"
@@ -178,12 +176,12 @@ init -9 python:
         # Post init
         def init(self):
             # Normalize character
-            if not self.name:
-                self.name = self.id
-            if not self.fullname:
-                self.fullname = self.name
-            if not self.nickname:
-                self.nickname = self.name
+            #if not self.name:
+            #    self.name = self.id
+            #if not self.fullname:
+            #    self.fullname = self.name
+            #if not self.nickname:
+            #    self.nickname = self.name
             # make sure there is at least one elemental trait
             self.apply_trait(traits["Neutral"])
 
@@ -220,11 +218,6 @@ init -9 python:
                 self.fin.add_money(value, reason)
             else:
                 self.gold += value
-
-        def update_sayer(self):
-            self.say = Character(self.nickname, show_two_window=True, show_side_image=self, **self.say_style)
-            self.say_screen_portrait = DynamicDisplayable(self._portrait)
-            self.say_screen_portrait_overlay_mode = None
 
         # Properties:
         @property
@@ -1815,9 +1808,7 @@ init -9 python:
 
             self.img_db = None
             self.id = "mc" # Added for unique items methods.
-            self.name = 'Player'
-            self.fullname = 'Player'
-            self.nickname = 'Player'
+            self.name = self.nickname = self.fullname = "Player"
             self.location = pytfall.streets
             self.status = "free"
             self.gender = "male"
@@ -1840,7 +1831,7 @@ init -9 python:
             super(Player, self).init()
 
         def update_sayer(self):
-            self.say = Character(self.nickname, show_two_window=True, show_side_image=self.show("portrait", resize=(120, 120)), **self.say_style)
+            self.say = Character(None, show_char=self, show_two_window=True, show_side_image=DynamicDisplayable(self._portrait), **self.say_style)
 
         # Girls/Brothels/Buildings Ownership
         @property
@@ -2270,6 +2261,10 @@ init -9 python:
             self.calc_upkeep()
 
             super(Char, self).init()
+
+        def update_sayer(self):
+            self.say = Character(None, show_char=self, show_two_window=True, show_side_image=DynamicDisplayable(self._portrait), **self.say_style)
+            self.say_screen_portrait_overlay_mode = None
 
         # Logic assists:
         @property

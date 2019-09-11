@@ -61,7 +61,7 @@ label hidden_village_shop: # ninja shop logic
         r "Wanna take a look?"
         $ del r, tmp
     else:
-        npcs["Ren_hidden_village"].say "Hey, [hero.name]. Need something?"
+        $ iam.comment_line(npcs["Ren_hidden_village"], "Hey, [hero.name]. Need something?")
 
     python:
         focus = False

@@ -35,15 +35,13 @@ label mc_setup:
             if result[1] == "name":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Name", 20)
                 if len(n):
-                    $ hero.name = n
-                    $ hero.nickname = hero.name
-                    $ hero.fullname = hero.name
+                    $ hero.name = hero.nickname = hero.fullname = n
             elif result[1] == "nick":
-                $ n = renpy.call_screen("pyt_input", hero.name, "Enter Name", 20)
+                $ n = renpy.call_screen("pyt_input", hero.nickname, "Enter Nick Name", 20)
                 if len(n):
-                    $ hero.nickname = renpy.call_screen("pyt_input", hero.name, "Enter Nick Name", 20)
+                    $ hero.nickname = n
             elif result[1] == "full":
-                $ n = renpy.call_screen("pyt_input", hero.name, "Enter Full Name", 20)
+                $ n = renpy.call_screen("pyt_input", hero.fullname, "Enter Full Name", 20)
                 if len(n):
                     $ hero.fullname = n
             $ del n

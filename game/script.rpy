@@ -801,6 +801,8 @@ label after_load:
             clearCharacters = True
         if not hasattr(hero, "employer"):
             clearCharacters = True
+        if hero.say.name is not None:
+            clearCharacters = True
         if isinstance(simple_jobs, dict):
             if isinstance(simple_jobs["Manager"], Manager):
                 pmj = simple_jobs["Manager"]
@@ -1385,6 +1387,10 @@ label after_load:
                 for e in char.effects.values():
                     if e.duration is not None and e.name not in ["Poisoned", "Unstable", "Down with Cold", "Food Poisoning", "Injured"]:
                         e.duration = None
+                if "char" not in char.say.show_args:
+                    if hasattr(char, "say_screen_portrait"):
+                        del char.say_screen_portrait
+                    char.update_sayer()
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
             #        girl.controller = None

@@ -5,14 +5,14 @@ label workshop:
     show expression npcs["Katia_workshop"].get_vnsprite() as katia
     with dissolve
 
-    $ k = npcs["Katia_workshop"].say
     if pytfall.enter_location("workshop", music=True, env="workshop"):
+        $ k = npcs["Katia_workshop"].say
         k "Welcome to PyTFall's Workshop!"
         k "The best place to go for Weapons and Armor!"
         k "Please take a look at our selection:"
+        $ del k
     else:
-        k "Welcome back!"
-    $ del k
+        $ iam.comment_line(npcs["Katia_workshop"], "Welcome back!")
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
