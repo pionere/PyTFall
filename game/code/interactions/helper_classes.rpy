@@ -260,7 +260,7 @@ init -2 python:
                 skills.append("anal")
                 if char.gender == "female" and ((char.status != "slave" and check_lovers(char)) or "Virgin" not in char.traits):
                     skills.append("vaginal")
-            skills = [(t, char.get_skill(t)) for t in skills]
+            skills = [(t, max(1, char.preferences.get(t, char.get_skill(t) / 100))) for t in skills]
             result = weighted_choice(skills)
             if not result:
                 result = choice(skills)[0]
