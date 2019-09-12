@@ -20,10 +20,10 @@ label cafe:
             $ iam.eating_propose(inviting_character)
             menu:
                 "Do you want to accept [inviting_character.pd] invitation (free of charge)?"
-            "Yes":
-                jump mc_action_cafe_invitation
-            "No":
-                $ pass
+                "Yes":
+                    jump mc_action_cafe_invitation
+                "No":
+                    $ pass
         $ del inviting_character
 
 label cafe_menu: # after she said her lines but before we show menu controls, to return here when needed
