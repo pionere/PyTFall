@@ -1465,6 +1465,8 @@ init -10 python:
                 value = self._get_stat(stat)
                 if value > 100 and dice(value/100):
                     self._mod_base_stat(stat, -1)
+                elif value < -100 and dice(value/-100):
+                    self._mod_base_stat(stat, 1)
             for skill in STATIC_CHAR.SKILLS:
                 action, training = self.skills[skill]
                 if action > 100 and dice(value/100):
