@@ -1,7 +1,7 @@
 label hiddenvillage_entrance:
     scene bg hiddenvillage_entrance
 
-    $ pytfall.enter_location("village", music=True, env="village", coords=[(.2, .25), (55, .2), (.8, .18)],
+    $ pytfall.enter_location("village", music=True, env="village", coords=[(.4, .45), (.55, .75), (.9, .55)],
                              limited_location=True, goodtraits=["Curious"])
 
     $ pytfall.world_quests.run_quests("auto")
