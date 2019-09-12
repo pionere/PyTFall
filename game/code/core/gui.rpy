@@ -30,24 +30,36 @@ init -1 python:
         def __init__(self, char):
             self.girl = char
             self.default_imgsize = (940, 680)
-            self.tag = "profile"
-            tagsdict = tagdb.get_tags_per_character(self.girl)
+            tagsdict = tagdb.get_tags_per_character(char)
             self.tagsdict = OrderedDict(sorted(tagsdict.items(), key=itemgetter(1), reverse=True))
-            self.pathlist = list(tagdb.get_imgset_with_all_tags(char.id, "profile"))
-            self.set_img(self.pathlist[0])
+            self.load_images("profile")
 
-        @property
-        def image(self):
-            return PyTGFX.scale_content(os.path.join(self.girl.path_to_imgfolder, self.imagepath), self.imgsize[0], self.imgsize[1])
+        def load_images(self, tag):
+            self.tag = tag
+            temp = self.girl
+            images = list(tagdb.get_imgset_with_all_tags(temp.id, tag))
+            temp = temp.path_to_imgfolder
+            images = [i for i in images if renpy.seen_image((temp, i))]
+            self.pathlist = images
+            self.set_img(images[0] if images else None)
+
+        def get_image(self):
+            path = self.imagepath
+            if path is None:
+                return "content/gfx/images/default_%s_battle_sprite.png" % self.girl.gender # default_female_battle_sprite.png, default_male_battle_sprite.png
+            else:
+                return os.path.join(self.girl.path_to_imgfolder, self.imagepath)
 
         def set_img(self, path):
             self.imagepath = path
-            if self.tag in ("vnsprite", "battle_sprite"):
-                self.imgsize = self.girl.get_sprite_size(self.tag)
+            self.imgsize = self.default_imgsize
+            if path is None:
+                self.tags = "-"
             else:
-                self.imgsize = self.default_imgsize
+                if self.tag in ("vnsprite", "battle_sprite"):
+                    self.imgsize = self.girl.get_sprite_size(self.tag)
 
-            self.tags = " | ".join([i for i in tagdb.get_image_tags(path)])
+                self.tags = " | ".join([i for i in tagdb.get_image_tags(path)])
 
         def trans_view(self):
             """

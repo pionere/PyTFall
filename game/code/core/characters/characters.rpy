@@ -796,7 +796,10 @@ init -9 python:
                 char_debug(str("Total failure while looking for image with %s tags!!!" % tags))
                 imgpath = IMG_NOT_FOUND_PATH
             else: # We have an image, time to convert it to full path.
-                imgpath = os.path.join(self.path_to_imgfolder, imgpath)
+                imgpath = (self.path_to_imgfolder, imgpath)
+                # Update the list of images we have ever seen.
+                persistent._seen_images[imgpath] = True
+                imgpath = os.sep.join(imgpath)
 
             # FIXME cache regardless of type ???
             if "optional_tags" in locals():

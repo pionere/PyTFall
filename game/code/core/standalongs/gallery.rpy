@@ -22,17 +22,13 @@ label gallery:
                     index -= 1 
                 gallery.set_img(gallery.pathlist[index % len(gallery.pathlist)])
             elif result[0] == "tag":
-                gallery.tag = result[1]
-                gallery.pathlist = list(tagdb.get_imgset_with_all_tags(gallery.girl.id, result[1]))
-                gallery.set_img(gallery.pathlist[0])
+                gallery.load_images(result[1])
             elif result[0] == "view_trans":
                 gallery.trans_view()
-            elif result[0] == "control":
-                if result[1] == 'return':
-                    break
+            elif result == ["control", "return"]:
+                break
 
     hide screen gallery
-    with dissolve
     $ del gallery
     jump char_profile
 
@@ -52,7 +48,7 @@ screen gallery():
             background Frame(backimg, 10 ,10)
             imagebutton:
                 align (.5, .5)
-                idle gallery.image
+                idle PyTGFX.scale_content(gallery.get_image(), *gallery.imgsize)
                 action SetScreenVariable("black_bg", not black_bg)
                 tooltip "Tags: %s" % gallery.tags
 
@@ -83,17 +79,19 @@ screen gallery():
                         mousewheel True
                         vbox:
                             for key, amount in gallery.tagsdict.iteritems():
-                                $ name = key.capitalize()
-                                if key == gallery.girl.id:
-                                    $ name = "All Images"
                                 button:
                                     xalign .5
                                     xysize (260, 30)
-                                    action Return(["tag", key])
+                                    if gallery.tag == key:
+                                        selected True
+                                        action Return(["tag", gallery.girl.id])
+                                    else:
+                                        action Return(["tag", key])
+                                        selected False 
                                     fixed:
                                         xysize (250, 28)
-                                        text "[name]" xalign 0
-                                        text "{color=blue}[amount]" xalign .93
+                                        text key.capitalize() xalign 0
+                                        text str(amount) color "blue" xalign .93 yoffset -2
                     vbar value YScrollValue("g_buttons_vp")
 
         # Buttons:
@@ -103,9 +101,11 @@ screen gallery():
             style_group "basic"
             xysize (300, 157)
             has vbox xalign .5 spacing 5
+            $ temp = len(gallery.pathlist) > 1
             textbutton "SlideShow":
                 xalign .5
                 action Return(["view_trans"])
+                sensitive temp
             hbox:
                 xalign .5
                 spacing 10
@@ -113,6 +113,8 @@ screen gallery():
                 imagebutton:
                     idle img
                     hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    insensitive im.Sepia(img)
+                    sensitive temp
                     action Return(["image", "previous"])
 
                 use exit_button(size=(45, 45), align=(.5, .5))
@@ -121,11 +123,13 @@ screen gallery():
                 imagebutton:
                     idle img
                     hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    insensitive im.Sepia(img)
+                    sensitive temp
                     action Return(["image", "next"])
 
             textbutton "Lets Jig with this girl! :)":
                 xalign .5
-                sensitive check_image_extension(gallery.imagepath)
+                sensitive check_image_extension(gallery.get_image())
                 action Jump("jigsaw_puzzle_start")
 
 screen gallery_trans():

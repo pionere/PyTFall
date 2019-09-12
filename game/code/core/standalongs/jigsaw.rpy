@@ -54,7 +54,7 @@ label jigsaw_puzzle_start:
 
     $ grid_width = grid_height = 3  # default values
     $ puzzle_field_size = 655       # should be less then minimal of config.screen_width and config.screen_height values
-    $ img_to_play = PyTGFX.scale_img(os.path.join(gallery.girl.path_to_imgfolder, gallery.imagepath), puzzle_field_size, puzzle_field_size)
+    $ img_to_play = PyTGFX.scale_img(gallery.get_image(), puzzle_field_size, puzzle_field_size)
     $ renpy.call_screen("control_scr", img_to_play)
 
     python:
