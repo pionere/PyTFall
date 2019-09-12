@@ -5,11 +5,6 @@ init -11 python:
     def is_stat(stat):
         return stat in STATIC_CHAR.STATS
 
-    def get_average_wage():
-        wages = STATIC_CHAR.BASE_WAGES.values()
-        wage = sum(wages)/len(wages)
-        return round_int(wage)
-
     # Relationships:
     def check_friends(char, other=None):
         if other is None:

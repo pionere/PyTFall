@@ -1,7 +1,7 @@
 init python:
     class SchoolCourse(_object):
         def __init__(self, name, difficulty, duration, days_to_complete,
-                     effectiveness, data):
+                     effectiveness, price, data):
             self.name = name
             # self.trainer = trainer # restore after ST.
             self.difficulty = difficulty
@@ -11,13 +11,9 @@ init python:
             self.duration = self.days_remaining = duration
             self.days_to_complete = days_to_complete # 25 or about 80% of duration is normal.
             self.effectiveness = effectiveness
+            self.price = price
 
             self.data = data
-
-            # set price
-            price = get_average_wage()
-            price = price + price * difficulty
-            self.price = round_int(price)
 
             self.set_image()
 
@@ -251,6 +247,12 @@ init python:
             num_courses -= len(courses)
             if num_courses > 0:
                 self.new_courses_created = True
+
+                # Calculate base price:
+                #  set it to the average wage TODO make it configurable?
+                base_price = STATIC_CHAR.BASE_WAGES.values()
+                base_price = sum(base_price)/len(base_price)
+
                 for i in range(num_courses):
                     # create course
                     id = choice(keys)
@@ -260,11 +262,12 @@ init python:
                     duration = 7 * randint(3, 6)
                     days_to_complete = round_int(duration*random.uniform(.5, .75))
                     effectiveness = randint(60, 100)
+                    price = base_price * (1 + difficulty)
+
                     data = school_courses[id]
 
-                    course = SchoolCourse(id, difficulty, duration,
-                                          days_to_complete, effectiveness,
-                                          data)
+                    course = SchoolCourse(id, difficulty, duration, days_to_complete,
+                                          effectiveness, price, data)
                     courses.insert(0, course)
 
         def get_course(self, student):

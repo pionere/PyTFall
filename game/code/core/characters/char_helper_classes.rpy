@@ -136,17 +136,14 @@ init -10 python:
             #     return 0
 
             # Free workers are:
-            if kind:
-                wage = STATIC_CHAR.BASE_WAGES[kind]
-            else:
-                wage = 0
-                for i in self.gen_occs:
-                    w = STATIC_CHAR.BASE_WAGES.get(i, 0)
-                    if w > wage:
-                        wage = w
+            wage = STATIC_CHAR.BASE_WAGES
+            if kind is None:
+                wage = max(wage.get(t, 0) for t in self.gen_occs)
                 if wage == 0:
                     raise Exception("Impossible character detected! ID: {} ~ BT: {} ~ Gen.Occupations: {}".format(self.id,
                                     ", ".join([str(t) for t in self.traits.basetraits]), ", ".join([str(t) for t in self.gen_occs])))
+            else:
+                wage = wage[kind]
 
             # Each tier increases wage by 50% without stacking:
             wage = wage + wage*self.tier*.5
