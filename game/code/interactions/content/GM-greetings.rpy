@@ -67,7 +67,7 @@ label girl_interactions_greeting:
                     $ iam.restore_img()
                     $ del temp, tmp
                 "No":
-                    $ char.gfx_mod_stat("affection", affection_reward(char, stat=["attack", "constitution", "health"]))
+                    $ char.gfx_mod_stat("affection", affection_reward(char, stat=["attack", "constitution", "defence"]))
                     $ iam.accept_refusal(char)
         if all((check_submissivity(char) < 0,
                 iam.become_lovers(char) is True,

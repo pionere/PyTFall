@@ -423,11 +423,15 @@ label interactions_about_char:
                  "bdsm": [["I think there are people who do not value their freedom enough."],
                           ["It is really hard to earn someones trust. That is why it is so valuable."]]}
 
-        for k, v in char.preferences.items():
-            if v < 20:
-                lines.append(choice(prefs[k][0]))
-            elif v > 80:
-                lines.append(choice(prefs[k][1]))
+        ch_prefs = char.preferences
+        mod = len(STATIC_CHAR.PREFS) / float(len(ch_prefs))
+        for k, v in prefs.iteritems():
+            w = ch_prefs.get(k, 0)
+            w *= mod
+            if w < 20:
+                lines.append(choice(v[0]))
+            elif w > 80:
+                lines.append(choice(v[1]))
 
         # if there is not enough specific answers, a vague one is added to the list
         if len(lines) < 3:

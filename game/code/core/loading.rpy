@@ -228,7 +228,7 @@ init 11 python:
                             if len(temp) > 20:
                                 temp = temp[0:20]
                             setattr(char, key, temp)
-                    for key in ("gender", "origin", "gold", "desc", "status", "location", "height", "full_race", "arena_willing", "front_row"):
+                    for key in ("gender", "origin", "gold", "desc", "status", "location", "height", "full_race", "arena_willing", "front_row", "employer"):
                         temp = gd.get(key, None)
                         if temp is not None:
                             setattr(char, key, temp)
@@ -370,6 +370,29 @@ init 11 python:
                                 char_debug("%s magic skill is unknown for %s!" % (t, id))
                             else:
                                 char.magic_skills.append(skill)
+
+                    temp = gd.get("preferences", None)
+                    if temp is not None:
+                        tmp = dict()
+                        for (t, v) in temp:
+                            if t not in STATIC_CHAR.PREFS:
+                                char_debug("%s as a preference is invalid for %s!" % (t, id))
+                            elif isinstance(v, int):
+                                tmp[t] = v / 100.0
+                            elif isinstance(v, float):
+                                tmp[t] = v
+                            else:
+                                char_debug("The weight of '%s'-preference (%s) is invalid for %s (must be integer or float)!" % (t, v, id))
+                        if tmp:
+                            #mod = len(STATIC_CHAR.PREFS) / float(len(tmp))
+                            #for t, v in tmp.iteritems():
+                            #    tmp[t] = v * mod  
+                            #for t in STATIC_CHAR.PREFS:
+                            #    if t not in tmp:
+                            #        tmp[t] = 0
+                            char.preferences = tmp
+                        else:
+                            char_debug("The preferences setting of %s is ignored (empty)!" % id)
 
                     for key in ("color", "what_color"):
                         t = gd.get(key, None)

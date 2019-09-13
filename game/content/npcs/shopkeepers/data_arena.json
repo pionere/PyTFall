@@ -1,18 +1,49 @@
 [
     {
-        "id": "Xeona_arena",
-        "name": "Xeona",
-        "desc": "A veteran arena fighter. She helps other contestants and offers combat training.",
-        "origin": "PytFall",
-        "race": "Human",
-        "gold": 1500,
-        "color": "coral",
-        "what_color": "coral",
+        "id": "Xeona_arena", 
+        "name": "Xeona", 
+        "desc": "A veteran arena fighter. She helps other contestants and offers combat training.", 
+        "origin": "PytFall", 
+        "race": "Human", 
+        "gold": 1500, 
+        "color": "coral", 
+        "what_color": "coral", 
         "traits": [
-            "Virgin",
+            "Virgin", 
             "Long Legs"
-        ],
-        "personality": "Kuudere",
-        "body": "Slim"
+        ], 
+        "personality": "Kuudere", 
+        "body": "Slim", 
+        "preferences": [
+            [
+                "arena_rep", 
+                100
+            ], 
+            [
+                "fame", 
+                30
+            ], 
+            [
+                "attack", 
+                30
+            ], 
+            [
+                "constitution", 
+                30
+            ], 
+            [
+                "agility", 
+                15
+            ], 
+            [
+                "vaginal", 
+                20
+            ], 
+            [
+                "sex", 
+                20
+            ]
+        ], 
+        "employer": "arena"
     }
 ]

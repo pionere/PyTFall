@@ -171,7 +171,7 @@ init python:
         return (value / n) if n else 0
 
 label interactions_hire:
-    if char.flag("quest_cannot_be_hired") or char.arena_active:
+    if char.flag("quest_cannot_be_hired") or char.arena_active or char.employer is not None:
         $ iam.refuse_hire(char)
         jump girl_interactions
 

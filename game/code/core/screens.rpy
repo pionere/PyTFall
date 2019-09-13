@@ -431,6 +431,8 @@ screen pyt_input(default="", text="", length=20, size=(350, 150)):
     modal True
     zorder 10
 
+    default text_input = default
+
     fixed:
         align(.5, .5)
         minimum(size[0], size[1])
@@ -446,19 +448,19 @@ screen pyt_input(default="", text="", length=20, size=(350, 150)):
             text text xalign .5 style "TisaOTM" size 20 color "goldenrod"
             input:
                 id "text_input"
-                default default
+                default text_input
                 length length
                 xalign .5
                 style "TisaOTM"
                 size 20
                 color "white"
-                changed dummy_interaction_restart
+                changed SetScreenVariableD("text_input")
             button:
                 style "pb_button"
                 # xysize (100, 50)
                 text "OK"  style "TisaOTM" size 15 color "goldenrod" align (.5, .5)
                 xalign .5
-                action Return(renpy.get_widget("pyt_input", "text_input").content)
+                action Return(text_input)
                 keysym "input_enter"
     key "K_ESCAPE" action Return(default)
     key "mousedown_3" action Return (default)

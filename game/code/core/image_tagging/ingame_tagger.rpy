@@ -621,6 +621,20 @@ screen tagger_char_json_config(char):
                         for k in locs:
                             tmp[k] = k
                     use tagger_json_dropdown(char, "location", tmp)
+                if "employer" in char:
+                    # "arena"
+                    hbox:
+                        xfill True
+                        label u"Employer:" align .0, .5
+                        hbox:
+                            xalign 1.0
+                            text char["employer"] yalign .5
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
+                            imagebutton:
+                                idle temp
+                                hover PyTGFX.bright_img(temp, .15)
+                                action Return(["json", "text", "employer", 30])
+                                tooltip "Edit"
                 if "tier" in char:
                     # 2.5
                     hbox:
@@ -1043,7 +1057,7 @@ screen tagger_char_json_config(char):
                             tmp[k] = k
                     use tagger_json_dropdown(char, "default_attack_skill", tmp, "Default Attack:")
                 if "magic_skills" in char:
-                    # "city"
+                    # "Fira"
                     hbox:
                         label u"Magic skills:" align .0, .0
                         vbox:
@@ -1079,6 +1093,61 @@ screen tagger_char_json_config(char):
                                 idle temp
                                 hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "add", "text", "magic_skills", tmp])
+                                tooltip "Add"
+
+                if "preferences" in char:
+                    # ["attack", 20], ...
+                    hbox:
+                        label u"Preferences:" align .0, .0
+                        vbox:
+                            xfill True
+                            python:
+                                chprefs = []
+                                for k in STATIC_CHAR.PREFS:
+                                    if is_stat(k):
+                                        type = 0
+                                    elif is_skill(k):
+                                        type = 1
+                                    else:
+                                        type = 2
+                                    chprefs.append((k, type))
+                                chprefs.sort(key=lambda x: (x[1], x[0]))
+                                tmp = OrderedDict([(k, k) for k, t in chprefs])
+                            for t in char["preferences"]:
+                                $ pref, weight = t
+                                $ pref_color = "ivory" if pref in tmp else "red"
+                                $ weight_color = "ivory" if isinstance(weight, int) else "red"
+                                hbox:
+                                    xalign 1.0
+                                    textbutton pref:
+                                        yalign .5
+                                        text_color pref_color
+                                        background Null()
+                                        hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                        action Return(["json", "edit", t, 0, "select", tmp])
+                                    text ":" color "ivory" yalign .5
+                                    textbutton str(weight):
+                                        yalign .5
+                                        xminimum 40
+                                        margin 0, 0
+                                        padding 0, 0
+                                        text_color weight_color
+                                        text_align 1.0, .5
+                                        background Null()
+                                        hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                        action Return(["json", "edit", t, 1, "int"])
+                                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
+                                    imagebutton:
+                                        idle temp
+                                        hover PyTGFX.bright_img(temp, .15)
+                                        action Return(["json", "remove", "preferences", t])
+                                        tooltip "Remove"
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
+                            imagebutton:
+                                xalign 1.0
+                                idle temp
+                                hover PyTGFX.bright_img(temp, .15)
+                                action Return(["json", "add", "pair", "preferences", tmp])
                                 tooltip "Add"
 
                 hbox:
