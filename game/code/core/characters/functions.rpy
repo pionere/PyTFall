@@ -1019,16 +1019,17 @@ init -11 python:
         
         char: the affected actor
         value: the base affection increment
-        stat: the stat on which the affection increment is based on
+        stat: the stat (or list of stats) on which the affection increment is based on
              only the given stat-preference of the actor is counted if defined,
              otherwise every preference of the actor is calculated 
         """
         temp = char.preferences
         if stat is not None:
-            temp = temp.get(stat, 0)
-            temp = {stat: temp}
+            if isinstance(stat, basestring):
+                stat = [stat]
+            temp = {k: temp.get(k, 0) for k in stat}
         mod = .0
-        for k, v in temp.items():
+        for k, v in temp.iteritems():
             if k == "gold":
                 max_val = 10*char.gold
                 val = hero.gold

@@ -41,6 +41,34 @@ label girl_interactions_greeting:
 
     if m < 1:
         # meeting the first time -> check if the character has something to tell the MC
+        if all((hero.get_max("health") - hero.get_stat("health") >= 100 or "Injured" in hero.effects,
+                "Healer" in char.basetraits or "Knight" in char.basetraits,
+                has_items("Healing Potion", char, equipped=False),
+                iam.silent_check_for_bad_stuff(char),
+                check_friends(char),
+                dice(char.get_stat("affection") / 20),
+                char.has_ap(),
+                hero.has_ap())):
+            # propose healing
+            $ iam.offer_heal(char)
+            menu:
+                "Do you want to let [char.name] treat your wounds?"
+                "Yes":
+                    $ iam.set_img("nurse", exclude=["sex", "nude"], add_mood=False)
+                    $ char.take_pp(iam.PP_COST)
+                    $ hero.take_pp(iam.PP_COST)
+                    "[char.pC] quickly patched your wounds."
+                    $ temp, tmp = items["Healing Potion"], hero.get_stat("health")
+                    $ char.remove_item(temp, 1)
+                    $ hero.equip(temp, remove=False, aeq_mode=True)
+                    $ gfx_overlay.mod_stat("health", hero.get_stat("health") - tmp, hero)
+                    $ char.gfx_mod_stat("affection", affection_reward(char))
+                    $ iam.heal_line(char)
+                    $ iam.restore_img()
+                    $ del temp, tmp
+                "No":
+                    $ char.gfx_mod_stat("affection", affection_reward(char, stat=["attack", "constitution", "health"]))
+                    $ iam.accept_refusal(char)
         if all((check_submissivity(char) < 0,
                 iam.become_lovers(char) is True,
                 not iam.gender_mismatch(char, just_sex=False),
@@ -64,10 +92,8 @@ label girl_interactions_greeting:
                 "No":
                     $ char.set_flag("cnd_tried_to_lover", day+7)
 
-                    $ char.override_portrait("portrait", "indifferent")
-                    $ iam.say_line(char, ("...", "I see...", "Maybe later then..."))
                     $ char.gfx_mod_stat("joy", -randint(4, 8))
-                    $ char.restore_portrait()
+                    $ iam.accept_refusal(char)
                 "No, and do not bother me again... Ever!":
                     $ char.set_flag("tried_to_lover")
 
@@ -91,10 +117,8 @@ label girl_interactions_greeting:
                     $ del m
                     jump interactions_sex_scene_select_place
                 "No":
-                    $ char.override_portrait("portrait", "indifferent")
-                    $ iam.say_line(char, ("...", "I see...", "Maybe later then..."))
                     $ char.gfx_mod_stat("joy", -randint(1, 5))
-                    $ char.restore_portrait()
+                    $ iam.accept_refusal(char)
 
         elif all(("SIW" in char.gen_occs,
                   char.employer != hero,
@@ -116,9 +140,7 @@ label girl_interactions_greeting:
                     $ del m
                     jump interactions_hireforsex
                 "No":
-                    $ char.override_portrait("portrait", "indifferent")
-                    $ iam.say_line(char, ("...", "I see...", "Maybe later then..."))
-                    $ char.restore_portrait()
+                    $ iam.accept_refusal(char)
 
         elif "Fluffy Companion" in hero.effects:
             # play with the cat

@@ -2236,6 +2236,44 @@ init -2 python:
             iam.say_line(character, lines, "shy")
 
         @staticmethod
+        def offer_heal(character):
+            """
+            Output line when the character offers to treat the wounds of the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Let me treat your wounds!", "Those wounds should be treated before it gets worse.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("I... I think you need to seek help with your wounds...", "Maybe I could help to treat your wounds?")
+            elif "Imouto" in char_traits:
+                lines = ("Uhuh, you are bleeding! Can I help you?", "Uhm... that wound is nasty! Let me help you!")
+            elif "Dandere" in char_traits:
+                lines = ("I think your wounds are quite serious. Maybe I could help you.", )
+            elif "Tsundere" in char_traits:
+                lines = ("Hey, cover your nasty wound or let me treat it!", )
+            elif "Kuudere" in char_traits:
+                lines = ("Wait, you are injured! Let me treat the wound!", "Hey, what happend? Let me treat you!", "Wait, you are wounded! That won't do! One second...")
+            elif "Kamidere" in char_traits:
+                lines = ("That wound looks bad. I can take care of it, if you want me to.", )
+            elif "Bokukko" in char_traits:
+                lines = ("Um... I think that wound should be properly taken care of. Let me do it!", )
+            elif "Ane" in char_traits:
+                lines = ("Oh dear, does that hurt? Let me take care of you!", "Oh my, that must hurt! Please, let me take care of it!")
+            elif "Yandere" in char_traits:
+                lines = ("You seem injured. Why don't you let me heal you?", )
+            else:
+                lines = ("It seems you are wounded. Do you need help?", )
+            iam.say_line(character, lines)
+
+        @staticmethod
+        def heal_line(character):
+            """
+            Output line after the character treated the wounds of the hero
+            """
+            lines = ("That's better!", "You see, much better now!", "Much better!", "Good, it is already better!")
+            iam.say_line(character, lines, "confident")
+
+        @staticmethod
         def accept_movein(character):
             """
             Output line when the character accepts to move-in with the hero
@@ -2372,6 +2410,15 @@ init -2 python:
             # TODO traits
             lines = ("If that's what you want.", "As you wish. Bye.", "I understand. I suppose that was it.")
             iam.say_line(character, lines)
+
+        @staticmethod
+        def accept_refusal(character):
+            """
+            Output line when the character accepts a refusal from the hero
+            """
+            # TODO traits
+            lines = ("...", "I see...", "Maybe later then...")
+            iam.say_line(character, lines, "indifferent")
 
         @staticmethod
         def comment_job_new(character):
