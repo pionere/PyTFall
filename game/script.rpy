@@ -1836,6 +1836,19 @@ label after_load:
             if cid != 0:
                 global_flags.up_counter("clone_id", cid)
             del store.clone_id
+        if hasattr(store, "xeona_status"):
+            xe = npcs["Xeona_arena"]
+            if hasattr(xeona_status, "meet_day"):
+                if xeona_status.meet_day == day:
+                    xe.set_flag("dnd_meet_day")
+                del xeona_status.meet_day
+            if hasattr(xeona_status, "heal_day"):
+                if xeona_status.heal_day == day:
+                    xe.set_flag("dnd_heal_day")
+                del xeona_status.heal_day
+            xeona_status.quest = register_quest("The Demon")
+            xe.set_flag("arena_status", xeona_status)
+            del store.xeona_status
         if hasattr(gazette, "first_view"):
             del gazette.first_view
 

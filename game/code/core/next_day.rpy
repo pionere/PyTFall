@@ -190,7 +190,7 @@ label next_day_calculations:
 
         # Reset Flags:
         tl.start("ND-Flags Reset")
-        for char in itertools.chain(chars.values(), [hero]):
+        for char in itertools.chain(chars.itervalues(), npcs.itervalues(), [hero]):
             for flag in char.flags.keys():
                 if flag.startswith("dnd"):
                     char.del_flag(flag)

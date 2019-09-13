@@ -224,6 +224,8 @@ init -9 python:
             tl.start("Chars ND")
             for char in chars.values():
                 char.next_day()
+            for char in npcs.values():
+                char.next_day()
             hero.next_day()
             tl.end("Chars ND")
 

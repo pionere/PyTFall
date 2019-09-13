@@ -1,27 +1,26 @@
 init -9 python:
     def setup_xeona(status=None):
-        xeona_status = getattr(store, "xeona_status", None)
+        xea = npcs["Xeona_arena"]
+        xeona_status = xea.get_flag("arena_status", None) #getattr(store, "xeona_status", None)
         if xeona_status is None:
             xeona_status = object()
-            xeona_status.stage = 0
             xeona_status.flirt = False
             xeona_status.disposition = 0
-            xeona_status.meet_day = 0
-            xeona_status.heal_day = 0
-            store.xeona_status = xeona_status
-
-        if xeona_status.disposition > 0:
-            xeona_status.flirt = day%3 == 0
+            xeona_status.quest = register_quest("The Demon")
+            xea.set_flag("arena_status", xeona_status)
 
         if status is None:
+            if xeona_status.disposition > 0:
+                xeona_status.flirt = day%3 == 0
+
             if xeona_status.flirt:
                 status = "happy"
-            elif xeona_status.stage < 2:
+            elif not xeona_status.quest.complete:
                 status = "indifferent"
             else:
                 status = "confident"
-        xeona_status.sprite = npcs["Xeona_arena"].get_vnsprite(status)
-        npcs["Xeona_arena"].override_portrait("portrait", status)
+        xeona_status.sprite = xea.get_vnsprite(status)
+        xea.override_portrait("portrait", status)
 
 label arena_outside:
     $ setup_xeona()
@@ -30,7 +29,8 @@ label arena_outside:
 
     if pytfall.enter_location("arena", music=True, env="arena_outside", coords=[(.1, .6), (.59, .64), (.98, .61)],
                              goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"], goodoccupations=["Combatant"]):
-        $ ax = npcs["Xeona_arena"].say
+        $ xea = npcs["Xeona_arena"]
+        $ ax, xeona_status = xea.say, xea.flag("arena_status")
         'You see a pretty, confident girl approaching you.'
         show expression xeona_status.sprite as xeona
         with dissolve
@@ -55,41 +55,30 @@ label arena_outside:
             hide screen arena_outside
             if result[1] == "enter_arena":
                 jump arena_inside
-
-            if result[1] == "practice":
+            elif result[1] == "practice":
                 jump arena_practice_start
-
-            if result[1] == 'return':
+            elif result[1] == "find_xeona":
+                jump find_xeona
+            elif result[1] == "return":
                 jump city
 
 label xeona_menu:
-    hide screen arena_outside
     show screen xeona_screen
     while 1:
         $ result = ui.interact()
 
-label xeona_goodbye:
-    ax "Find me if you need anything, I'm always here."
-    hide xeona with dissolve
-    $ del ax
-    jump arena_outside
+        hide screen xeona_screen
+        if result == "talk":
+            jump xeona_talking
+        elif result == "train":
+            jump xeona_training
+        else:
+            $ iam.comment_line(xea, "Find me if you need anything, I'm always here.")
+            hide xeona with dissolve
+            $ del xea, ax, xeona_status
+            jump arena_outside
 
 label xeona_talking:
-    if (hero.get_max("health") - hero.get_stat("health") >= 10) and xeona_status.disposition >= 10 and xeona_status.heal_day != day:
-        $ xeona_status.heal_day = day
-        ax "Wait, you are wounded! That won't do! One second..."
-        hide xeona with dissolve
-        $ img = npcs["Xeona_arena"].show("nurse", exclude=["sex", "nude"], resize=iam.IMG_SIZE, add_mood=False)
-        show expression img at truecenter as ddd
-        with dissolve
-        "She quickly patched your wounds."
-        hide ddd with dissolve
-        show expression xeona_status.sprite as xeona
-        with dissolve
-        $ del img
-        $ hero.mod_stat("health", 250)
-        ax "Much better!"
-
     while 1:
         menu:
             ax "Well?"
@@ -168,20 +157,20 @@ label xeona_talking:
                     "Get more than 6000 arena reputation to date Xeona!"
                 else:
                     $ xeona_status.disposition = 1
-                    $ xeona_status.meet_day = day
+                    $ xea.set_flag("dnd_meet_day")
                     ax "Well, I suppose I could... But I'm often busy with my arena duties."
                     ax "I'm only free every third day. If you have time, we could hang out sometimes."
             "Hang out" if xeona_status.disposition > 0:
                 if not xeona_status.flirt:
                     ax "Sorry, I can't today. Too busy. I only have some free time every third day."
-                elif xeona_status.meet_day == day:
+                elif xea.has_flag("dnd_meet_day"):
                     ax "I don't have any more free time today, sorry. Come back in three days." 
                 else:
                     $ xeona_status.disposition += 1
-                    $ xeona_status.meet_day = day
+                    $ xea.set_flag("dnd_meet_day")
                     ax "Sure, I have a few hours! Let's go."
                     hide xeona with dissolve
-                    $ img = npcs["Xeona_arena"].show("sfw", resize=iam.IMG_SIZE, add_mood=False)
+                    $ img = xea.show("sfw", resize=iam.IMG_SIZE, add_mood=False)
                     show expression img at truecenter as ddd
                     with dissolve
                     "You spent some time with Xeona. She likes you a bit more now."
@@ -194,15 +183,15 @@ label xeona_talking:
                         ax "By the way... We know each other pretty well already, so if you want, we could arrange a more private date... If you know what I mean."
             "Private date" if xeona_status.disposition >= 10:
                 if not xeona_status.flirt:
-                    ax "Sorry, I can't today. Too busy. I only have some free time every third day."
-                elif xeona_status.meet_day == day:
-                    ax "I don't have any more free time today, sorry. Come back in three days." 
+                    ax "Sorry, I can't today. Too busy, you know..."
+                elif xea.has_flag("dnd_meet_day"):
+                    ax "I don't have any more free time today, sorry." 
                 else:
                     $ xeona_status.disposition += 1
-                    $ xeona_status.meet_day = day
+                    $ xea.set_flag("dnd_meet_day")
                     ax "In the mood for some kinky stuff today? Me too, hehe."
                     hide xeona with dissolve
-                    $ img = npcs["Xeona_arena"].show("nude", exclude=["sex"], resize=iam.IMG_SIZE, add_mood=False)
+                    $ img = xea.show("nude", exclude=["sex"], resize=iam.IMG_SIZE, add_mood=False)
                     show expression img at truecenter as ddd
                     with dissolve
                     "Xeona arranged a small private show for you. You both enjoyed it."
@@ -210,7 +199,7 @@ label xeona_talking:
                     show expression xeona_status.sprite as xeona
                     $ del img
                     ax "I may be not very good at striptease, but I hope you liked what you saw..."
-            "Xeona's Favor" if xeona_status.stage == 1:
+            "Xeona's Favor" if xeona_status.quest.stage == 1:
                 if has_items("Demonic Blade", hero, equipped=False):
                     ax "Did you find a Demonic Blade for me?"
                     menu:
@@ -221,29 +210,27 @@ label xeona_talking:
                             ax "Let's see..."
                             hide xeona
                             with Fade(.25, 0, .25, color="darkred")
-                            $ xeona_status.stage = 2
-                            $ xeona_status.flirt = False
                             $ setup_xeona("confident")
                             show expression xeona_status.sprite as xeona
                             with dissolve
-                            $ xeona_status.meet_day = day
-                            ax "Awesome! It worked! Thank you, [hero.name]!"
+                            ax "Awesome! It worked! Thank you, [xea.mc_ref]!"
                             ax "Now, as I promised, I'll make it worth your while, hehe..."
+                            $ finish_quest("The Demon", "You gave a Demonic Blade to Xeona.")
                         "Not now":
                             ax "Hmm, ok."
                 else:
                     ax "Yes, I need a Demonic Blade. Could you bring one to me?"
-            "Sex with Xeona" if xeona_status.stage >= 2:
+            "Sex with Xeona" if xeona_status.quest.complete:
                 if not xeona_status.flirt:
-                    ax "Sorry, I can't today. Too busy. I only have some free time every third day."
-                elif xeona_status.meet_day == day:
-                    ax "I don't have any more free time today, sorry. Come back in three days."
+                    ax "Sorry, I can't today. Too busy, you should know by now..."
+                elif xea.has_flag("dnd_meet_day"):
+                    ax "I don't have any more free time today, sorry."
                 else:
                     $ xeona_status.disposition += 1
-                    $ xeona_status.meet_day = day
+                    $ xea.set_flag("dnd_meet_day")
                     ax "Alright, hehe. Come, I know a good place nearby!"
                     hide xeona with dissolve
-                    $ img = npcs["Xeona_arena"].show("sex", exclude=["in pain", "scared", "angry", "sad", "rape", "forced", "group"], resize=iam.IMG_SIZE, add_mood=False)
+                    $ img = xea.show("sex", exclude=["in pain", "scared", "angry", "sad", "rape", "forced", "group"], resize=iam.IMG_SIZE, add_mood=False)
                     $ hero.gfx_mod_skill("sex", 0, randint(5, 10))
                     show expression img at truecenter as ddd
                     with dissolve
@@ -261,17 +248,33 @@ label xeona_talking:
             "I know all I need to":
                 jump xeona_menu
 
-        if xeona_status.disposition >= 20 and xeona_status.stage == 0:
+        if xeona_status.disposition >= 20 and xeona_status.quest.stage == 0:
             ax "Listen... I have a favor to ask. I need a Demonic Blade to enchant my magical capabilities, but I have no idea where to get it."
             ax "If you bring it to me, I'll make it worth your while."
-            $ xeona_status.stage = 1
+            $ advance_quest(xeona_status.quest, "Xeona asked you bring her a Demonic Blade.")
 
 label find_xeona:
-    hide screen arena_outside
-    $ ax = npcs["Xeona_arena"].say
+    $ xea = npcs["Xeona_arena"]
+    $ ax, xeona_status = xea.say, xea.flag("arena_status")
     show expression xeona_status.sprite as xeona
     with dissolve
     ax "Hi again! Is there something you want?"
+
+    if (hero.get_max("health") - hero.get_stat("health") >= 10) and xeona_status.disposition >= 10 and not xea.has_flag("dnd_heal_day"):
+        $ xea.set_flag("dnd_heal_day")
+        ax "Wait, you are wounded! That won't do! One second..."
+        hide xeona with dissolve
+        $ img = xea.show("nurse", exclude=["sex", "nude"], resize=iam.IMG_SIZE, add_mood=False)
+        show expression img at truecenter as ddd
+        with dissolve
+        "She quickly patched your wounds."
+        hide ddd with dissolve
+        show expression xeona_status.sprite as xeona
+        with dissolve
+        $ del img
+        $ hero.mod_stat("health", 250)
+        ax "Much better!"
+
     jump xeona_menu
 
 label xeona_training:
@@ -390,7 +393,7 @@ screen arena_outside:
         textbutton "Enter Arena":
             action Return(["control", "enter_arena"])
         textbutton "Find Xeona":
-            action Jump("find_xeona")
+            action Return(["control", "find_xeona"])
         textbutton "Practice":
             action Return(["control", "practice"])
         textbutton "Look Around":
@@ -406,11 +409,11 @@ screen xeona_screen:
     frame:
         has vbox
         textbutton "Talk":
-            action Hide("xeona_screen"), Jump("xeona_talking")
+            action Return("talk")
         textbutton "Train":
-            action Hide("xeona_screen"), Jump("xeona_training")
+            action Return("train")
         textbutton "Leave":
-            action Hide("xeona_screen"), Jump("xeona_goodbye")
+            action Return("leave")
             keysym "mousedown_3"
 
 screen arena_practice:
