@@ -1273,8 +1273,13 @@ init -9 python:
                 elif s != "consumable":
                     self.unequip(slot=s, aeq_mode=True)
 
-            if purpose is None: # Let's see if we can get a purpose from last known auto equip purpose:
-                purpose = self.guess_aeq_purpose(self.last_known_aeq_purpose)
+            if purpose is None:
+                if self.employer is hero:
+                    # The hero is expected to equip/dress their employees
+                    purpose = "Casual"
+                else:
+                    # Get a purpose from last known auto equip purpose:
+                    purpose = self.guess_aeq_purpose(self.last_known_aeq_purpose)
 
             base_purpose = STATIC_ITEM.AEQ_PURPOSES[purpose]
             fighting = base_purpose.get("fighting")
