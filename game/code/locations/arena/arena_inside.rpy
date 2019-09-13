@@ -229,8 +229,10 @@ init: # Main Screens:
                         action Show("arena_dogfights", container=pytfall.arena.dogfights_3v3, transition=dissolve)
                         tooltip "Unranked team 3v3 fights"
 
-        # RIGHT FRAME::
+        # RIGHT FRAME:
         # Hero stats + Some Buttons:
+        default index = 0
+        $ char = hero.team[index]
         frame:
             xalign 1.0
             ypos 39
@@ -250,7 +252,7 @@ init: # Main Screens:
 
                 frame:
                     background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
-                    $ img = hero.show("portrait", resize=(95, 95), cache=True)
+                    $ img = char.show("portrait", resize=(95, 95), cache=True)
                     padding 2, 2
                     yalign .5
                     add img align .5, .5
@@ -262,7 +264,7 @@ init: # Main Screens:
                     xsize 155
                     has vbox
 
-                    label "[hero.name]":
+                    label "[char.name]":
                         text_size 16
                         text_bold True
                         yalign .03
@@ -270,7 +272,7 @@ init: # Main Screens:
 
                     fixed: # HP:
                         ysize 25
-                        $ temp, tmp = hero.get_stat("health"), hero.get_max("health")
+                        $ temp, tmp = char.get_stat("health"), char.get_max("health")
                         bar:
                             left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
                             right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
@@ -283,7 +285,7 @@ init: # Main Screens:
 
                     fixed: # MP:
                         ysize 25
-                        $ temp, tmp = hero.get_stat("mp"), hero.get_max("mp")
+                        $ temp, tmp = char.get_stat("mp"), char.get_max("mp")
                         bar:
                             left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
                             right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
@@ -296,7 +298,7 @@ init: # Main Screens:
 
                     fixed: # VP:
                         ysize 25
-                        $ temp, tmp = hero.get_stat("vitality"), hero.get_max("vitality")
+                        $ temp, tmp = char.get_stat("vitality"), char.get_max("vitality")
                         bar:
                             left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
                             right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
@@ -308,12 +310,31 @@ init: # Main Screens:
                         text "[temp]" size 14 color ("red" if temp <= tmp/5 else "ivory") bold True style_suffix "value_text" xpos 125 yoffset -8
 
             # Rep:
-            $ temp = "Reputation: %d" % hero.arena_rep
+            $ temp = "Reputation: %d" % char.arena_rep
             $ font_size = PyTGFX.txt_font_size(temp, 250, 25, min_size=10)
             frame:
                 background Frame("content/gfx/frame/frame_bg.png", 5, 5)
                 xysize (270, 70)
                 label temp text_size font_size text_color "ivory" align .5, .5
+
+            $ temp = len(hero.team)
+            if temp > 1:
+                hbox:
+                    style_prefix "paging_green"
+                    align .5, .5
+                    spacing 60
+                    button:
+                        style_suffix "button_left"
+                        tooltip "Previous Team Member"
+                        action SetScreenVariable("index", (index - 1) % temp)
+
+                    button:
+                        style_suffix "button_right"
+                        tooltip "Next Team Member"
+                        action SetScreenVariable("index", (index + 1) % temp)
+            else:
+                null height 43
+            null height 20
 
             # Buttons:
             frame:
