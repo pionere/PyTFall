@@ -842,9 +842,10 @@ init -9 python:
 
             # end of the chainfight
             # rewards
-            leader = off_team.leader
+            temp = max(15000.0, self.ladder[0].arena_rep / 3.0)
             amount = 2
-            amount += min(round_int(leader.arena_rep/max(15000.0, self.ladder[0].arena_rep / 3.0)), 3)
+            for member in off_team:
+                amount += min(round_int(member.arena_rep/temp), 3)
             tier = mob_level/40.0
             #types = ['scroll', 'restore', 'armor', 'weapon'] 
             types = None
@@ -856,8 +857,9 @@ init -9 python:
             if nd_run:
                 return (off_team, enemy_team), rewards
 
+            temp = off_team.leader.inventory
             for i in rewards:
-                leader.inventory.append(i)
+                temp.append(i)
 
             return (off_team, enemy_team), combat_log
 

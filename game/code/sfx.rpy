@@ -44,6 +44,7 @@ init python:
             if PyTSFX.world_env == key:
                 return
             if key is None:
+                renpy.audio.audio.channels["world"].callback = None # FIXME should not be necessary
                 renpy.music.stop(channel="world", fadeout=fade)
             else:
                 if key not in PyTSFX.world_sfx:
@@ -67,6 +68,7 @@ init python:
                     renpy.music.play(files, channel="world", fadein=fade, loop=False)
                     renpy.music.set_queue_empty_callback(PyTSFX.queue_env, channel="world")
                 else:
+                    renpy.audio.audio.channels["world"].callback = None # FIXME should not be necessary
                     renpy.music.stop(channel="world", fadeout=fade)
             PyTSFX.world_env = key
 
