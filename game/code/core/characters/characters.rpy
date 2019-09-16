@@ -2249,6 +2249,14 @@ init -9 python:
             # generate random preferences if none provided
             if not hasattr(self, "preferences"):
                 self.preferences = {p: random.random() for p in STATIC_CHAR.PREFS}
+                # adjust preferences based on traits
+                #  - kin to kin:
+                if "Virtuous" in self.traits:
+                    if self.preferences["reputation"] < .5:
+                        self.preferences["reputation"] += .5
+                elif "Vicious" in self.traits:
+                    if self.preferences["reputation"] > .5:
+                        self.preferences["reputation"] -= .5
 
             # Second round of stats normalization:
             restore_battle_stats(self)

@@ -56,6 +56,13 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                         char.auto_equip(char.last_known_aeq_purpose)
                     iam.dispo_reward(char, -randint(30, 40))
                     char.gfx_mod_stat("affection", -randint(3,5))
+                    # bystanders
+                    for member in hero.team:
+                        if member != hero:
+                            mod = 50 - round_int(member.preferences.get("reputation", 0) * 100)
+                            mod += randint(-10, 10)
+                            member.gfx_mod_stat("affection", mod/2)
+                            iam.dispo_reward(member, randint(2*mod, 3*mod))
                 else:
                     narrator("You didn't find anything...")
         "Kill [char.op]" if (char.employer != hero): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
@@ -63,14 +70,13 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
             python hide:
                 hero.gfx_mod_exp(exp_reward(hero, char))
                 kill_char(char)
+                # bystanders
                 for member in hero.team:
-                    if all([member != hero, member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits)]):
-                        if "Virtuous" in member.traits:
-                            iam.dispo_reward(member, -randint(240, 260)) # you really don't want to do it with non evil chars in team
-                            member.gfx_mod_stat("affection", -randint(30,50))
-                        else:
-                            iam.dispo_reward(member, -randint(140, 160))
-                            member.gfx_mod_stat("affection", -randint(20,30))
+                    if member != hero:
+                        mod = 50 - round_int(member.preferences.get("reputation", 0) * 100)
+                        mod += randint(-10, 10)
+                        member.gfx_mod_stat("affection", mod)
+                        iam.dispo_reward(member, randint(4*mod, 5*mod))
             if dice(m+10):
                 "Just as you are standing above the body, a city guard arrives to the scene. He quickly arrests you."
                 $ del m
