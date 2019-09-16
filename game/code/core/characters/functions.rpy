@@ -1041,7 +1041,7 @@ init -11 python:
                 val = hero.get_stat(k)
                 # TODO use the more generic solution (below)?
                 if k == "reputation":
-                    v = (v - 50) * 2
+                    v = (v - .5) * 2
                 #min_val = char.stats.min[k]
                 #val -= min_val
                 #max_val -= min_val
