@@ -225,8 +225,7 @@ label city_dark_forest_fight:
     $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
 
     if result is True:
-        $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",
-                                 "potions", "restore"], tier=2)
+        $ give_to_mc_item_reward(["treasure", "restore"], tier=2)
         $ forest_bg_change = False
     elif result == "escape":
         scene black

@@ -1818,11 +1818,20 @@ init 1000 python:
 
             if debug:                   #      260                    480                        1030                        1590
                 for loot, num, type in ((loots, 3, "out"), (base_loots, 4, " normal"), (good_loots, 5, " good"), (magic_loots, 6, " magic")):
-                    sum = value = 0
+                    total = value = 0
                     for item, chance in loot:
-                        sum += chance
+                        total += chance
                         value += item.price * chance
-                    devlog.warn("Expected loot value of fishing with%s bait: %s" % (type, num * value / float(sum)))
+                    devlog.warn("Expected loot value of fishing with%s bait: %s" % (type, num * value / float(total)))
+
+            # Fishing bonus:
+            fish = list(i for i in items.values() if i.type == "fish" and "Fishing" in i.locations and 10 <= i.price <= 5000) # SKILLS_MAX
+            if not fish:
+                TestSuite.reportError("There is no fish for special requests.")
+
+            if debug: # mpl        num                       price
+                reward = 4 * ((10 + 3) / 2.0) * (sum(i.price for i in fish) / float(len(fish)))
+                devlog.warn("Expected reward of the bonus request: %s" % reward) # 1400
 
             # Diving:
             loots = []
@@ -1835,13 +1844,85 @@ init 1000 python:
                     tmp = (item, item.chance)
                     loots.append(tmp)
 
+            if not loots:
+                TestSuite.reportError("There is nothing to dive for!")
+
             if debug:
-                sum = value = 0
+                total = value = 0
                 for item, chance in loots:
-                    sum += chance
+                    total += chance
                     value += item.price * chance
                 num = 250 / 25
-                devlog.warn("Expected loot value of diving: %s" % (num * value / float(sum))) # 1860
+                devlog.warn("Expected loot value of diving: %s" % (num * value / float(total))) # 1860
+
+            # Exploration:
+            #  hideout:
+            loots = defaultdict(list)
+            for item in items.values():
+                if "Exploration" not in item.locations:
+                    continue
+                if item.tier > 2:
+                    continue
+                temp = item.type
+                tmp = item.price
+                if temp == "treasure":
+                    if tmp > 300:
+                        continue
+                elif temp == "restore":
+                    if tmp > 100:
+                        continue
+                elif item.slot in ("body", "head", "feet", "wrist"):
+                    if temp in ("dress", "tool"):
+                        continue
+                    if tmp > 300:
+                        continue
+                    temp = "armor"
+                elif item.slot in ("weapon", "smallweapon"):
+                    if temp == "tool":
+                        continue
+                    if tmp > 300:
+                        continue
+                    temp = "weapon"
+                else:
+                    continue
+
+                tmp = (item, item.chance)
+                loots[temp].append(tmp)
+
+            if not loots:
+                TestSuite.reportError("There is no reward in the hideout!")
+
+            if debug:
+                reward = 0
+                for type, loot in loots.items():
+                    total = value = 0
+                    for item, chance in loot:
+                        total += chance
+                        value += item.price * chance
+                    reward += value / (2.0 * total)
+                devlog.warn("Expected reward from hideout: %s" % reward) # 235
+
+            #  fight:
+            loots = []
+            for item in items.values():
+                if "Exploration" not in item.locations:
+                    continue
+                if item.tier > 2:
+                    continue
+                if item.type in ("treasure", "restore"):
+                    tmp = (item, item.chance)
+                    loots.append(tmp)
+
+            if not loots:
+                TestSuite.reportError("There is no reward after fighting in the forest!")
+
+            if debug:
+                total = value = 0
+                for item, chance in loot:
+                    total += chance
+                    value += item.price * chance
+                reward = value / float(total)
+                devlog.warn("Expected reward from a forest-fight: %s" % reward) # 160
 
             # PoolJob:
             if debug:
