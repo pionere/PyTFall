@@ -1,15 +1,9 @@
 init python:
     register_quest("Frog Princess!")
     if DEBUG_QE:
-        register_event("show_frog", screen=True,
-                       locations=["forest_entrance"], trigger_type="auto",
-                       restore_priority=1, priority=300,
-                       start_day=1, dice=100, max_runs=20)
+        register_event("show_frog", locations=["forest_entrance"], dice=100, run_type="screen", restore_priority=1, priority=300, start_day=1, max_runs=20, trigger_type="auto")
     else:
-        register_event("show_frog", screen=True,
-                       locations=["forest_entrance"], trigger_type="auto",
-                       restore_priority=1, priority=300,
-                       start_day=choice([15, 25, 35]), dice=90, max_runs=20)
+        register_event("show_frog", locations=["forest_entrance"], dice=90, run_type="screen", restore_priority=1, priority=300, start_day=choice([15, 25, 35]), max_runs=20, trigger_type="auto")
 
 screen show_frog:
     zorder 10
@@ -292,7 +286,7 @@ label frog1_event_abby_3:
     hero.say "Damn, that blasted frog isn't around... Maybe I should come back tomorrow."
     $ menu_extensions.remove_extension("Abby The Witch Main", "Give her the eye")
 
-    $ register_event("show_frog_final", screen=True, locations=["forest_entrance"], trigger_type="auto", restore_priority=1, priority=300, start_day=day, dice=100, max_runs=100)
+    $ register_event("show_frog_final", locations=["forest_entrance"], run_type="screen", restore_priority=1, priority=300, start_day=day, max_runs=100, trigger_type="auto")
     $ del w
     jump forest_entrance
 

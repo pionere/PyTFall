@@ -201,6 +201,9 @@ label next_day_calculations:
         tl.start("Quest/Events ND")
         pytfall.world_events.next_day() # Get new set of active events
         pytfall.world_quests.next_day() # Garbage collect quests
+        # Run background events/quests: TODO make sure only background events/quests are triggered
+        pytfall.world_quests.run_quests("auto") # Run active quests
+        pytfall.world_events.run_events("auto") # Run current events
         tl.end("Quest/Events ND")
 
         tl.end("Next Day")

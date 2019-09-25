@@ -1,9 +1,9 @@
 init python:
     if DEBUG_QE:
-        register_event("angelica_meet", locations=["mages_tower"], priority=1000, start_day=1, jump=True, dice=100, max_runs=1)
+        register_event("angelica_meet", locations=["mages_tower"], run_type="jump", priority=1000, start_day=1, max_runs=1)
     else:
-        register_event("angelica_meet", locations=["mages_tower"], run_conditions=["dice(global_flags.flag('mt_counter')*30)"], priority=100, start_day=1, jump=True, max_runs=1)
-        register_event("pre_angelica_meet", label=None, locations=["mages_tower"], run_conditions=["global_flags.up_counter('mt_counter') or True"], priority=200, start_day=1, max_runs=3)
+        register_event("angelica_meet", locations=["mages_tower"], run_conditions=["dice(global_flags.flag('mt_counter')*30)"], run_type="jump", priority=100, start_day=1, max_runs=1)
+        register_event("pre_angelica_meet", locations=["mages_tower"], run_conditions=["global_flags.up_counter('mt_counter') or True"], run_type="background", priority=200, start_day=1, max_runs=3)
 
 label angelica_meet:
     $ a = npcs["Angelica_mage_tower"].say

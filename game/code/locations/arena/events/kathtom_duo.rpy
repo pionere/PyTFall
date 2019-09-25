@@ -1,7 +1,6 @@
 # Events File
-
 init -9 python:
-    register_event("maria_tulip_1_event", locations=["arena_outside"], priority=1, dice=40, max_runs=1)
+    register_event("maria_tulip_1_event", locations=["arena_outside"], dice=40, priority=1, max_runs=1)
 
 #just a small introduction
 label maria_tulip_1_event(event):
@@ -33,6 +32,7 @@ label maria_tulip_1_event(event):
                 hide npc
                 with dissolve
                 "Nothing else caught your attention, so you left."
+                $ del m, s, menuM_skip, asked_fight_M
                 return
 
     m "And there's also..."
@@ -45,6 +45,5 @@ label maria_tulip_1_event(event):
     "... {p}(most of the time, huh?)"
     "There was nothing else to do, so you left too."
 
-    $ del menuM_skip
-    $ del asked_fight_M
+    $ del m, s, menuM_skip, asked_fight_M
     return

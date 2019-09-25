@@ -140,42 +140,43 @@ init -9 python:
         """Container for the world event.
         """
         def __init__(self, name, priority=100, restore_priority=5, start_day=1, end_day=float('inf'), max_runs=0,
-                    jump=False, screen=False, label=undefined, locations=list(), trigger_type="look_around",
-                    times_per_days=(), custom_condition=False, simple_conditions=(), dice=0, run_conditions=(),
-                    stop_music=False):
+                    run_type="call", label=undefined, locations=list(), trigger_type="look_around",
+                    times_per_days=(), custom_condition=False, simple_conditions=(), dice=0, run_conditions=()):
             """
-            name = name of the event, will be used as label if label if not specified.
-            priority = higher number will ensure higher priority. Should never be set to 0 by a user!
+            :param name: name of the event, will be used as label if label if not specified.
+            :param priority: higher number will ensure higher priority. Should never be set to 0 by a user!
                       (Anything above 0 is fair game. Rate you own events :) )
-            restore_priority = how many days should pass until priority is restored after the event is ran
+            :param restore_priority: how many days should pass until priority is restored after the event is ran
                                0 will ensure that event runs at the same priority until disabled.
-            start_day = day to start checking triggers for the event.
-            end_day = day to stop checking triggers for the event.
+            :param start_day: day to start checking triggers for the event.
+            :param end_day: day to stop checking triggers for the event.
 
-            max_runs = maximum amount of times this event can run until it is removed from the game.
-            jump = jumps instead of running in new context.
-            screen = will show a screen (bound to self.label) if True, ignored if false
-            label = if label doesn't equal name.
-            locations = to trigger the event.
-            trigger_type = type of interaction that triggers the event, currently we have:
-                            - look_around - button
+            :param max_runs: maximum amount of times this event can run until it is removed from the game.
+            :param label: if label doesn't equal name.
+            :param run_type: execution-type of the event. Uses the label as a target.
+                            - call: call a label in a new context. The default value.
+                            - jump: jump to a label
+                            - callback: call a function
+                            - background: do nothing (running the conditions was enough)
+                            - screen: show a screen
+            :param locations: the list of (code-)location to trigger the event. Set to ["all"] to trigger everywhere.
+            :param trigger_type: interaction-type that triggers the event
+                            - look_around - button. The default value.
                             - auto - on label entry
                             - custom (custom event trigger)
 
-            times_per_days = maximum amount of times that event may trigger in an amount of days, expects a tuple/list of amount, days.
-            custom_condition (Edited condition method) ==> For complex conditioning, inherit from this class and add custom_conditions() method to return True or False
-            simple_conditions = container of strings to be evaluated, if all return True, event will be added to list of possible event for the day. If any of those returns false, event will skip until all the conditions are met.
-            dice = chance to execute. must be an integer or float between 0 and 100 (check dice function),
+            :param times_per_days: maximum amount of times that event may trigger in an amount of days, expects a tuple/list of amount, days.
+            :param custom_condition: (Edited condition method) ==> For complex conditioning, inherit from this class and add custom_conditions() method to return True or False
+            :param simple_conditions: container of strings to be evaluated, if all return True, event will be added to list of possible event for the day. If any of those returns false, event will skip until all the conditions are met.
+            :param dice: chance to execute. must be an integer or float between 0 and 100 (check dice function),
                    use run_conditions otherwise. dice has priority over run_conditions
-            run_conditions = evaluated before execution of the event, should be a list of strings.
-            stop_music = stop the "music" channel when the event is executed
+            :param run_conditions: evaluated before execution of the event, should be a list of strings.
             """
             super(WorldEvent, self).__init__()
 
             # Names/Label
             self.name = name
-            self.jump = jump
-            self.screen = screen
+            self.run_type = run_type
             self.label = name if label is undefined else label
             # Prority related
             self.priority = priority
@@ -199,9 +200,6 @@ init -9 python:
             self.simple_conditions = simple_conditions
             self.dice = dice
             self.run_conditions = run_conditions
-
-            # Rest
-            self.stop_music = stop_music
 
         def check_conditions(self):
             """
@@ -248,14 +246,17 @@ init -9 python:
                 self.priority = 0
                 self.day_to_restore_priority = day + self.restore_priority
 
-            if not self.label:
+            type = self.run_type
+            if type == "background":
                 return False # just a background event, no need block other events
 
-            if self.stop_music: renpy.music.stop(channel="music", fadeout=1.0)
-            if self.screen:
-                renpy.show_screen(self.label)
-            elif self.jump:
-                jump(self.label)
+            tmp = self.label
+            if type == "screen":
+                renpy.show_screen(tmp)
+            elif type == "jump":
+                jump(tmp)
+            elif type == "callback":
+                tmp()
             else:
-                renpy.call_in_new_context(self.label, self)
+                renpy.call_in_new_context(tmp, self)
             return True

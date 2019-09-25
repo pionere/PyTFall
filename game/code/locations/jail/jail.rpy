@@ -55,14 +55,17 @@ label city_jail:
 
 label hero_in_jail:
     scene bg jail_cell
-    with dissolve
 
     if pytfall.enter_location("jail_cell", music=False, env="jail"):
         "This place is awful..."
         extend " How could you end up here?"
         "Of course you know, how..."
 
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
+
     show screen hero_cell
+    with dissolve # dissolve the whole scene, not just the bg
     while 1:
         $ result = ui.interact()
         if result == "guards":

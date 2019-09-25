@@ -1,5 +1,5 @@
 init python:
-    register_event("city_events_thugs_robbery", locations=["main_street"], dice=100, trigger_type = "look_around", priority=50, start_day=1, jump=True, times_per_days=(1,7))
+    register_event("city_events_thugs_robbery", locations=["main_street"], run_type="jump", priority=50, start_day=1, times_per_days=(1,7))
 
 label city_events_thugs_robbery:
     scene
@@ -23,13 +23,13 @@ label city_events_thugs_robbery:
             "Yes":
                 t "Thank you kindly. Worry not, no one will bother you. For now."
                 $ kill_event("city_events_thugs_robbery_attack")
-                $ register_event("city_events_thugs_robbery", locations=["main_street"], dice=100, trigger_type = "look_around", priority = 50, start_day=day+7, jump=True, times_per_days=(1,3))
+                $ register_event("city_events_thugs_robbery", locations=["main_street"], run_type="jump", priority=50, start_day=day+7, times_per_days=(1,3))
                 $ hero.take_money(200, reason="Robbery")
                 if hero.get_stat("joy") > 70:
                     $ hero.gfx_mod_stat("joy", -randint(0, 2))
             "No":
                 t "It's your choice. Don't blame me if something will happen."
-                $ register_event("city_events_thugs_robbery_attack", locations=["main_street", "city_parkgates", "graveyard_town", "village_town"], dice=100, trigger_type = "look_around", priority = 1000, start_day=day+1, times_per_days=(1,2), jump=True)
+                $ register_event("city_events_thugs_robbery_attack", locations=["main_street", "city_parkgates", "graveyard_town", "village_town"], run_type="jump", priority=1000, start_day=day+1, times_per_days=(1,2))
             "Attack him":
                 t "Oho, you have guts, I like it. Let's see what you can do against my boys!"
                 python hide:

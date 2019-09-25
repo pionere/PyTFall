@@ -1731,6 +1731,19 @@ label after_load:
                 del e.label_cache
             if hasattr(e, "last_executed"):
                 del e.last_executed
+            if hasattr(e, "stop_music"):
+                del e.stop_music
+            if hasattr(e, "jump"):
+                tmp = "call"
+                if e.screen:
+                    tmp = "screen"
+                elif e.jump:
+                    tmp = "jump"
+                elif e.label is None:
+                    tmp = "background"
+                e.run_type = tmp
+                del e.jump
+                del e.screen
 
         for q in pytfall.world_quests.quests:
             if isinstance(q.flags, list):

@@ -1,5 +1,5 @@
 init python:
-    register_event("peevish_meeting", locations=["forest_entrance"], simple_conditions=["hero.get_stat('magic') >= 50"],  priority=500, start_day=1, jump=True, dice=100, max_runs=1)
+    register_event("peevish_meeting", locations=["forest_entrance"], simple_conditions=["hero.get_stat('magic') >= 50"], run_type="jump", priority=500, start_day=1, max_runs=1)
     register_gossip("peevish_forest", "gossip_peevish_in_forest", dice=100)
 
 label peevish_meeting:

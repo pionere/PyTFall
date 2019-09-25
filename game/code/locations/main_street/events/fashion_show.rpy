@@ -1,5 +1,5 @@
 init python:
-    register_event("fashion_show_adv", locations=["tailor_store"], simple_conditions=["hero.get_stat('reputation') > 500 and hero.get_stat('fame') > 500"], priority=100, start_day=1, max_runs=1, jump=True, trigger_type="auto")
+    register_event("fashion_show_adv", locations=["tailor_store"], simple_conditions=["hero.get_stat('reputation') > 500 and hero.get_stat('fame') > 500"], run_type="jump", priority=100, start_day=1, max_runs=1, trigger_type="auto")
 
 label fashion_show_adv:
     t "Ohh, I almost forgot... I would like to have a word about something."
