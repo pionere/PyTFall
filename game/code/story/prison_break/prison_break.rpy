@@ -32,7 +32,7 @@ label storyi_start: # beginning point of the dungeon;
             else:
                 storyi_treasures.pop(i["id"], None)
         global_flags.set_flag("storyi_treasures", storyi_treasures)
-        del i, f
+        del i
 
         storyi_prison_location = "Dung"
         controlled_exit = False
@@ -69,7 +69,7 @@ label storyi_continue: # the label where we return after visiting characters equ
     jump storyi_gui_loop
 
 label storyi_exit:
-    $ last_label = "forest_dark" if controlled_exit else "forest_entrance"
+    $ last_label = "forest_dark_continue" if controlled_exit else "dark_forest_exit"
     $ del sflash, q_dissolve, eye_open, eye_shut, map_scroll, blueprint, point, fight_chance 
     $ del storyi_data, storyi_loc_map, storyi_prison_location, storyi_treasures, controlled_exit
     jump expression last_label

@@ -256,6 +256,12 @@ init -10 python:
             except ZeroDivisionError:
                 return 0
 
+        def has_ap(self):
+            for i in self._members:
+                if not i.has_ap():
+                    return False
+            return True
+
         def take_ap(self, value):
             """
             Checks the whole team for enough AP;

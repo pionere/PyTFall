@@ -331,7 +331,7 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                     keysym "mousedown_3"
 
 screen team_status(team=None, interactive=True, pos=(17, 50), spacing=25):
-    default members = hero.team if team is None else team 
+    $ members = hero.team if team is None else team 
     hbox:
         spacing spacing
         pos pos
