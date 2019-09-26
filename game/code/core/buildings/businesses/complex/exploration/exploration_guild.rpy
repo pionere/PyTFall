@@ -124,8 +124,10 @@ init -6 python: # Guild, Tracker and Log.
             # Limited by price:
             limit = area.items_price_limit
             if limit != 0:
-                self.exploration_items.extend([[item.id, item.chance] for item in store.items.values() if
-                                          "Exploration" in item.locations and limit >= item.price])
+                temp = area.tier
+                tmp = [item for item in store.items.itervalues() if
+                                          "Exploration" in item.locations and temp >= item.tier and limit >= item.price]  
+                self.exploration_items.extend([item.id, item.chance] for item in tmp)
 
             if guild.has_extension(CartographyLab):
                 self.cartography = True
