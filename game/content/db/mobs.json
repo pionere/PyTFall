@@ -1402,7 +1402,7 @@
     },
     {
         "name": "Crawler",
-        "desc": "A subterranean predator. It prefers moles, but a small part of a human body is not a problem for his stomach too.",
+        "desc": "A subterranean predator. It prefers moles, but a small part of a human body is not a problem for his stomach either.",
         "front_row": 1,
         "battle_sprite": "content/mobs/aw.webp",
         "portrait": "content/mobs/aw1.webp",
@@ -1495,7 +1495,7 @@
     },
     {
         "name": "Giant Spider",
-        "desc": "A giant poisonous spider. They say its poison can kill a small city.",
+        "desc": "A giant venomous spider. They say its venom can kill a small city.",
         "front_row": 1,
         "battle_sprite": "content/mobs/at.webp",
         "portrait": "content/mobs/at1.webp",
