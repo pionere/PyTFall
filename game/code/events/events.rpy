@@ -246,11 +246,13 @@ init -9 python:
                 self.priority = 0
                 self.day_to_restore_priority = day + self.restore_priority
 
+            tmp = self.label
             type = self.run_type
             if type == "background":
+                if tmp is not None:
+                    tmp()
                 return False # just a background event, no need block other events
 
-            tmp = self.label
             if type == "screen":
                 renpy.show_screen(tmp)
             elif type == "jump":

@@ -3,7 +3,7 @@ init python:
         register_event("angelica_meet", locations=["mages_tower"], run_type="jump", priority=1000, start_day=1, max_runs=1)
     else:
         register_event("angelica_meet", locations=["mages_tower"], run_conditions=["dice(global_flags.flag('mt_counter')*30)"], run_type="jump", priority=100, start_day=1, max_runs=1)
-        register_event("pre_angelica_meet", locations=["mages_tower"], run_conditions=["global_flags.up_counter('mt_counter') or True"], run_type="background", priority=200, start_day=1, max_runs=3)
+        register_event("pre_angelica_meet", locations=["mages_tower"], run_conditions=["global_flags.up_counter('mt_counter') or True"], run_type="background", label=None, priority=200, start_day=1, max_runs=3)
 
 label angelica_meet:
     $ a = npcs["Angelica_mage_tower"].say
