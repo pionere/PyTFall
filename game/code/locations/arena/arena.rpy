@@ -846,7 +846,7 @@ init -9 python:
             amount = 2
             for member in off_team:
                 amount += min(round_int(member.arena_rep/temp), 3)
-            tier = mob_level/40.0
+            tier = mob_level/40
             #types = ['scroll', 'restore', 'armor', 'weapon'] 
             types = None
             rewards = get_item_drops(types=types, tier=tier, locations=["Arena"], amount=amount)

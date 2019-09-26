@@ -77,7 +77,7 @@
     "id": "Rune Staff",
     "desc": "This staff constantly draws energy from other planes of existence and channels it to its wielder.",
     "icon": "content/items/sweapon/rus.png",
-    "price": 3000,
+    "price": 2200,
     "chance": 10,
     "eqchance": 50,
     "infinite": false,

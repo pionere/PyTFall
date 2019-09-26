@@ -37,7 +37,7 @@
     "desc": "When equipped, this dagger awakens the killer instinct. Greatly increases the chance of critical hit.",
     "icon": "content/items/weapon/ad.png",
     "price": 450,
-    "chance": 25,
+    "chance": 15,
     "eqchance": 30,
     "infinite": false,
     "slot": "weapon",

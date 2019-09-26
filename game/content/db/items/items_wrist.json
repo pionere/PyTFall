@@ -530,7 +530,7 @@
     "id": "Ninja Gloves",
     "desc": "A part of the ninja outfit, extremely light and flexible. Only a few copies exist outside of their villages as smuggling them is very dangerous.",
     "icon": "content/items/wrist/nig.png",
-    "price": 1000,
+    "price": 1600,
     "gender": "female",
     "chance": 15,
     "eqchance": 80,

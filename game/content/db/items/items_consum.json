@@ -1095,7 +1095,7 @@
     "id": "Flashing Extract",
     "desc": "A bottle of glowing, sparkling fluid. Increases the number of action points by 1. Can be used only once.",
     "icon": "content/items/cons/ap.png",
-    "price": 2000,
+    "price": 1200,
     "chance": 5,
     "eqchance": 100,
     "tier": 3,

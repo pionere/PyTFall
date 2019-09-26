@@ -1855,6 +1855,49 @@ init 1000 python:
                 num = 250 / 25
                 devlog.warn("Expected loot value of diving: %s" % (num * value / float(total))) # 1860
 
+            # Arena:
+            num = max(setup["level"] for setup in Arena.all_chain_fights) / 40
+            loots = defaultdict(list)
+            for item in items.values():
+                if "Arena" in item.locations:
+                    temp = item.tier
+                    if temp > num:
+                        TestSuite.reportError("%s has higher tier (%s) than the maximum available chainfight (%s)!" % (temp, num))
+                        continue
+
+                    tmp = (item, item.chance)
+                    loots[temp].append(tmp)
+
+            #for (item, chance) in loots[3]:
+            #    devlog.warn("Lvl 3 - Item: %s, price: %s" % (item.id, item.price))
+            for i in xrange(num+1):
+                if i not in loots:
+                    TestSuite.reportError("There is no added Arena reward on tier %s!" % i)
+                    loots[i] = []
+
+            for i in xrange(num):
+                loot = loots[i]
+                if not loot:
+                    TestSuite.reportError("There is no Arena reward on tier %s!" % tier)
+                else:
+                    for j in xrange(i+1, num+1):
+                        loots[j].extend(loot) 
+
+            if debug:
+                for tier, loot in loots.items():
+                    total = value = 0
+                    for item, chance in loot:
+                        total += chance
+                        value += item.price * chance
+
+                    reward = value / float(total)
+                    # tier 0: 1163.97637795 - 2560.7480315
+                    # tier 1: 1421.90781797 - 3128.19719953
+                    # tier 2: 1613.66283646 - 3550.0582402
+                    # tier 3: 1644.94468847 - 3618.87831463
+                    # tier 4: 1655.5721393 - 3642.25870647
+                    devlog.warn("Expected reward from Arena on tier %s: %s - %s" % (tier, 5*reward, 11*reward))
+
             # Exploration:
             #  hideout:
             loots = defaultdict(list)
