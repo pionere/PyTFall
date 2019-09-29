@@ -1,0 +1,106 @@
+[
+    {
+    "id": "Hide",
+    "desc": "The prepared skin of an animal. Also called rawhide.",
+    "icon": "content/items/crafting_materials/rawhide.webp",
+    "price": 80,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Pelt",
+    "desc": "The skin of an animal covered by hair.",
+    "icon": "content/items/crafting_materials/pelt.webp",
+    "price": 120,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Fur",
+    "desc": "The hair of an animal.",
+    "icon": "content/items/crafting_materials/fur.webp",
+    "price": 80,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Bone",
+    "desc": "The building block of the vertebrate skeleton.",
+    "icon": "content/items/crafting_materials/bone.webp",
+    "price": 75,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Sinew",
+    "desc": "A fibrous connective tissue called tendon that connects muscle to bone.",
+    "icon": "content/items/crafting_materials/tendon.webp",
+    "price": 25,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Fang",
+    "desc": "A long pointed tooth.",
+    "icon": "content/items/crafting_materials/fang.webp",
+    "price": 20,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Claw",
+    "desc": "A curved, pointed appendage, found at the end of a toe or finger.",
+    "icon": "content/items/crafting_materials/claw.webp",
+    "price": 30,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Feather",
+    "desc": "Epidermal growths that form the distinctive outer covering of various animals.",
+    "icon": "content/items/crafting_materials/feather.webp",
+    "price": 30,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Chitin",
+    "desc": "The primary component of the exoskeletons of arthropods, such as crustaceans and insects.",
+    "icon": "content/items/crafting_materials/chitin.webp",
+    "price": 40,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Hemp",
+    "desc": "A strain of the Cannabis sativa plant species with wide industrial uses.",
+    "icon": "content/items/crafting_materials/hemp.webp",
+    "price": 20,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Weak base",
+    "desc": "A basic chemical compound which does not fully ionize in an aqueous solution.",
+    "icon": "content/items/crafting_materials/weak_base.webp",
+    "price": 120,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Strong base",
+    "desc": "A basic chemical compound that can remove a proton from a molecule of even a very weak acid.",
+    "icon": "content/items/crafting_materials/strong_base.webp",
+    "price": 160,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Acid",
+    "desc": "A basic chemical compound which contains molecules or ions capable of donating a proton.",
+    "icon": "content/items/crafting_materials/acid.webp",
+    "price": 160,
+    "slot": "resources",
+    "type": "crafting"
+    }
+]
