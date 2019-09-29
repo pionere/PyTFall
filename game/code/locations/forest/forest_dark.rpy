@@ -271,8 +271,8 @@ label city_dark_forest_fight:
                 msg = "A bear wants to share your food."
             else:
                 msg = "You disturbed an angry bear."
-            mob_ids = ["Bear", "Beargirl"]
-            et_len -= 1
+            mob_ids = ["Black Bear", "Bear", "Beargirl"]
+            et_len = 1
         elif mob == "druid":
             if camping:
                 msg = "Forest fanatics approaching your resting place with noticable non-peaceful intentions."

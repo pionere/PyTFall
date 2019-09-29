@@ -527,11 +527,11 @@
         ]
     },
     {
-        "name": "Bear",
-        "desc": "Bears are too big and bad-tempered to form big hunting packs. It won't help you though if you meet one of them in a bad mood.",
+        "name": "Black Bear",
+        "desc": "The smaller and weaker type of the bears. You might still don't want to face one-on-one.",
         "front_row": 1,
-        "battle_sprite": "content/mobs/be.webp",
-        "portrait": "content/mobs/be1.webp",
+        "battle_sprite": "content/mobs/bla.webp",
+        "portrait": "content/mobs/bla1.webp",
         "full_race": "Animal",
         "locations": [],
         "min_lvl": 25,
@@ -552,7 +552,7 @@
         "skills": {},
         "traits": ["Furry", "Neutral", "Fire Weakness"],
         "attack_skills": [
-            "Claw Slash", "Bite", "Power Bear"
+            "Claw Slash", "Claw Slash 2X", "Bite", "Power Bear"
         ],
         "magic_skills": [
         ]
@@ -2080,6 +2080,37 @@
             "Bite"
         ],
         "magic_skills": ["Aero"
+        ]
+    },
+    {
+        "name": "Bear",
+        "desc": "Bears are too big and bad-tempered to form big hunting packs. It won't help you though if you meet one of them in a bad mood.",
+        "front_row": 1,
+        "battle_sprite": "content/mobs/be.webp",
+        "portrait": "content/mobs/be1.webp",
+        "full_race": "Animal",
+        "locations": [],
+        "min_lvl": 80,
+        "basetraits": [
+            "Knight", "Berserker"
+        ],
+        "stats": {
+            "attack": 70,
+            "defence":80,
+            "magic": 10,
+            "agility": 40,
+            "luck":-10,
+            "charisma":30,
+            "constitution": 70,
+            "intelligence": 5,
+            "vitality": 180
+        },
+        "skills": {},
+        "traits": ["Furry", "Neutral", "Fire Weakness"],
+        "attack_skills": [
+            "Claw Slash", "Claw Slash 2X", "Claw Slash 4X", "Power Bear"
+        ],
+        "magic_skills": [
         ]
     },
     {

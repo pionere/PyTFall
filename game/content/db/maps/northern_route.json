@@ -16,7 +16,7 @@
         "unlocked": true,
         "travel_time": 0.5,
         "maxexplored": 2000,
-        "mobs": ["Bear", "Goblin", "Wolf"],
+        "mobs": ["Black Bear", "Goblin", "Wolf"],
         "unlocks": {"Deep Northern Forest": 50},
         "cash_limit": 10,
         "items_price_limit": 50,

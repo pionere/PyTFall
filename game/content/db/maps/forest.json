@@ -23,7 +23,7 @@
         },
         "desc": "Sinister trees form an ever changing massive maze, as if preventing travelers from going deeper into the forest.",
         "unlocked": true,
-        "mobs": ["Black Butterfly", "Black Wolf", "Link Wolf", "Bear", "Minotaur", "Minotauress", "Bemoth"],
+        "mobs": ["Black Butterfly", "Black Wolf", "Link Wolf", "Black Bear", "Bear", "Minotaur", "Minotauress", "Bemoth"],
         "unlocks": {"Cursed Forest": 100},
         "travel_time": 0.2,
         "maxexplored": 400,
