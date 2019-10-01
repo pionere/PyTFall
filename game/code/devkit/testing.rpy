@@ -60,6 +60,28 @@ init 1000 python:
                 if mob.front_row is not 0 and mob.front_row is not 1:
                     TestSuite.reportError("The entity of mob %s does not have a valid front_row attribute. It is set to %s, but it should be 0 or 1" % (m, mob.front_row))
 
+                drops = mobs[m].get("drops", None)
+                if drops is not None:
+                    if isinstance(drops, (list, tuple)):
+                        for drop in drops:
+                            if not isinstance(drop, (list, tuple)):
+                                TestSuite.reportError("The config of mob %s has an invalid drops entry. Each entry must be a list (a pair), but %s is a %s" % (m, drop, drop.__class__))
+                            elif len(drop) != 2:
+                                TestSuite.reportError("The config of mob %s has an invalid drops entry. Each entry must be a pair, but there is one with length %s." % (m, len(drop)))
+                            elif not isinstance(drop[0], basestring):
+                                TestSuite.reportError("The config of mob %s has an invalid drops entry. The first value of each entry must be a string, but there is one where the first value (%s) is a %s." % (m, drop[0], drop[0].__class__))
+                            elif drop[0] not in items:
+                                TestSuite.reportError("The config of mob %s has an invalid drops entry. The first value (%s) is an unknown item." % (m, drop[0]))
+                            elif isinstance(drop[1], list):
+                                if len(drop[1]) != 2:
+                                    TestSuite.reportError("The config of mob %s has an invalid drops entry. The second value of each entry must be a number (float or int), or a pair of ints, but there is one (%s) where the second value is a list, but not a pair (length != 2, but %s)." % (m, drop[0], len(drop[1])))                                    
+                                elif not (isinstance(drop[1][0], int) and isinstance(drop[1][1], int)):
+                                    TestSuite.reportError("The config of mob %s has an invalid drops entry. The second value of each entry must be a number (float or int), or a pair of ints, but there is one (%s) where the second value is a pair, but ints (%s and %s)." % (m, drop[0], drop[1][0].__class__, drop[1][1].__class__))                                    
+                            elif not isinstance(drop[1], (int, float)):
+                                TestSuite.reportError("The config of mob %s has an invalid drops entry. The second value of each entry must be a number (float or int), or a pair of ints, but there is one (%s) where the second value (%s) is a %s." % (m, drop[0], drop[1], drop[1].__class__))
+                    else:
+                        TestSuite.reportError("The config of mob %s has an invalid drops setting. It must be a list, but it's a %s" % (m, drops.__class__))                        
+
         @staticmethod
         def testTagDB():
             pass

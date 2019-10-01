@@ -253,7 +253,7 @@ label city_dark_forest_fight:
                 msg = "Hungry shapeshifters surprise you during your rest."
             else:
                 msg = "Hungry shapeshifters want a piece of you."
-            mob_ids = ["Werecat", "Werewolf", "Weregirl"]
+            mob_ids = ["Werewolf", "Werecat", "Undead Werecat"]
         elif mob == "harpy":
             if camping:
                 msg = "A flock of wild harpies disturb your rest."
@@ -271,7 +271,7 @@ label city_dark_forest_fight:
                 msg = "A bear wants to share your food."
             else:
                 msg = "You disturbed an angry bear."
-            mob_ids = ["Black Bear", "Bear", "Beargirl"]
+            mob_ids = ["Black Bear", "Bear"]
             et_len = 1
         elif mob == "druid":
             if camping:
@@ -307,7 +307,7 @@ label city_dark_forest_fight:
     $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
 
     if result is True:
-        $ give_to_mc_item_reward(["treasure", "restore"], tier=2)
+        $ give_to_mc_mob_reward(enemy_team)
         $ forest_bg_change = False
     elif result == "escape":
         scene black

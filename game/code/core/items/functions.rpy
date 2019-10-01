@@ -310,10 +310,33 @@ init -11 python:
                 iam.items_deny_equip_neutral(character)
         return False
 
+    def give_to_mc_mob_reward(mob_team):
+        result = get_mob_drops(mob_team)
+        for item, num in result.iteritems():
+            item = items[item]
+            gfx_overlay.random_find(item, 'item', num)
+            hero.inventory.append(item, num)
+
+    def get_mob_drops(mob_team):
+        result = {}
+        for m in mob_team:
+            drops = mobs[m.id]["drops"]
+            for drop in drops:
+                rng = drop[1]
+                if isinstance(rng, list):
+                    rng = randint(*rng)
+                elif dice(rng):
+                    rng = 1
+                else:
+                    continue
+                drop = drop[0]
+                result[drop] = result.get(drop, 0) + rng
+        return result
+
     def give_to_mc_item_reward(types, price=None, tier=None, locations=["Exploration"]):
         if tier is None:
             tier = hero.tier
-        item = get_item_drops(types=types, price=price, tier=tier, locations=locations)
+        item = get_item_drops(types, price, tier, locations, 1)
         if not item:
             return False
         item = item[0]

@@ -59,6 +59,11 @@
             "Claw Slash"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Claw", [0, 1]],
+            ["Hide", [0, 1]],
+            ["Bone", [0, 1]]
         ]
     },
     {
@@ -90,6 +95,12 @@
             "Bow Shot"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Long Bow", 5],
+            ["Leather Skull Cap", 5],
+            ["Hide", [0, 1]],
+            ["Bone", [0, 1]]
         ]
     },
     {
@@ -121,6 +132,10 @@
             "Blunt Strike"
         ],
         "magic_skills": ["Fire"
+        ],
+        "drops": [
+            ["Small Cane", 10],
+            ["Goblin Helmet", 5]
         ]
     },
     {
@@ -152,6 +167,14 @@
             "Axe Strike"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Stone Axe", 5],
+            ["Buckler", 5],
+            ["Goblin Helmet", 5],
+            ["Hide", [0, 2]],
+            ["Bone", [0, 2]],
+            ["Sinew", [0, 1]]
         ]
     },
     {
@@ -307,6 +330,9 @@
             "Bite"
         ],
         "magic_skills": ["Poison"
+        ],
+        "drops": [
+            ["Chitin", [0, 2]]
         ]
     },
     {
@@ -431,6 +457,14 @@
             "Bite"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Fang", [0, 2]],
+            ["Pelt", [0, 1]],
+            ["Hide", [0, 2]],
+            ["Claw", [0, 4]],
+            ["Bone", [0, 2]],
+            ["Sinew", [0, 2]]
         ]
     },
     {
@@ -462,6 +496,14 @@
             "Bite", "Power Pack"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Fang", [0, 2]],
+            ["Pelt", [0, 1]],
+            ["Hide", [0, 2]],
+            ["Claw", [0, 4]],
+            ["Bone", [0, 2]],
+            ["Sinew", [0, 2]]
         ]
     },
     {
@@ -555,6 +597,14 @@
             "Claw Slash", "Claw Slash 2X", "Bite", "Power Bear"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Fang", [0, 2]],
+            ["Pelt", [0, 2]],
+            ["Hide", [0, 3]],
+            ["Claw", [0, 4]],
+            ["Bone", [0, 2]],
+            ["Sinew", [0, 2]]
         ]
     },
     {
@@ -709,6 +759,9 @@
             "Fist Attack"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Weak base", [0,3]]
         ]
     },
     {
@@ -741,6 +794,9 @@
         ],
         "magic_skills": [
             "Water"
+        ],
+        "drops": [
+            ["Strong base", [0,3]]
         ]
     },
     {
@@ -805,6 +861,9 @@
         ],
         "magic_skills": [
             "Waterga", "Water"
+        ],
+        "drops": [
+            ["Acid", [0,3]]
         ]
     },
     {
@@ -933,6 +992,13 @@
             "Bite", "Poison"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Fang", [0, 1]],
+            ["Hide", [0, 3]],
+            ["Claw", [0, 2]],
+            ["Bone", [0, 2]],
+            ["Acid", [0, 1]]
         ]
     },
     {
@@ -964,6 +1030,10 @@
             "Sword Slash", "Sword Slash 2X"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Long Sword", 20],
+            ["Bone", [0, 6]]
         ]
     },
     {
@@ -995,6 +1065,10 @@
             "Blunt Strike", "Ground Shockwave"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Spiked Club", 20],
+            ["Bone", [0, 6]]
         ]
     },
     {
@@ -1739,6 +1813,10 @@
             "Claw Slash"
         ],
         "magic_skills": ["Aero", "Aerora", "Aery Field"
+        ],
+        "drops": [
+            ["Claw", [0, 6]],
+            ["Feather", [4, 16]]
         ]
     },
     {
@@ -1770,6 +1848,10 @@
             "Claw Slash", "Claw Slash 2X"
         ],
         "magic_skills": ["Aero", "Aerora", "Aeroga", "Aery Field", "Life Wind"
+        ],
+        "drops": [
+            ["Claw", [0, 6]],
+            ["Feather", [4, 16]]
         ]
     },
     {
@@ -1894,6 +1976,14 @@
             "Claw Slash", "Bite"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Fang", [0, 2]],
+            ["Pelt", [0, 4]],
+            ["Hide", [0, 3]],
+            ["Claw", [0, 4]],
+            ["Bone", [0, 2]],
+            ["Sinew", [0, 4]]
         ]
     },
     {
@@ -2111,6 +2201,14 @@
             "Claw Slash", "Claw Slash 2X", "Claw Slash 4X", "Power Bear"
         ],
         "magic_skills": [
+        ],
+        "drops": [
+            ["Fang", [0, 4]],
+            ["Pelt", [0, 4]],
+            ["Hide", [0, 4]],
+            ["Claw", [0, 6]],
+            ["Bone", [0, 6]],
+            ["Sinew", [0, 4]]
         ]
     },
     {
@@ -2514,6 +2612,13 @@
             "Claw Slash", "Bite", "Claw Slash 2X"
         ],
         "magic_skills": ["Dark"
+        ],
+        "drops": [
+            ["Pelt", [0, 3]],
+            ["Hide", [0, 3]],
+            ["Claw", [0, 4]],
+            ["Bone", [0, 2]],
+            ["Sinew", [0, 4]]
         ]
     },
     {
@@ -2638,6 +2743,13 @@
             "Claw Slash", "Bite", "Claw Slash 2X", "Claw Slash 4X"
         ],
         "magic_skills": ["Dark", "Darkra"
+        ],
+        "drops": [
+            ["Pelt", [0, 3]],
+            ["Hide", [0, 3]],
+            ["Claw", [0, 4]],
+            ["Bone", [0, 2]],
+            ["Sinew", [0, 4]]
         ]
     },
     {
@@ -2731,6 +2843,9 @@
             "Whip Strike"
         ],
         "magic_skills": ["Curer", "Stonera", "Stonega", "Solid Field"
+        ],
+        "drops": [
+            ["Hemp", [4, 16]]
         ]
     },
     {
@@ -2793,6 +2908,10 @@
             "Blunt Strike"
         ],
         "magic_skills": ["Waterga", "Stonega", "Aeroga", "Arcane Field"
+        ],
+        "drops": [
+            ["Arcane Staff", 30],
+            ["Mage Robe", 30]
         ]
     },
     {
