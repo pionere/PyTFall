@@ -1968,26 +1968,37 @@ init 1000 python:
                 devlog.warn("Expected reward from hideout: %s" % reward) # 235
 
             #  fight:
-            loots = []
-            for item in items.values():
-                if "Exploration" not in item.locations:
-                    continue
-                if item.tier > 2:
-                    continue
-                if item.type in ("treasure", "restore"):
-                    tmp = (item, item.chance)
-                    loots.append(tmp)
-
-            if not loots:
-                TestSuite.reportError("There is no reward after fighting in the forest!")
+            opps = {"slime": ["Alkaline Slime", "Slime", "Acid Slime"],
+                    "were": ["Werewolf", "Werecat", "Undead Werecat"], 
+                    "harpy": ["Harpy", "Vixen"],
+                    "goblin": ["Goblin", "Goblin Archer", "Goblin Warrior", "Goblin Shaman"],
+                    "wolf": ["Wolf", "Black Wolf"],
+                    "bear": ["Black Bear", "Bear"],
+                    "druid": ["Druid", "Wild Dryad"],
+                    "rat": ["Undead Rat"],
+                    "undead": ["Skeleton", "Skeleton Warrior"],
+                    "butterfly": ["Black Butterfly"]}
+            for key, opp in opps.items():
+                for idx, mob in enumerate(opp):
+                    drops = mobs[mob].get("drops", None)
+                    if drops is None:
+                        TestSuite.reportError("There is no drops set for %s!" % mob)
+                        continue
+                    value = 0
+                    for drop in drops:
+                        num = drop[1]
+                        if isinstance(num, list):
+                            num = (num[0] + num[1]) / 2.0
+                        else:
+                            num /= 100.0
+                        value += num * items[drop[0]].price
+                    opp[idx] = value
+                num = 1 if key == "bear" else 3
+                opps[key] = num * sum(opp) / float(len(opp))
 
             if debug:
-                total = value = 0
-                for item, chance in loot:
-                    total += chance
-                    value += item.price * chance
-                reward = value / float(total)
-                devlog.warn("Expected reward from a forest-fight: %s" % reward) # 160
+                reward = sum(opps.values()) / float(len(opps))
+                devlog.warn("Expected reward from a forest-fight: %s" % reward) # 775
 
             # PoolJob:
             if debug:
