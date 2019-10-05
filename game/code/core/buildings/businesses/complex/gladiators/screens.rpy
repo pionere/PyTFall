@@ -15,7 +15,7 @@ screen building_management_leftframe_gladiators_guild_mode:
                 label (u"Teams") text_size 23 text_color "ivory" align (.5, .8)
 
             viewport:
-                xysize 312, 600
+                xysize 320, 600
                 xalign .5 ypos 57
                 mousewheel True
                 has vbox xfill True spacing 16
@@ -25,13 +25,15 @@ screen building_management_leftframe_gladiators_guild_mode:
                         $ temp = None
                         $ color = "red"
                         $ tmp = im.MatrixColor(tmp, im.matrix.tint(.4, .4, .4))
+                        $ back = Frame("content/gfx/frame/h4.webp", 10, 10)
                     else:
                         $ temp = team
                         $ color = "orange"
+                        $ back = None
                     fixed:
-                        xysize 306, 150
+                        xysize 320, 150
                         frame:
-                            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
+                            background back
                             padding 2, 2
                             margin 0, 0
                             ypos 8
@@ -182,7 +184,7 @@ screen building_management_midframe_gladiators_guild_mode:
 
                     textbutton "Schedule":
                         style "basic_button"
-                        action Return(["guild", "schedule"])
+                        action Return(["guild", "schedule", None])
                         sensitive (selected_team is not None and guild.combat_type is not None)
                         tooltip "Schedule a match for the selected team with the selected type!" 
 

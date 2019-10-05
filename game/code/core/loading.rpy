@@ -472,6 +472,33 @@ init 11 python:
             mobs[mob["id"]] = mob
         return mobs
 
+    def load_crafting():
+        content = load_db_json("items", "data", "crafting.json")
+
+        for data in content:
+            # convert upgrades string to class
+            upgrades = data.get("upgrades", None)
+            if upgrades:
+                upgrades = [getattr(store, u) for u in upgrades]
+                data["upgrades"] = upgrades
+
+            # initialize mandatory fields
+            if "ap_cost" not in data:
+                data["ap_cost"] = 1
+
+            tier = data.get("tier", None)
+            tasks = data.get("tasks", None)
+            if tier is None:
+                if tasks is None:
+                    data["tier"] = 0
+                    data["tasks"] = [0]
+                else:
+                    data["tier"] = max(tasks)
+            elif tasks is None:
+                data["tasks"] = [tier]
+
+        return content
+
     def load_buildings():
         # Load 'static' data of the upgrades
         json_data = load_db_json("buildings", "upgrades.json")

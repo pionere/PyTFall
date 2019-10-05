@@ -155,7 +155,7 @@ init -1 python:
 
         - Reset is done by a separate function we bind to this class.
         """
-        def __init__(self, content, page_size=10):
+        def __init__(self, content, page_size, **default_filters):
             """
             content: the list of all chars
             container: If not None, we set this container to self.sorted every time we update. We expect a list with an object and a field to be used with setattr.
@@ -167,10 +167,11 @@ init -1 python:
             self.sorting_order = None
             self.sorting_desc = False
 
+            self.default_filters = default_filters
+
             self.clear()
 
         def clear(self):
-            self.pager_content = self.all_content
             self.status_filters = set()
             self.action_filters = set()
             self.class_filters = set()
@@ -178,6 +179,13 @@ init -1 python:
             self.location_filters = set()
             self.home_filters = set()
             self.work_filters = set()
+
+            for type, filters in self.default_filters.iteritems():
+                if not isinstance(filters, (list, tuple, set)):
+                    filters = [filters]
+                getattr(self, type).update(filters)
+
+            self.filter()
 
         def filter(self):
             filtered = self.all_content

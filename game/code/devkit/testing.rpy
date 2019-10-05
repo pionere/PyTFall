@@ -1108,6 +1108,9 @@ init 1000 python:
                         elif not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
                             TestSuite.reportError("Upgrade %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, b.name))
 
+                if not hasattr(b, "inventory") and any(bs.__class__ == WorkshopGuild for bs in b.allowed_businesses):
+                    TestSuite.reportError("A Workshop requires an inventory, but %s does not have one!" % b.name)
+
                 for bs in b.businesses:
                     if bs not in b.allowed_businesses:
                         TestSuite.reportError("Built-Business %s in Building %s is not allowed!" % (bs.name, b.name))
@@ -1807,6 +1810,13 @@ init 1000 python:
 
         # EG
 
+        # WG
+        @staticmethod
+        def loadWorkshopT2_4(op=False): # 22000
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Workshop", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Workshop": ["Laboratory"]}, workers=[("Maid", 1, CleaningJob), ("Warrior", 9, GuardJob)],
+                                   stats=["joy", "disposition", "agility", "attack", "intelligence", "crafting", "refinement"])
+
         @staticmethod
         def testMiniJobs(debug=False):
             # Fishing:
@@ -2241,7 +2251,7 @@ init 1000 python:
         def printGlobals():
             # "updater", "stored_random_seed" "style", , "anim" "build" "last_inv_filter", 
             temp = set(["gui", "updater", "icon", "ET", "re", "build", "preferences", "style", "layeredimage", "suppress_overlay", "_predict_set", "_cache_pin_set", "_kwargs", "_quit_slot", "_console", "_window_subtitle", "_test", "_m1_classic_load_save__scratch", "_m1_00accessibility__opendyslexic", "_m1_00gltest__dxwebsetup", "_m1_00stylepreferences__spdirty", "_m1_00stylepreferences__preferences", "_m1_00action_data__FieldNotFound", "_m1_00stylepreferences__alternatives", "nvl_list", "fnmatch", "renpy", "simpy", "pygame", "types", "_ignore_action", "anim", "_text_rect", "_side_image", "_side_image_attributes", "main_menu", "logging", "_window_during_transitions", "_rollback", "_begin_rollback", "_return", "store", "_gamepad", "_config", "random", "__file__", "default_transition", "_game_menu_screen", "scrap", "__doc__", "_last_say_who", "_last_say_args", "block_say", "im", "_history", "_in_replay", "sys", "_skipping", "_last_say_kwargs", "collections", "save_name", "_define", "_last_say_what", "_side_image_raw", "_window", "_month_name_long", "_preferences", "ui", "_last_voice_play", "time", "_weekday_name_short", "_side_image_attributes_reset", "last_label", "_version", "_side_image_old", "_confirm_quit", "_overlay_screens", "_history_list", "_warper", "config", "_voice", "math", "__builtins__", "_predict_screen", "_restart", "_args", "iap", "copy", "_nvl_language", "mouse_visible", "_weekday_name_long", "functools", "bisect", "_windows_hidden", "_widget_properties", "itertools", "json", "_dismiss_pause", "define", "_month_name_short", "__package__", "_errorhandling", "SCRAP_TEXT", "audio", "_widget_by_id", "nvl_variant", "_window_auto", "string", "_default_keymap", "library", "director", "inspect", "__name__", "_defaults_set", "print_function", "_load_prompt", "os", "_last_raw_what", "operator", "_menu", "persistent"])
-            temp.update(["NextDayEvents", "tl", "EQUIP_SLOTS", "hero", "items", "simple_jobs", "random_team_names", "pytfall", "main_menu", "tiered_items", "gen_occ_basetraits", "male_first_names", "rchars", "undefined", "gfx_overlay", "DEBUG", "DEBUG_SE", "DEBUG_CHARS", "DEBUG_AUTO_ITEM", "DSNBR", "DEBUG_BE", "DEBUG_SIMPY", "DEBUG_QE", "DEBUG_GUI", "DEBUG_PROFILING", "DEBUG_ND", "DEBUG_SIMPY_ND_BUILDING_REPORT", "DEBUG_INTERACTIONS", "DEBUG_LOG", "devlog", "chars", "ND_IMAGE_SIZE", "MOVIE_CHANNEL_COUNT", "tgs", "all_auto_buy_items", "result", "global_flags", "fighters", "mobs", "defeated_mobs", "fg_areas", "traits", "CLIENT_CASTES", "random_last_names", "tiered_magic_skills", "tiered_healing_skills", "iam", "female_first_names", "IMAGE_EXTENSIONS", "MOVIE_EXTENSIONS", "CONTENT_EXTENSIONS", "MUSIC_EXTENSIONS", "IMG_NOT_FOUND_PATH", "last_label", "chars_list_state", "menu_extensions", "last_label_pure", "gamedir", "day", "npcs", "dungeons", "tisa_otm_adv", "pyp", "gazette", "calendar", "tagslog", "tagdb", "DAILY_EXP_CORE", "DAILY_AFF_CORE", "NEXT_MOVIE_CHANNEL", "MAX_TIER", "_COLORS_", "battle_skills"])
+            temp.update(["NextDayEvents", "tl", "EQUIP_SLOTS", "hero", "items", "simple_jobs", "random_team_names", "pytfall", "main_menu", "tiered_items", "gen_occ_basetraits", "male_first_names", "rchars", "undefined", "gfx_overlay", "DEBUG", "DEBUG_SE", "DEBUG_CHARS", "DEBUG_AUTO_ITEM", "DSNBR", "DEBUG_BE", "DEBUG_SIMPY", "DEBUG_QE", "DEBUG_GUI", "DEBUG_PROFILING", "DEBUG_ND", "DEBUG_SIMPY_ND_BUILDING_REPORT", "DEBUG_INTERACTIONS", "DEBUG_LOG", "devlog", "chars", "ND_IMAGE_SIZE", "MOVIE_CHANNEL_COUNT", "tgs", "all_auto_buy_items", "result", "global_flags", "fighters", "mobs", "defeated_mobs", "crafting_recipes", "fg_areas", "traits", "CLIENT_CASTES", "random_last_names", "tiered_magic_skills", "tiered_healing_skills", "iam", "female_first_names", "IMAGE_EXTENSIONS", "MOVIE_EXTENSIONS", "CONTENT_EXTENSIONS", "MUSIC_EXTENSIONS", "IMG_NOT_FOUND_PATH", "last_label", "chars_list_state", "menu_extensions", "last_label_pure", "gamedir", "day", "npcs", "dungeons", "tisa_otm_adv", "pyp", "gazette", "calendar", "tagslog", "tagdb", "DAILY_EXP_CORE", "DAILY_AFF_CORE", "NEXT_MOVIE_CHANNEL", "MAX_TIER", "_COLORS_", "battle_skills"])
             temp.update(["index", "equipment_safe_mode", "girls", "interactions_portraits_overlay", "char", "special_save_number", "world_events", "world_quests", "world_gossips", "battle", "effect_descs"])
             devlog.warn("Current Vars: %s" % ", ".join(k for k in store.__dict__.keys() if k not in temp and not isclass(store.__dict__[k]) and not callable(store.__dict__[k])))
 

@@ -36,6 +36,11 @@ screen set_action_dropdown(char, pos=()):
                 action [Function(char.set_task, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Call your worker back from the Guild! The scheduled fights are not going to take place unless they are re-scheduled!"
+        elif temp == WorkshopTask:
+            textbutton "Back to Job":
+                action [Function(char.set_task, None),
+                        Hide("set_action_dropdown"), With(Dissolve(0.1))]
+                tooltip "Call your worker back from the Workshop! The scheduled tasks are not going to proceed unless they are re-scheduled!"
         elif temp in [RestTask, AutoRestTask]:
             $ jobs = char.get_valid_jobs()
             for i in jobs:

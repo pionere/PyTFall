@@ -54,3 +54,7 @@ init 5 python:
     class CartographyLab(CoreExtension):
         def __init__(self):
             super(CartographyLab, self).__init__()
+
+    class Laboratory(CoreExtension):
+        def __init__(self):
+            super(Laboratory, self).__init__()

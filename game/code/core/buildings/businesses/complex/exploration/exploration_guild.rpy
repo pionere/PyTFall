@@ -380,7 +380,7 @@ init -6 python: # Guild, Tracker and Log.
                             #tmp = "".join(["{color=pink}", char.name, "{/color} (", tmp, ")"])
                             tmp = "%s (%s)" % (set_font_color(char.name, "pink"), tmp)
                             temp.append(tmp)
-                        temp = "".join([", ".join(temp), " were" if len(temp) > 1 else " was", " affected."])
+                        temp = "".join([itemize(temp), " were" if len(temp) > 1 else " was", " affected."])
                     else:
                         temp = "Nobody was affected."
                     l.append("{color=yellow}Hazardous area!{/color} " + temp)
@@ -457,11 +457,7 @@ init -6 python: # Guild, Tracker and Log.
             _chars = [w for w in _chars if w not in idle_chars]
 
             # load gui elements
-            workers = CharsSortingForGui(_chars, page_size=18)
-            workers.occ_filters.add("Combatant")
-            workers.filter()
-            self.workers = workers
-
+            self.workers = CharsSortingForGui(_chars, 18, occ_filters="Combatant")
             self.guild_teams = PagerGui(_teams, page_size=9)
 
         def clear_gui(self):
@@ -476,7 +472,7 @@ init -6 python: # Guild, Tracker and Log.
             """
             Return whether the character is ready to be sent on an exploration run.
             """
-            return char.employer == hero and char.is_available
+            return char.employer is hero and char.is_available
 
         @staticmethod
         def dragged(drags, drop):
@@ -641,11 +637,11 @@ init -6 python: # Guild, Tracker and Log.
                             if dice(50):
                                 d.apply_trait(traits["Scars"])
                     if injured:
-                        temp = "The wounds of {color=red}%s{/color} were not fatal, but they require further medical care." % ", ".join([d.fullname for d in injured])
+                        temp = "The wounds of {color=red}%s{/color} were not fatal, but they require further medical care." % itemize([d.fullname for d in injured])
                         tracker.log(temp)
 
                     if died:
-                        temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in died])
+                        temp = "{color=red}%s{/color} did not make it through the night. RIP." % itemize([d.fullname for d in died])
                         tracker.log(temp)
 
                         # release captured chars
@@ -863,7 +859,7 @@ init -6 python: # Guild, Tracker and Log.
                             cl.extend(explorer.auto_consume(l, inv=c.inventory))
                         if cl:
                             temp = collections.Counter(cl)
-                            temp = ", ".join([alpha(i, a) for i, a in temp.items()])
+                            temp = itemize([alpha(i, a) for i, a in temp.items()])
                             temp = "%s used: {color=lawngreen}%s %s{/color} to recover!" % (explorer.nickname, temp, plural("item", len(cl)))
                             tracker.log(temp)
                     auto_equip_counter += 1
@@ -1341,7 +1337,7 @@ init -6 python: # Guild, Tracker and Log.
             # Effectiveness (Ability):
             build_power = max(1, tracker.get_team_ability())
 
-            name = team.name if len(teams) == 1 else ", ".join([t.name for t in teams])
+            name = itemize([t.gui_name for t in teams])
             temp = "The basecamp is being built by the %s: %s!" % (plural("team", len(teams)), name)
             tracker.log(temp)
 

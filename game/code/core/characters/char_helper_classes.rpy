@@ -223,12 +223,14 @@ init -10 python:
             return self._members[0].nickname if self.mem_count == 1 else self.name 
 
         def add(self, member):
-            self._members.append(member)
-            self.mem_count += 1
+            if member not in self._members:
+                self._members.append(member)
+                self.mem_count += 1
 
         def remove(self, member):
-            self._members.remove(member)
-            self.mem_count -= 1
+            if member in self._members:
+                self._members.remove(member)
+                self.mem_count -= 1
 
         #def set_leader(self, member):
         #    mems = self._members

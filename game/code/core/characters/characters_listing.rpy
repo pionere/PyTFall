@@ -6,7 +6,7 @@ init:
 
         class CharsListState(CharsSortingForGui):
             def __init__(self):
-                super(CharsListState, self).__init__(hero.chars, page_size=10)
+                super(CharsListState, self).__init__(hero.chars, 10)
 
                 self.all_status_filters = None
                 #self.all_location_filters = None
@@ -21,8 +21,7 @@ init:
             def refresh(self):
                 # update the chars list only if no filter was selected
                 if not self.selected_filters:
-                    self.all_content = hero.chars
-                    self.filter()
+                    self.clear()
                 # prepare the filters
                 self.update_filter_sets()
                 # remove selected chars which are no longer available
@@ -54,8 +53,6 @@ init:
                 self.update_filter_sets()
 
                 self.clear()
-                self.all_content = hero.chars
-                self.filter()
 
             def toggleChosenMembership(self, chars):
                 chars = set(chars)

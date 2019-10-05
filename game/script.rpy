@@ -9,6 +9,8 @@ init 100 python:
     mobs = load_mobs()
     tl.end("Loading: Mobs")
 
+    crafting_recipes = load_crafting()
+
     School.load_courses()
 
     Arena.load_chainfights()
@@ -787,6 +789,8 @@ label after_load:
             clearCharacters = True
         if "riding" not in hero.stats.skills:
             clearCharacters = True
+        if "crafting" not in hero.stats.skills:
+            clearCharacters = True
         if not hasattr(hero.stats, "imin"):
             clearCharacters = True
         if hero.front_row.__class__ != int:
@@ -1279,6 +1283,9 @@ label after_load:
                 if "riding" not in char.stats.skills:
                     char.stats.skills["riding"] = [0, 0]
                     char.stats.skills_multipliers["riding"] = [1, 1, 1]
+                if "crafting" not in char.stats.skills:
+                    char.stats.skills["crafting"] = [0, 0]
+                    char.stats.skills_multipliers["crafting"] = [1, 1, 1]
                 if not hasattr(char.stats, "imin"):
                     char.stats.imin = dict()
                     char.stats.imax = dict()
@@ -1583,9 +1590,11 @@ label after_load:
                 pytfall.afterlife.add_inhabitant(char)
 
     python hide:
-        if getattr(store, "chars_list_state", None):
+        if hasattr(store, "chars_list_state"):
             if not hasattr(store.chars_list_state, "sorting_desc"):
                 store.chars_list_state.sorting_desc = True
+            if not hasattr(store.chars_list_state, "default_filters"):
+                store.chars_list_state.default_filters = {}
 
         if hasattr(store, "NextDayEvents") and not isinstance(store.NextDayEvents, NextDayStats):
             nds = NextDayStats()

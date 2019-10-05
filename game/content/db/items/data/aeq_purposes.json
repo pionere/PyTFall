@@ -100,7 +100,7 @@
     {
      "id": "Service",
      "target_stats": {"agility": 25, "constitution": 50, "vitality":10, "luck":1, "exp":0.1},
-     "target_skills": {"service":50, "cleaning":100},
+     "target_skills": {"service": 50, "cleaning": 100},
      "base_purpose": ["Cleaning", "Service", "Any"],
      "fighting": false,
      "traits": ["Maid", "Cleaner"]
@@ -108,14 +108,21 @@
     {
      "id": "Wrangler",
      "target_stats": {"agility": 50, "constitution": 50, "vitality":10, "luck":1, "exp":0.1},
-     "target_skills": {"service":50, "riding":100},
+     "target_skills": {"service": 50, "riding": 100},
      "base_purpose": ["Service", "Any"],
      "fighting": false
     },
     {
      "id": "Nurse",
      "target_stats": {"intelligence": 80, "magic": 60, "charisma": 20, "agility": 20, "constitution": 10, "vitality":10, "luck":1, "exp":0.1},
-     "target_skills": {"service":20, "refinement":10},
+     "target_skills": {"service": 20, "refinement": 10},
+     "base_purpose": ["Service", "Any"],
+     "fighting": false
+    },
+    {
+     "id": "Crafting",
+     "target_stats": {"attack": 40, "agility": 40, "intelligence": 20, "vitality": 10, "luck": 1, "exp": 0.1},
+     "target_skills": {"crafting": 30, "refinement": 10},
      "base_purpose": ["Service", "Any"],
      "fighting": false
     }

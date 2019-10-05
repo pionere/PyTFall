@@ -9,7 +9,7 @@ init -9 python:
                       "refinement", "group", "bdsm", "dancing",
                       "bartending", "cleaning", "waiting", "management",
                       "exploration", "teaching", "swimming", "fishing",
-                      "security", "riding"}
+                      "security", "riding", "crafting"}
         GEN_OCCS = ["SIW", "Combatant", "Server", "Specialist"]
         SLAVE_GEN_OCCS = ["SIW", "Server"]
         STATUS = ["slave", "free"]
@@ -2301,7 +2301,7 @@ init -9 python:
             """
             # We do not want workers in school to AutoRest,
             # Idea is that the school, gladiator guild are taking care of this.
-            if self._task in (StudyingTask, GladiatorTask):
+            if self._task in (StudyingTask, GladiatorTask, WorkshopTask):
                 return True
 
             if self.get_stat("health") < self.get_max("health")/4:

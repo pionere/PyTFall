@@ -25,10 +25,11 @@ init python:
                     e[i] = {"count": 0, "red_flag": 0, "green_flag": 0}
 
                 # Actions/Rest first:
-                if setup == "ALL":
-                    container = hero.chars
-                else:
-                    container = [c for c in hero.chars if setup == c.workplace]
+                events = self.event_list
+                container = hero.chars
+                if setup != "ALL":
+                    container = [c for c in container if setup == c.workplace]
+                    events = [c for c in events if c.loc == setup]
 
                 for char in container:
                     action = char.action
@@ -43,10 +44,14 @@ init python:
                         r[cat] += 1
                     
                     # Events:
-                    for event in self.event_list:
-                        if setup != "ALL" and event.loc != setup:
-                            continue
-                        if event.char == char:
+                    for event in events:
+                        ec = event.char
+                        if ec is None:
+                            ec = event.team
+                            if not ec:
+                                continue
+                            ec = next(iter(ec))
+                        if ec == char:
                             e[cat]["count"] += 1
                             if event.red_flag:
                                 e[cat]["red_flag"] += 1
@@ -240,7 +245,7 @@ label next_day_controls:
                     FilteredList = [e for e in FilteredList if e.type == 'explorationndreport']
                 elif filter == 'building':
                     building = result[2]
-                    order = {"buildingreport": 1, "manager_report": 2, "gladiatorsndreport": 3, "explorationndreport": 4, "jobreport": 5, "taskreport": 6}
+                    order = {"buildingreport": 1, "manager_report": 2, "gladiatorsndreport": 3, "explorationndreport": 4, "workshopndreport": 5, "jobreport": 6, "taskreport": 7}
                     FilteredList = sorted([e for e in FilteredList if e.loc == building and e.type in order], key=lambda e: order[e.type])
                 elif filter == "fighters_guild":
                     order = {"fg_report": 1, "exploration_report": 2, "fg_job": 3}

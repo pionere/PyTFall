@@ -46,7 +46,7 @@ init -6 python: # Guild, Tracker and Log.
             # gui
             self.view_mode = "team"   # the selected tab
             #  team screen
-            self.selected_team = None # 
+            #self.selected_team initialized later 
             #self.workers initialized later
             #self.guild_teams initialized later
             #  arena screen
@@ -67,7 +67,7 @@ init -6 python: # Guild, Tracker and Log.
             self.team_charmod = dict()
             
         def can_close(self):
-            return any((e.type == "matchfight" and e.result is None for e in self.events))
+            return not any((e.type == "matchfight" and e.result is None) for e in self.events)
 
         def idle_teams(self):
             active_teams = [t for t in chain(*[(e.team, e.opponent) for e in self.events if e.result is None or e.repeat is True])]
@@ -86,14 +86,11 @@ init -6 python: # Guild, Tracker and Log.
             _teams = self.idle_teams()
 
             # load gui elements
-            workers = CharsSortingForGui(_chars, page_size=18)
-            workers.occ_filters.add("Combatant")
-            workers.filter()
-            self.workers = workers
-
+            self.workers = CharsSortingForGui(_chars, 18, occ_filters="Combatant")
             self.guild_teams = PagerGui(_teams, page_size=9)
             self.gui_events = PagerGui(self.events[:], page_size=8)
 
+            self.selected_team = None
             self.selected_log_entry = None
 
         def clear_gui(self):
@@ -109,38 +106,42 @@ init -6 python: # Guild, Tracker and Log.
             gt.pager_content = self.idle_teams()
             gt.page = min(gt.page, gt.max_page())
 
-        def update_fighters(self, chars, new_event):
+        @staticmethod
+        def assign_workers(chars):
             """
-            Update gladiators (chars) in case a new event is added, or an event is removed
-            :param chars: the affected gladiators
-            :param new_fighters: set to True if a new event was created 
+            Assign gladiators (chars) in case a new event is added.
+            Report the error if at least one is unavailable.
+            :param chars: the characters to assign
             """
-            if new_event:
-                msg = None
-                for f in chars:
-                    if not f.is_available:
-                        if msg is None:
-                            msg = "%s is currently unavailable!" % f.name
-                        else:
-                            msg = "Some of the team members are currently unavailable!"
-                        continue
-                    f.set_task(GladiatorTask)
-                if msg is not None:
-                    PyTGFX.message(msg) # continue anyway, this is just a warning for the moment
-            else:
-                # remove task if there are no other matches for the fighters
-                fighters = [f for e in self.events if e.result is None or e.repeat is True for f in e.guild_chars()]
+            msg = None
+            for c in chars:
+                if not c.is_available:
+                    if msg is None:
+                        msg = "%s is currently unavailable!" % c.name
+                    else:
+                        msg = "Some of the team members are currently unavailable!"
+                    continue
+                c.set_task(GladiatorTask)
+            if msg is not None:
+                PyTGFX.message(msg) # continue anyway, this is just a warning for the moment
 
-                for f in chars:
-                    if f not in fighters and f.task == GladiatorTask:
-                        f.set_task(None)
+        def unassign_workers(self, chars):
+            """
+            Unassign gladiators (chars) in case an event is removed.
+            :param chars: the characters to consider
+            """
+            all_chars = [f for e in self.events if e.result is None or e.repeat is True for f in e.guild_chars()]
+
+            for c in chars:
+                if c not in all_chars and c.task == GladiatorTask:
+                    c.set_task(None)
 
         @staticmethod
         def battle_ready(char):
             """
             Return whether the character is available in the guild.
             """
-            return char.employer == hero and char.is_available
+            return char.employer is hero and char.is_available
 
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
@@ -249,7 +250,7 @@ init -6 python: # Guild, Tracker and Log.
             ge.page = ge.max_page()
 
             if type != "matchfight" or fday == day:
-                self.update_fighters(event.guild_chars(), True)
+                self.reschedule_event(event)
             self.update_teams()
 
         # Fighting
@@ -419,7 +420,7 @@ init -6 python: # Guild, Tracker and Log.
             self.nd_team.update(guild_chars)
             
             if gui:
-                self.update_fighters(guild_chars, False)
+                self.unassign_workers(guild_chars)
                 self.update_teams()
 
         def watch_event(self, e):
@@ -452,11 +453,15 @@ init -6 python: # Guild, Tracker and Log.
             jump("building_management")
 
         def reschedule_event(self, e):
-            self.update_fighters(e.guild_chars(), True)
+            self.assign_workers(e.guild_chars())
 
         def toggle_repeat(self, e):
-            e.repeat = not e.repeat
-            self.update_fighters(e.guild_chars(), e.repeat)
+            if e.repeat:
+                e.repeat = False
+                self.unassign_workers(e.guild_chars())
+            else:
+                e.repeat = True
+                self.assign_workers(e.guild_chars())
             self.update_teams()
 
         def remove_event(self, e):
@@ -465,7 +470,7 @@ init -6 python: # Guild, Tracker and Log.
             ge.pager_content.remove(e)
             ge.page = min(ge.page, ge.max_page())
 
-            self.update_fighters(e.guild_chars(), False)
+            self.unassign_workers(e.guild_chars())
             self.update_teams()
 
         # Log-Navigation:
@@ -516,7 +521,7 @@ init -6 python: # Guild, Tracker and Log.
                 e.result = None
 
             # release chars FIXME ND of the chars might complain about missing assignment, etc..?
-            self.update_fighters(self.nd_team, False)
+            self.unassign_workers(self.nd_team)
 
             yield self.env.timeout(105) # FIXME MAX_DU
 
@@ -589,7 +594,7 @@ init -6 python: # Guild, Tracker and Log.
             # Prepare the event
             evt = NDEvent(type='gladiatorsndreport',
                           img=img,
-                          txt=self.logs,
+                          txt=txt,
                           team=self.nd_team,
                           charmod=self.team_charmod,
                           loc=building,

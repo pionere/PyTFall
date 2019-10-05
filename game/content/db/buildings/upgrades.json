@@ -145,5 +145,17 @@
         "ex_slots": 0,
 
         "duration": [10, 10]
+    },
+    {
+        "name": "Laboratory",
+        "class": "Laboratory",
+        "img": "content/buildings/upgrades/lab_s.webp",
+        "materials": {"Glass": 50, "Stone": 10, "Wood": 20, "Steel": 5},
+        "desc": "Specialized equipment to work with liquids in the Workshop.",
+        "cost": 5000,
+        "in_slots": 2,
+        "ex_slots": 0,
+
+        "duration": [6, 0]
     }
 ]

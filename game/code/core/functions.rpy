@@ -209,6 +209,12 @@ init -11 python:
             amount = str(amount)
         return " ".join((amount, result))
 
+    def itemize(items):
+        num = len(items) - 1
+        if num == 0:
+            return items[0]
+        return ", ".join(items[:num]) + " and " + items[num]
+
     def aoran(string, *overrides):
         """
         Returns "a" or "an" depending on if string begins with a vowel.

@@ -75,7 +75,7 @@
         "name": "Strip Club",
         "class": "StripClub",
         "desc": "Allows to use strippers to make customers hornier and get occasional tips",
-        "img": "content/buildings/upgrades/strip_club_S.webp",
+        "img": "content/buildings/upgrades/strip_club_s.webp",
         "materials": {"Wood": 30, "Bricks": 50, "Glass": 10},
 
         "capacity": 2,
@@ -195,5 +195,28 @@
         "exp_cap_materials": {"Bricks": 20, "Silk": 10, "Velvet": 10},
 
         "exp_cap_duration": [2, 10]
+    },
+    {
+        "name": "Workshop",
+        "class": "WorkshopGuild",
+        "desc": "Craft items and potions.",
+        "img": "content/buildings/upgrades/workshop_s.webp",
+        "materials": {"Wood": 30, "Glass": 20, "Bricks": 20, "Steel": 10},
+
+        "capacity": 2,
+        "cost": 800,
+        "in_slots": 0,
+        "ex_slots": 0,
+
+        "duration": [8, 20],
+
+        "exp_cap_in_slots": 1,
+        "exp_cap_ex_slots": 0,
+        "exp_cap_cost": 800,
+        "exp_cap_materials": {"Wood": 20, "Glass": 10, "Bricks": 10},
+
+        "exp_cap_duration": [3, 20],
+
+        "allowed_upgrades": ["Laboratory"]
     }
 ]

@@ -141,7 +141,7 @@ init -5 python:
             if xlen != 0:
                 temp = "Dirt overwhelmed your building so extra staff was called to clean it! "
                 if xlen > 1:
-                    temp += "%s were pulled off their duties to help out..." % (", ".join([w.nickname for w in extra_workers]))
+                    temp += "%s were pulled off their duties to help out..." % (itemize([w.nickname for w in extra_workers]))
                 else:
                     w = next(iter(extra_workers))
                     temp += "%s was pulled off %s duty to help out..." % (w.nickname, w.pd)
@@ -152,7 +152,7 @@ init -5 python:
             xlen = wlen - xlen
             if xlen != 0:
                 if xlen > 1:
-                    temp = "%s worked hard keeping your business clean as it is their direct job!" % (", ".join([w.nickname for w in workers]))
+                    temp = "%s worked hard keeping your business clean as it is their direct job!" % (itemize([w.nickname for w in workers]))
                 else:
                     w = next(iter(workers))
                     temp = "%s worked hard keeping your business clean as it is %s direct job!" % (w.nickname, w.pd)

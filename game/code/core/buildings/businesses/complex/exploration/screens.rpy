@@ -849,10 +849,16 @@ screen building_management_leftframe_teambuilder:
             xalign .5
             textbutton "Reset":
                 xsize 296
-                action [Function(workers.occ_filters.add, "Combatant"), Function(workers.action_filters.discard, None), Function(workers.filter)]
-            textbutton "Warriors":
+                action Function(workers.clear)
+            textbutton "Combatants":
                 xsize 296
                 action ModFilterSet(workers, "occ_filters", "Combatant")
+            textbutton "Servers":
+                xsize 296
+                action ModFilterSet(workers, "occ_filters", "Server")
+            textbutton "SIW":
+                xsize 296
+                action ModFilterSet(workers, "occ_filters", "SIW")
             textbutton "Idle":
                 xsize 296
                 action ModFilterSet(workers, "action_filters", None)
@@ -1256,7 +1262,7 @@ screen transfer_team(team, guild):
     zorder 1
     modal True
 
-    default buildings = OrderedDict([(b, guilds) for b, guilds in [(b, [u for u in b.businesses if u.__class__ == ExplorationGuild]) for b in hero.buildings] if guilds])
+    default buildings = OrderedDict([(b, guilds) for b, guilds in [(b, [u for u in b.businesses if u.__class__ in [ExplorationGuild, GladiatorsGuild, WorkshopGuild]]) for b in hero.buildings] if guilds])
     default result = None
     python:
         if result is None:

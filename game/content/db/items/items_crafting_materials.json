@@ -102,5 +102,85 @@
     "price": 160,
     "slot": "resources",
     "type": "crafting"
+    },
+    {
+    "id": "Mercury",
+    "desc": "A heavy, metallic chemical element which is liquid at standard conditions.",
+    "icon": "content/items/crafting_materials/mercury.webp",
+    "price": 80,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Tannin",
+    "desc": "A polyphenolic compound which binds to proteins, amino acids and alkaloids.",
+    "icon": "content/items/crafting_materials/tannin.webp",
+    "price": 80,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Soft Glue",
+    "desc": "Adhesive created from animal connective tissue. Also called animal glue.",
+    "icon": "content/items/crafting_materials/soft_glue.webp",
+    "price": 30,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Hard Glue",
+    "desc": "Stronger adhesive mainly created from animal tissue.",
+    "icon": "content/items/crafting_materials/hard_glue.webp",
+    "price": 45,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Gelatin",
+    "desc": "A translucent, colorless, flavorless food ingredient, derived from collagen taken from animal body parts.",
+    "icon": "content/items/crafting_materials/gelatin.webp",
+    "price": 35,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Felt",
+    "desc": "Textile material that is produced by matting, condensing and pressing fibers together.",
+    "icon": "content/items/crafting_materials/felt.webp",
+    "price": 120,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Full Grain Leather",
+    "desc": "The best quality leather one can get.",
+    "icon": "content/items/crafting_materials/full_grain_leather.webp",
+    "price": 240,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Top Grain Leather",
+    "desc": "The top layer of the hide was minimally altered, but otherwise a perfect leather.",
+    "icon": "content/items/crafting_materials/top_grain_leather.webp",
+    "price": 160,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Genuine Leather",
+    "desc": "Heavily modified/repaired leather. At least it is still leather...",
+    "icon": "content/items/crafting_materials/genuine_leather.webp",
+    "price": 120,
+    "slot": "resources",
+    "type": "crafting"
+    },
+    {
+    "id": "Bonded Leather",
+    "desc": "Any scraps of leather glued together with chemical adhesives.",
+    "icon": "content/items/crafting_materials/bonded_leather.webp",
+    "price": 80,
+    "slot": "resources",
+    "type": "crafting"
     }
 ]
