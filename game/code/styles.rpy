@@ -405,7 +405,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         color "black"
 
     # Style used for Stats.
-    style base_stats_frame: # This one is presently used in the equipment screen. It overrides silly theme settings to allow for a better positioning and more convinient use.
+    style base_stats_frame: # This one is presently used in the equipment screen. It overrides silly theme settings to allow for a better positioning and more convenient use.
         left_padding 9
         right_padding 11
         top_padding 4
@@ -545,6 +545,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         size 20
         drop_shadow [(1, 1)]
         color "azure"
+        insensitive_color gray
 
     # Used mainly as Next Day Button
     style main_screen_4_button:
